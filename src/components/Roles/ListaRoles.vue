@@ -2,7 +2,7 @@
   <v-layout align-start>
     <v-flex>
       <v-toolbar flat color="info" dark>
-        <v-toolbar-title>Roles</v-toolbar-title>
+        <v-toolbar-title>Perfiles</v-toolbar-title>
         <v-divider class="mx-2" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field
@@ -69,7 +69,7 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Nombre", value: "nombre" },
+        { text: "Perfil", value: "nombre" },
         { text: "Descripción", value: "descripcion", sortable: false },
         { text: "Estado", value: "activo" }
       ],
