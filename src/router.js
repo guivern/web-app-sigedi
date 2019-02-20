@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
+import Usuario from './components/Usuarios/Usuario.vue'
 import ListaRoles from './components/Roles/ListaRoles.vue'
 
 Vue.use(Router);
@@ -18,7 +18,7 @@ var router = new Router({
     {
       path: "/usuarios",
       name: "usuarios",
-      component: ListaUsuario,
+      component: Usuario,
       meta: {libre: true}
     },
     {
