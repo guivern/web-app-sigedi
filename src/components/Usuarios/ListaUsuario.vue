@@ -50,10 +50,10 @@
           </div>
           <div v-else-if="getError" class="text-xs-center">
             <v-alert
+              outline
               :value="getError"
               transition="scale-transition"
               type="error"
-              outline
             >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
             <v-btn color="info" title="recargar" @click="listar()">Reintentar
               <v-icon small>refresh</v-icon>
@@ -82,6 +82,7 @@
       </v-dialog>
     </v-flex>
     <v-btn
+      v-if="!getError"
       fixed
       dark
       fab
@@ -141,12 +142,12 @@ export default {
   methods: {
     listar() {
       this.cargando = true;
-      this.getError = false;
       this.$http
         .get(`${process.env.VUE_APP_ROOT_API}usuarios?Inactivos=true`)
         .then(response => {
           this.usuarios = response.data;
           this.cargando = false;
+          this.getError = false;
         })
         .catch(error => {
           console.log(error);
@@ -171,7 +172,7 @@ export default {
       this.activarDesactivarDialog.item = item;
       this.activarDesactivarDialog.mostrar = true;
     },
-    cerrarDialogActivarDesactivar(){
+    cerrarDialogActivarDesactivar() {
       this.activarDesactivarDialog.mostrar = false;
     },
     activarDesactivar() {
@@ -182,7 +183,7 @@ export default {
           }/${this.activarDesactivarDialog.item.id}`
         )
         .then(() => {
-          this.usuarios.map( u => {
+          this.usuarios.map(u => {
             if (u.id == this.activarDesactivarDialog.item.id) {
               u.activo = !u.activo;
             }
@@ -196,7 +197,7 @@ export default {
           this.snackbar.visible = true;
           this.cerrarDialogActivarDesactivar();
         });
-    },
+    }
   },
   computed: {},
   watch: {},

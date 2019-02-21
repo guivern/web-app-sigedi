@@ -209,7 +209,7 @@ export default {
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push('.');
-            }, 1000);
+            }, 2000);
           })
           .catch(error => {
             this.guardando = false;
@@ -251,7 +251,7 @@ export default {
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push('.');
-            }, 1000);
+            }, 2000);
           })
           .catch(error => {
             this.guardando = false;
