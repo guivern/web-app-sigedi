@@ -22,20 +22,20 @@
                 <v-list-tile-title>Accesos</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile :to="{name: 'roles'}">
+            <v-list-tile :to="'/usuarios'">
               <v-list-tile-action>
-                <v-icon>table_chart</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Roles</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile :to="{name: 'usuarios'}">
-              <v-list-tile-action>
-                <v-icon>table_chart</v-icon>
+                <v-icon>supervisor_account</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Usuarios</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="{name: 'roles'}">
+              <v-list-tile-action>
+                <v-icon>security</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Perfiles</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list-group>
