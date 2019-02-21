@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import Usuario from './components/Usuarios/Usuario.vue'
+import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
 import ListaRoles from './components/Roles/ListaRoles.vue'
+import FormUsuario from './components/Usuarios/FormUsuario.vue'
 
 Vue.use(Router);
 
@@ -17,9 +18,31 @@ var router = new Router({
     },
     {
       path: "/usuarios",
-      name: "usuarios",
-      component: Usuario,
-      meta: {libre: true}
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaUsuario,
+          meta: { libre: true }
+        },
+        {
+          path: "nuevo",
+          component: FormUsuario,
+          meta: { libre: true },
+        },
+        {
+          path: ":id",
+          component: FormUsuario,
+          props: route => ({
+            id: parseInt(route.params.id),
+          }),
+          meta: { libre: true }
+        }
+      ]
     },
     {
       path: "/roles",
