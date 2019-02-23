@@ -2,7 +2,7 @@
   <v-layout align-start>
     <v-flex>
       <v-toolbar flat color="info" dark>
-        <v-toolbar-title>Perfiles</v-toolbar-title>
+        <v-toolbar-title  class="headline font-weight-regular">Perfiles</v-toolbar-title>
         <v-divider class="mx-2" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-text-field

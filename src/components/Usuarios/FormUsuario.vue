@@ -3,7 +3,7 @@
     <v-flex>
       <v-card>
         <v-toolbar color="info" dark flat>
-          <v-toolbar-title>
+          <v-toolbar-title class="headline font-weight-regular">
             <v-btn icon @click="$router.push('.')" type="button">
               <v-icon>arrow_back</v-icon>
             </v-btn>
@@ -30,7 +30,7 @@
             <v-card-text v-on:keyup.enter="guardar">
               <v-container grid-list-md>
                 <v-layout wrap>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
                       v-model="usuario.username"
@@ -38,7 +38,7 @@
                       :error-messages="mensajeValidacion['Username']"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-select
                       class="mx-3"
                       v-model="usuario.idRol"
@@ -50,7 +50,7 @@
                       :error-messages="mensajeValidacion['IdRol']"
                     ></v-select>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
                       v-model="usuario.nombre"
@@ -58,7 +58,7 @@
                       :error-messages="mensajeValidacion['Nombre']"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
                       v-model="usuario.apellido"
@@ -66,7 +66,7 @@
                       :error-messages="mensajeValidacion['Apellido']"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
                       type="password"
@@ -76,7 +76,7 @@
                       :error-messages="mensajeValidacion['Password1']"
                     ></v-text-field>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
                       prepend-icon="lock"
