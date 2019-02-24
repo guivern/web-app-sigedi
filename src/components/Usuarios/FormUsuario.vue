@@ -203,7 +203,7 @@ export default {
           )
           .then(response => {
             this.guardando = false;
-            this.snackbar.color = "success";
+            this.snackbar.color = "info";
             this.snackbar.message = "Actualización exitosa";
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
@@ -245,7 +245,7 @@ export default {
           .then(response => {
             this.guardando = false;
             this.guardando = false;
-            this.snackbar.color = "success";
+            this.snackbar.color = "info";
             this.snackbar.message = "Registro exitoso";
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
