@@ -2,7 +2,7 @@
   <v-layout align-start justify-center>
     <v-flex xs12 sm8 md6 lg4 x14>
       <v-card>
-        <v-toolbar dark color="primary" flat>
+        <v-toolbar dark color="info" flat>
           <v-toolbar-title>Acceso al sistema</v-toolbar-title>
         </v-toolbar>
         <v-card-text v-on:keyup.enter="ingresar">
@@ -24,7 +24,7 @@
         </v-card-text>
         <v-card-actions class="mx-4 pb-5">
           <v-flex text-xs-center>
-            <v-btn block color="primary" :loading="cargando" @click="ingresar">Ingresar</v-btn>
+            <v-btn block color="success" :loading="cargando" @click="ingresar">Ingresar</v-btn>
           </v-flex>
         </v-card-actions>
       </v-card>

@@ -2,7 +2,7 @@
   <v-layout align-start>
     <v-flex>
       <v-card>
-        <v-toolbar flat color="primary" dark>
+        <v-toolbar flat color="info" dark>
           <v-toolbar-title class="headline font-weight-regular">Usuarios</v-toolbar-title>
           <v-divider class="mx-2" inset vertical></v-divider>
           <v-spacer></v-spacer>
@@ -31,7 +31,7 @@
               <v-icon @click="$router.push({path: '/usuarios/' + props.item.id, append: true})">edit</v-icon>
               <template v-if="props.item.activo">
                 <v-icon
-                  color="primary"
+                  color="info"
                   @click="mostrarDialogActivarDesactivar(props.item)"
                 >toggle_off</v-icon>
               </template>
@@ -59,7 +59,7 @@
                 transition="scale-transition"
                 type="error"
               >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-              <v-btn color="primary" title="recargar" @click="listar()">Reintentar
+              <v-btn color="info" title="recargar" @click="listar()">Reintentar
                 <v-icon small>refresh</v-icon>
               </v-btn>
             </div>
@@ -81,7 +81,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn flat color="error" @click="cerrarDialogActivarDesactivar()">Cancelar</v-btn>
-            <v-btn flat color="primary" @click="activarDesactivar()">Confirmar</v-btn>
+            <v-btn flat color="info" @click="activarDesactivar()">Confirmar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -95,7 +95,7 @@
       right
       type="button"
       title="Nuevo"
-      color="primary"
+      color="success"
       @click="$router.push({path: 'nuevo', append: true})"
     >
       <v-icon>add</v-icon>

@@ -2,7 +2,7 @@
   <v-layout>
     <v-flex>
       <v-card>
-        <v-toolbar color="primary" dark flat>
+        <v-toolbar color="info" dark flat>
           <v-toolbar-title class="headline font-weight-regular">
             <v-btn icon @click="$router.push('.')" type="button">
               <v-icon>arrow_back</v-icon>
@@ -21,7 +21,7 @@
             type="error"
             outline
           >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-          <v-btn color="primary" title="recargar" @click="recargar()">Reintentar
+          <v-btn color="info" title="recargar" @click="recargar()">Reintentar
             <v-icon small>refresh</v-icon>
           </v-btn>
         </div>
@@ -104,7 +104,7 @@
             right
             type="button"
             title="Guardar"
-            color="primary"
+            color="success"
             @click="guardar"
             :loading="guardando"
           >
