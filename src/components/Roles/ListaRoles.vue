@@ -1,54 +1,55 @@
 <template>
   <v-layout align-start>
     <v-flex>
-      <v-toolbar flat color="primary" dark>
-        <v-toolbar-title  class="headline font-weight-regular">Perfiles</v-toolbar-title>
-        <v-divider class="mx-2" inset vertical></v-divider>
-        <v-spacer></v-spacer>
-        <v-text-field
-          class="text-xs-center"
-          v-model="search"
-          append-icon="search"
-          label="Búsqueda"
-          single-line
-          hide-details
-        ></v-text-field>
-        <v-spacer></v-spacer>
-        
-      </v-toolbar>
-      <v-data-table
-        :headers="headers"
-        :items="roles"
-        class="elevation-1"
-        :search="search"
-        :loading="cargando"
-      >
-        <template slot="items" slot-scope="props">
-          <td>{{ props.item.nombre }}</td>
-          <td>{{ props.item.descripcion }}</td>
-          <td
-            :class="{'indigo--text':props.item.activo, 'blue-grey--text':!props.item.activo}"
-          >{{ props.item.activo ? 'Activo' : 'Inactivo' }}</td>
-        </template>
+      <v-card>
+        <v-toolbar flat color="primary" dark>
+          <v-toolbar-title class="headline font-weight-regular">Perfiles</v-toolbar-title>
+          <v-divider class="mx-2" inset vertical></v-divider>
+          <v-spacer></v-spacer>
+          <v-text-field
+            class="text-xs-center"
+            v-model="search"
+            append-icon="search"
+            label="Búsqueda"
+            single-line
+            hide-details
+          ></v-text-field>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-data-table
+          :headers="headers"
+          :items="roles"
+          class="elevation-1"
+          :search="search"
+          :loading="cargando"
+        >
+          <template slot="items" slot-scope="props">
+            <td>{{ props.item.nombre }}</td>
+            <td>{{ props.item.descripcion }}</td>
+            <td
+              :class="{'indigo--text':props.item.activo, 'blue-grey--text':!props.item.activo}"
+            >{{ props.item.activo ? 'Activo' : 'Inactivo' }}</td>
+          </template>
 
-        <template slot="no-data">
-          <div v-if="cargando" class="text-xs-center">
-            <p>Cargando...</p>
-          </div>
-          <div v-else-if="getError" class="text-xs-center">
-            <v-alert
-              :value="getError"
-              transition="scale-transition"
-              type="error"
-              outline
-            >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-            <v-btn color="primary" title="recargar" @click="listar()">Reintentar
-              <v-icon small>refresh</v-icon>
-            </v-btn>
-          </div>
-          <div v-else class="text-xs-center">No se encontraron registros</div>
-        </template>
-      </v-data-table>
+          <template slot="no-data">
+            <div v-if="cargando" class="text-xs-center">
+              <p>Cargando...</p>
+            </div>
+            <div v-else-if="getError" class="text-xs-center">
+              <v-alert
+                :value="getError"
+                transition="scale-transition"
+                type="error"
+                outline
+              >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
+              <v-btn color="primary" title="recargar" @click="listar()">Reintentar
+                <v-icon small>refresh</v-icon>
+              </v-btn>
+            </div>
+            <div v-else class="text-xs-center">No se encontraron registros</div>
+          </template>
+        </v-data-table>
+      </v-card>
     </v-flex>
     <v-snackbar
       :timeout="1500"
@@ -96,7 +97,7 @@ export default {
           this.cargando = false;
           this.getError = true;
         });
-    },
+    }
   },
   computed: {},
 

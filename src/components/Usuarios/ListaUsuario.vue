@@ -1,67 +1,72 @@
 <template>
   <v-layout align-start>
     <v-flex>
-      <v-toolbar flat color="primary" dark>
-        <v-toolbar-title class="headline font-weight-regular">Usuarios</v-toolbar-title>
-        <v-divider class="mx-2" inset vertical></v-divider>
-        <v-spacer></v-spacer>
-        <v-text-field
-          color="#B2EBF2"
-          class="text-xs-center"
-          v-model="search"
-          append-icon="search"
-          label="Búsqueda"
-          single-line
-          hide-details
-        ></v-text-field>
-        <v-spacer></v-spacer>
-      </v-toolbar>
+      <v-card>
+        <v-toolbar flat color="primary" dark>
+          <v-toolbar-title class="headline font-weight-regular">Usuarios</v-toolbar-title>
+          <v-divider class="mx-2" inset vertical></v-divider>
+          <v-spacer></v-spacer>
+          <v-text-field
+            color="#B2EBF2"
+            class="text-xs-center"
+            v-model="search"
+            append-icon="search"
+            label="Búsqueda"
+            single-line
+            hide-details
+          ></v-text-field>
+          <v-spacer></v-spacer>
+        </v-toolbar>
 
-      <!-------------------------- LISTA ---------------------------->
-      <v-data-table
-        :headers="headers"
-        :items="usuarios"
-        class="elevation-1"
-        :search="search"
-        :loading="cargando"
-      >
-        <template slot="items" slot-scope="props">
-          <td>
-            <v-icon @click="$router.push({path: '/usuarios/' + props.item.id, append: true})">edit</v-icon>
-            <template v-if="props.item.activo">
-              <v-icon color="primary" @click="mostrarDialogActivarDesactivar(props.item)">toggle_off</v-icon>
-            </template>
-            <template v-else>
-              <v-icon @click="mostrarDialogActivarDesactivar(props.item)">toggle_on</v-icon>
-            </template>
-          </td>
-          <td>{{ props.item.username }}</td>
-          <td>{{ props.item.nombreRol }}</td>
-          <td>{{ props.item.nombre }}</td>
-          <td>{{ props.item.apellido }}</td>
-          <td
-            :class="{'indigo--text':props.item.activo, 'blue-grey--text':!props.item.activo}"
-          >{{ props.item.activo ? 'Activo' : 'Inactivo' }}</td>
-        </template>
+        <!-------------------------- LISTA ---------------------------->
+        <v-data-table
+          :headers="headers"
+          :items="usuarios"
+          class="elevation-1"
+          :search="search"
+          :loading="cargando"
+        >
+          <template slot="items" slot-scope="props">
+            <td>
+              <v-icon @click="$router.push({path: '/usuarios/' + props.item.id, append: true})">edit</v-icon>
+              <template v-if="props.item.activo">
+                <v-icon
+                  color="primary"
+                  @click="mostrarDialogActivarDesactivar(props.item)"
+                >toggle_off</v-icon>
+              </template>
+              <template v-else>
+                <v-icon @click="mostrarDialogActivarDesactivar(props.item)">toggle_on</v-icon>
+              </template>
+            </td>
+            <td>{{ props.item.username }}</td>
+            <td>{{ props.item.nombreRol }}</td>
+            <td>{{ props.item.nombre }}</td>
+            <td>{{ props.item.apellido }}</td>
+            <td
+              :class="{'indigo--text':props.item.activo, 'blue-grey--text':!props.item.activo}"
+            >{{ props.item.activo ? 'Activo' : 'Inactivo' }}</td>
+          </template>
 
-        <template slot="no-data">
-          <div v-if="cargando" class="text-xs-center">
-            <p>Cargando...</p>
-          </div>
-          <div v-else-if="getError" class="text-xs-center">
-            <v-alert
-              outline
-              :value="getError"
-              transition="scale-transition"
-              type="error"
-            >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-            <v-btn color="primary" title="recargar" @click="listar()">Reintentar
-              <v-icon small>refresh</v-icon>
-            </v-btn>
-          </div>
-          <div v-else class="text-xs-center">No se encontraron registros</div>
-        </template>
-      </v-data-table>
+          <template slot="no-data">
+            <div v-if="cargando" class="text-xs-center">
+              <p>Cargando...</p>
+            </div>
+            <div v-else-if="getError" class="text-xs-center">
+              <v-alert
+                outline
+                :value="getError"
+                transition="scale-transition"
+                type="error"
+              >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
+              <v-btn color="primary" title="recargar" @click="listar()">Reintentar
+                <v-icon small>refresh</v-icon>
+              </v-btn>
+            </div>
+            <div v-else class="text-xs-center">No se encontraron registros</div>
+          </template>
+        </v-data-table>
+      </v-card>
 
       <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
       <v-dialog v-model="activarDesactivarDialog.mostrar" max-width="420">
@@ -69,7 +74,7 @@
           <v-toolbar color="secondary" flat dark dense extense>
             <v-toolbar-title>
               {{activarDesactivarDialog.titulo}}
-              <v-icon class="mx-2" color="error">warning</v-icon>
+              <v-icon class="mx-2" color="warning">warning</v-icon>
             </v-toolbar-title>
           </v-toolbar>
           <v-card-text>{{activarDesactivarDialog.mensaje}}</v-card-text>
