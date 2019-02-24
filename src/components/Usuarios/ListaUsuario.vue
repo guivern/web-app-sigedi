@@ -111,7 +111,9 @@
 </template>
 
 <script>
+import usuarioMixin from '../../mixins/usuarioMixin.js'
 export default {
+  mixins:[usuarioMixin],
   data() {
     return {
       usuarios: [],
@@ -207,6 +209,7 @@ export default {
   computed: {},
   watch: {},
   created() {
+    console.log("Id usuario actual: " + this.getUserId());
     this.listar();
   }
 };
