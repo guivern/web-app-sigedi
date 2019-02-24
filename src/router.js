@@ -1,6 +1,8 @@
 import Vue from 'vue'
+import store from './store'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import Login from './components/Login'
 import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
 import ListaRoles from './components/Roles/ListaRoles.vue'
 import FormUsuario from './components/Usuarios/FormUsuario.vue'
@@ -11,10 +13,16 @@ var router = new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      path: "/login",
+      name: "login",
+      component: Login,
+      meta: { libre: true }
+    },
+    {
       path: "/",
       name: "home",
       component: Home,
-      meta: {libre: true}
+      meta: { administrador: true, cajero: true, repartidor: true }
     },
     {
       path: "/usuarios",
@@ -27,12 +35,12 @@ var router = new Router({
         {
           path: "",
           component: ListaUsuario,
-          meta: { libre: true }
+          meta: { administrador: true }
         },
         {
           path: "nuevo",
           component: FormUsuario,
-          meta: { libre: true },
+          meta: { administrador: true }
         },
         {
           path: ":id",
@@ -40,7 +48,7 @@ var router = new Router({
           props: route => ({
             id: parseInt(route.params.id),
           }),
-          meta: { libre: true }
+          meta: { administrador: true }
         }
       ]
     },
@@ -48,15 +56,49 @@ var router = new Router({
       path: "/roles",
       name: "roles",
       component: ListaRoles,
-      meta: {libre: true}
+      meta: { administrador: true }
     },
   ]
 });
-
+// resuelve la navegacion
+// verifica si el componente requiere autenticacion o no
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.libre)) {
     next();
+  } 
+  else if(to.matched.some(record => record.meta.autenticado) && store.state.usuario){
+    next();
+  }
+  else if (
+    to.matched.some(record => record.meta.administrador)
+    && store.state.usuario &&
+    store.state.usuario.rol == "Administrador"
+  ){ 
+      next();
+    
+  }
+  else if (
+    to.matched.some(record => record.meta.repartidor)
+    && store.state.usuario &&
+    store.state.usuario.rol == "Repartidor"
+  ){ 
+      next();
+    
+  }  
+  else if (
+    to.matched.some(record => record.meta.cajero)
+    && store.state.usuario &&
+    store.state.usuario.rol == "Cajero"
+  ){ 
+      next();
+  }  
+  else {
+    next({
+      name: "login"
+    });
   }
 });
+
+
 
 export default router;
