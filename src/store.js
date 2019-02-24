@@ -7,8 +7,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    token: null,
-    usuario: null
+    token: localStorage.getItem("token")?localStorage.getItem("token"):null,
+    usuario: localStorage.getItem("token")?decode(localStorage.getItem("token")):null
   },
   mutations: {
     // logica para cambiar de estado
