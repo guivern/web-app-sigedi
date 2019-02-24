@@ -5,8 +5,8 @@
         <v-toolbar dark color="primary" flat>
           <v-toolbar-title>Acceso al sistema</v-toolbar-title>
         </v-toolbar>
-        <v-card-text>
-          <v-subheader class="mx-2">Debe ingresar sus credenciales</v-subheader>
+        <v-card-text v-on:keyup.enter="ingresar">
+          <v-subheader class="mx-2">Ingrese sus credenciales</v-subheader>
           <v-text-field
             class="mx-4"
             v-model="credenciales.username"
