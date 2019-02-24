@@ -62,41 +62,38 @@ var router = new Router({
 });
 // resuelve la navegacion
 // verifica si el componente requiere autenticacion o no
+//to es el componente objetivo, from es el componente actual
 router.beforeEach((to, from, next) => {
+  //verificamos si el objetivo es libre
   if (to.matched.some(record => record.meta.libre)) {
     next();
-  } 
-  else if(to.matched.some(record => record.meta.autenticado) && store.state.usuario){
-    next();
   }
-  else if (
-    to.matched.some(record => record.meta.administrador)
-    && store.state.usuario &&
-    store.state.usuario.rol == "Administrador"
-  ){ 
-      next();
-    
-  }
-  else if (
-    to.matched.some(record => record.meta.repartidor)
-    && store.state.usuario &&
-    store.state.usuario.rol == "Repartidor"
-  ){ 
-      next();
-    
-  }  
-  else if (
-    to.matched.some(record => record.meta.cajero)
-    && store.state.usuario &&
-    store.state.usuario.rol == "Cajero"
-  ){ 
-      next();
-  }  
-  else {
+  //sino, requiere autentucacion
+  else if(!store.state.usuario) {
     next({
       name: "login"
     });
   }
+  //esta autenticado 
+  else if (
+    to.matched.some(record => record.meta.administrador)
+    && store.state.usuario.rol == "Administrador"
+  ){ 
+      next();
+  }
+  else if (
+    to.matched.some(record => record.meta.repartidor)
+    && store.state.usuario.rol == "Repartidor"
+  ){ 
+      next();
+  }  
+  else if (
+    to.matched.some(record => record.meta.cajero)
+    && store.state.usuario.rol == "Cajero"
+  ){ 
+      next();
+  }
+  else{}  
 });
 
 

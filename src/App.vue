@@ -80,6 +80,18 @@ export default {
         this.$store.state.usuario.rol == "Administrador"
       );
     },
+    esCajero() {
+      return (
+        this.$store.state.usuario &&
+        this.$store.state.usuario.rol == "Cajero"
+      );
+    },
+    esRepartidor() {
+      return (
+        this.$store.state.usuario &&
+        this.$store.state.usuario.rol == "Repartidor"
+      );
+    },
   },
   created() {
     this.$store.dispatch("autoLogin");
