@@ -2,16 +2,15 @@
   <v-layout align-start justify-center>
     <v-flex xs12 sm8 md6 lg4 x14>
       <v-card>
-        <v-toolbar dark color="info" flat>
+        <v-toolbar dark color="primary" flat>
           <v-toolbar-title>Acceso al sistema</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-        <v-subheader class="mx-2">Ingrese sus credenciales</v-subheader>
+          <v-subheader class="mx-2">Debe ingresar sus credenciales</v-subheader>
           <v-text-field
             class="mx-4"
             v-model="credenciales.username"
             autofocus
-            color="accent"
             label="Username"
             :error-messages="mensajeValidacion['Username']"
           ></v-text-field>
@@ -19,26 +18,21 @@
             class="mx-4"
             v-model="credenciales.password"
             type="password"
-            color="accent"
             label="Password"
             :error-messages="mensajeValidacion['Password']"
           ></v-text-field>
         </v-card-text>
         <v-card-actions class="mx-4 pb-5">
           <v-flex text-xs-center>
-            <v-btn  block color="info" :loading="cargando" @click="ingresar">Ingresar</v-btn>
+            <v-btn block color="primary" :loading="cargando" @click="ingresar">Ingresar</v-btn>
           </v-flex>
         </v-card-actions>
       </v-card>
     </v-flex>
-    <v-snackbar
-      :timeout="2000"
-      bottom
-      v-model="snackbar.visible"
-      :color="snackbar.color"
-    >
-    {{snackbar.message}}
-    <v-icon right>error</v-icon></v-snackbar>
+    <v-snackbar :timeout="2000" bottom v-model="snackbar.visible" :color="snackbar.color">
+      {{snackbar.message}}
+      <v-icon right>error</v-icon>
+    </v-snackbar>
   </v-layout>
 </template>
 <script>
@@ -79,7 +73,7 @@ export default {
               this.snackbar.message = err.response.data.error;
               this.snackbar.visible = true;
             }
-          }else {
+          } else {
             this.snackbar.color = "error";
             this.snackbar.message = "Ocurrió un error, revise su conexión.";
             this.snackbar.visible = true;
