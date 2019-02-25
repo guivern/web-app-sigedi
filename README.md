@@ -1,29 +1,11 @@
 # web-app-sigedi
 
-## Project setup
-```
-npm install
-```
+## Requerimientos
+* nodejs y npm, se instalan con el siguiente comando : `sudo apt install nodejs npm`
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+* vue cli, se instala con el siguiente comando: `npm install @vue/cli -g`
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Pasos para levantar el proyecto
+* Ejecutar `npm install` para descargar las dependencias
 
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+* Ejecutar  `npm run serve` para levantar el proyecto
