@@ -6,6 +6,8 @@ import Login from './components/Login'
 import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
 import ListaRoles from './components/Roles/ListaRoles.vue'
 import FormUsuario from './components/Usuarios/FormUsuario.vue'
+import ListaCategorias from './components/Articulos/ListaCategorias.vue'
+import FormCategoria from './components/Articulos/FormCategoria.vue'
 
 Vue.use(Router);
 
@@ -58,6 +60,36 @@ var router = new Router({
       component: ListaRoles,
       meta: { administrador: true }
     },
+    {
+      path: "/categorias",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaCategorias,
+          meta: { administrador: true }
+        },
+       {
+          path: "nuevo",
+          component: FormCategoria,
+          meta: { administrador: true }
+        },
+        {
+          path: ":id",
+          component: FormCategoria,
+          props: route => ({
+            id: parseInt(route.params.id),
+          }),
+          meta: { administrador: true }
+        }
+        
+      ]
+    },
+    
   ]
 });
 // resuelve la navegacion
