@@ -17,7 +17,48 @@
           </v-list-tile>
         </template>
         <template v-if="esAdministrador">
-          <v-list-group>
+          <v-list-group prepend-icon="settings">
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>Administración</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/articulos'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Artículos</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/categorias'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Categorías</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/vendedores'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Vendedores</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/proveedores'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Proveedores</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+        </template>
+        <template v-if="esAdministrador">
+          <v-list-group prepend-icon="supervisor_account">
             <v-list-tile slot="activator">
               <v-list-tile-content>
                 <v-list-tile-title>Accesos</v-list-tile-title>
@@ -25,7 +66,7 @@
             </v-list-tile>
             <v-list-tile :to="'/usuarios'">
               <v-list-tile-action>
-                <v-icon>supervisor_account</v-icon>
+                <v-icon></v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Usuarios</v-list-tile-title>
@@ -33,10 +74,76 @@
             </v-list-tile>
             <v-list-tile :to="{name: 'roles'}">
               <v-list-tile-action>
-                <v-icon>security</v-icon>
+                <v-icon></v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Perfiles</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+        </template>
+        <template v-if="esAdministrador || esRepartidor">
+          <v-list-group prepend-icon="assignment">
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>Inventario</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/ingresos'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Ingresos</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/stock'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Artículos</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/distribuciones'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Distribuciones</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+        </template>
+        <template v-if="esAdministrador || esCajero">
+          <v-list-group prepend-icon="bar_chart">
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>Ventas</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/rendiciones'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Rendiciones</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/deudas'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Deudas</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/reportes'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Reportes</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list-group>
