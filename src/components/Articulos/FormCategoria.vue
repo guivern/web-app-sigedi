@@ -140,22 +140,21 @@ export default {
           .catch(error => {
             this.guardando = false;
             if (error.response) {
-              if (error.response.data.errors) {
+              if(error.response.data.errors)
+              {
                 this.mensajeValidacion = error.response.data.errors;
-              } else if (error.response.data.descripcionError) {
+              }
+              else if(error.response.data.Descripcion)
+              {
                 this.mensajeValidacion = {
-                  Descripcion: error.response.data.descripcionError
+                  Descripcion: error.response.data.Descripcion
                 };
               }
-              
-              } else if (error.response.data.matchError) {
-                this.matchError = true;
-              }
-              else {
-              this.snackbar.color = "error";
-              this.snackbar.message = "Ocurrió un error, revise su conexión.";
-              this.snackbar.icon = "error";
-              this.snackbar.visible = true;
+            } 
+            else {
+                this.snackbar.color = "error";
+                this.snackbar.message = "Ocurrió un error, revise su conexión.";
+                this.snackbar.visible = true;
             }
           });
       } else {
@@ -176,20 +175,21 @@ export default {
           .catch(error => {
             this.guardando = false;
             if (error.response) {
-              if (error.response.data.errors) {
+              if(error.response.data.errors)
+              {
                 this.mensajeValidacion = error.response.data.errors;
-              } else if (error.response.data.descripcionError) {
-                this.mensajeValidacion = {
-                  Descripcion: error.response.data.descripcionError
-                };
-              } else if (error.response.data.matchError) {
-                this.matchError = true;
               }
-            } else {
-              this.snackbar.color = "error";
-              this.snackbar.message = "Ocurrió un error, revise su conexión.";
-              this.snackbar.icon = "error";
-              this.snackbar.visible = true;
+              else if(error.response.data.Descripcion)
+              {
+                this.mensajeValidacion = {
+                  Descripcion: error.response.data.Descripcion
+                };
+              }
+            } 
+            else {
+                this.snackbar.color = "error";
+                this.snackbar.message = "Ocurrió un error, revise su conexión.";
+                this.snackbar.visible = true;
             }
           });
       }
