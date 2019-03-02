@@ -6,6 +6,8 @@ import Login from './components/Login'
 import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
 import ListaRoles from './components/Roles/ListaRoles.vue'
 import FormUsuario from './components/Usuarios/FormUsuario.vue'
+import ListaVendedores from './components/Vendedores/ListaVendedores.vue'
+import FormVendedores from './components/Vendedores/FormVendedores.vue'
 
 Vue.use(Router);
 
@@ -57,6 +59,34 @@ var router = new Router({
       name: "roles",
       component: ListaRoles,
       meta: { administrador: true }
+    },
+    {
+      path: "/vendedores",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaVendedores,
+          meta: { administrador: true }
+        },
+        {
+          path: "nuevo",
+          component: FormVendedores,
+          meta: { administrador: true }
+        },
+        {
+          path: ":id",
+          component: FormVendedores,
+          props: route => ({
+            id: parseInt(route.params.id),
+          }),
+          meta: { administrador: true }
+        }
+      ]
     },
   ]
 });
