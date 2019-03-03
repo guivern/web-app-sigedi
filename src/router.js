@@ -10,6 +10,8 @@ import ListaVendedores from './components/Vendedores/ListaVendedores.vue'
 import FormVendedores from './components/Vendedores/FormVendedores.vue'
 import ListaCategorias from './components/Articulos/ListaCategorias.vue'
 import FormCategoria from './components/Articulos/FormCategoria.vue'
+import ListaProveedores from './components/Proveedores/ListaProveedores.vue'
+import FormProveedores from './components/Proveedores/FormProveedores.vue'
 
 Vue.use(Router);
 
@@ -116,6 +118,34 @@ var router = new Router({
           }),
           meta: { administrador: true }
         }
+      ]
+    },
+    {
+      path: "/proveedores",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaProveedores,
+          meta: { administrador: true }
+        },
+        {
+          path: "nuevo",
+          component: FormProveedores,
+          meta: { administrador: true }
+        },
+        {
+          path: ":id",
+          component: FormProveedores,
+          props: route => ({
+            id: parseInt(route.params.id),
+          }),
+          meta: { administrador: true }
+        } 
       ]
     },
   ]
