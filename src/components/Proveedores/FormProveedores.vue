@@ -222,7 +222,7 @@ export default {
   },
   computed: {
     formTitle() {
-      return !this.id ? "Nuevo Proveedor" : "Actualizar Proveedor";
+      return !this.id ? "Nuevo proveedor" : "Actualizar proveedor";
     }
   }
 };
