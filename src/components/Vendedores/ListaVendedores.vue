@@ -25,6 +25,7 @@
           class="elevation-1"
           :search="search"
           :loading="cargando"
+          :disable-initial-sort="true"
         >
           <template slot="items" slot-scope="props">
             <td>
