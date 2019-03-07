@@ -1,17 +1,17 @@
-import Vue from 'vue'
-import store from './store'
-import Router from 'vue-router'
-import Home from './views/Home.vue'
-import Login from './components/Login'
-import ListaUsuario from './components/Usuarios/ListaUsuario.vue'
-import ListaRoles from './components/Roles/ListaRoles.vue'
-import FormUsuario from './components/Usuarios/FormUsuario.vue'
-import ListaVendedores from './components/Vendedores/ListaVendedores.vue'
-import FormVendedores from './components/Vendedores/FormVendedores.vue'
-import ListaCategorias from './components/Articulos/ListaCategorias.vue'
-import FormCategoria from './components/Articulos/FormCategoria.vue'
-import ListaProveedores from './components/Proveedores/ListaProveedores.vue'
-import FormProveedores from './components/Proveedores/FormProveedores.vue'
+import Vue from "vue";
+import store from "./store";
+import Router from "vue-router";
+import Home from "./views/Home.vue";
+import Login from "./components/Login";
+import ListaUsuario from "./components/Usuarios/ListaUsuario.vue";
+import ListaRoles from "./components/Roles/ListaRoles.vue";
+import FormUsuario from "./components/Usuarios/FormUsuario.vue";
+import ListaVendedores from "./components/Vendedores/ListaVendedores.vue";
+import FormVendedores from "./components/Vendedores/FormVendedores.vue";
+import ListaCategorias from "./components/Articulos/ListaCategorias.vue";
+import FormCategoria from "./components/Articulos/FormCategoria.vue";
+import ListaProveedores from "./components/Proveedores/ListaProveedores.vue";
+import FormProveedores from "./components/Proveedores/FormProveedores.vue";
 
 Vue.use(Router);
 
@@ -52,7 +52,7 @@ var router = new Router({
           path: ":id",
           component: FormUsuario,
           props: route => ({
-            id: parseInt(route.params.id),
+            id: parseInt(route.params.id)
           }),
           meta: { administrador: true }
         }
@@ -86,7 +86,7 @@ var router = new Router({
           path: ":id",
           component: FormVendedores,
           props: route => ({
-            id: parseInt(route.params.id),
+            id: parseInt(route.params.id)
           }),
           meta: { administrador: true }
         }
@@ -114,7 +114,7 @@ var router = new Router({
           path: ":id",
           component: FormCategoria,
           props: route => ({
-            id: parseInt(route.params.id),
+            id: parseInt(route.params.id)
           }),
           meta: { administrador: true }
         }
@@ -142,50 +142,44 @@ var router = new Router({
           path: ":id",
           component: FormProveedores,
           props: route => ({
-            id: parseInt(route.params.id),
+            id: parseInt(route.params.id)
           }),
           meta: { administrador: true }
-        } 
+        }
       ]
-    },
+    }
   ]
 });
 // resuelve la navegacion
 // verifica si el componente requiere autenticacion o no
 //to es el componente objetivo, from es el componente actual
 router.beforeEach((to, from, next) => {
-  //verificamos si el objetivo es libre
-  if (to.matched.some(record => record.meta.libre)) {
+  if (!to.meta.libre) {
+    const authUser = window.localStorage.getItem("sigediToken");
+    if (!authUser) {
+      // no esta autenticado
+      next({ name: "login" });
+    } else {
+      if (
+        to.matched.some(record => record.meta.administrador) &&
+        store.state.usuario.rol == "Administrador"
+      ) {
+        next();
+      } else if (
+        to.matched.some(record => record.meta.repartidor) &&
+        store.state.usuario.rol == "Repartidor"
+      ) {
+        next();
+      } else if (
+        to.matched.some(record => record.meta.cajero) &&
+        store.state.usuario.rol == "Cajero"
+      ) {
+        next();
+      }
+    }
+  } else {
     next();
   }
-  //sino, requiere autentucacion
-  else if(!store.state.usuario) {
-    next({
-      name: "login"
-    });
-  }
-  //esta autenticado 
-  else if (
-    to.matched.some(record => record.meta.administrador)
-    && store.state.usuario.rol == "Administrador"
-  ){ 
-      next();
-  }
-  else if (
-    to.matched.some(record => record.meta.repartidor)
-    && store.state.usuario.rol == "Repartidor"
-  ){ 
-      next();
-  }  
-  else if (
-    to.matched.some(record => record.meta.cajero)
-    && store.state.usuario.rol == "Cajero"
-  ){ 
-      next();
-  }
-  else{}  
 });
-
-
 
 export default router;
