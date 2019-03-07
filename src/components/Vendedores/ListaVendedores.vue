@@ -41,7 +41,7 @@
             </td>
             <td>{{ props.item.nombre }}</td>
             <td>{{ props.item.apellido }}</td>
-            <td class="text-xs-right">{{ props.item.numeroDocumento }}</td>
+            <td>{{ props.item.numeroDocumento }}</td>
             <td>{{ props.item.telefono }}</td>
             <td>{{ props.item.zonaVenta }}</td>
           </template>

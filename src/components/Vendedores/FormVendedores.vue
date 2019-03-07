@@ -49,6 +49,24 @@
                   <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
+                      v-model="vendedor.nacionalidad"
+                      label="Nacionalidad"
+                      :error-messages="mensajeValidacion['Nacionalidad']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-select
+                      class="mx-3"
+                      v-model="vendedor.tipoDocumento"
+                      :items="items"
+                      label="Tipo de Documento"
+                      :loading="cargando"
+                      :error-messages="mensajeValidacion['TipoDocumento']"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
                       v-model="vendedor.numeroDocumento"
                       label="Nro. Documento"
                       :error-messages="mensajeValidacion['NumeroDocumento']"
@@ -104,10 +122,68 @@
                   <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
+                      v-model="vendedor.telefonoMovil"
+                      label="Teléfono Móvil"
+                      :error-messages="mensajeValidacion['TelefonoMovil']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
+                      v-model="vendedor.email"
+                      label="Email"
+                      :error-messages="mensajeValidacion['Email']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-menu
+                      ref="menuFechaIngreso"
+                      v-model="menuFechaIngreso"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      lazy
+                      transition="scale-transition"
+                      offset-y
+                      full-width
+                      max-width="290px"
+                      min-width="290px"
+                    >
+                      <v-text-field
+                        class="mx-3"
+                        slot="activator"
+                        v-model="fechaFormateadaIngreso"
+                        label="Fecha Ingreso"
+                        hint="DD/MM/AAAA"
+                        persistent-hint
+                        @blur="vendedor.fechaIngreso = parseDate(fechaFormateadaIngreso)"
+                        :error-messages="mensajeValidacion['FechaIngreso']"
+                      ></v-text-field>
+                      <v-date-picker
+                        v-model="vendedor.fechaIngreso"
+                        no-title
+                        locale="es-419"
+                        @input="menuFechaIngreso = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
                       v-model="vendedor.zonaVenta"
                       label="Zona de Venta"
                       :error-messages="mensajeValidacion['ZonaVenta']"
                     ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    
+                    <v-textarea
+                      v-model="vendedor.descripcion"
+                      box
+                      label="Observaciones"
+                      :error-messages="mensajeValidacion['Observaciones']"
+                      rows="1"
+                      auto-grow
+                    ></v-textarea>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -159,14 +235,23 @@ export default {
         telefono: null,
         direccion: null,
         zonaVenta: null,
+        nacionalidad: null,
+        email: null,
+        telefonoMovil: null,
+        fechaIngreso: null,
+        descripcion: null,
+        tipoDocumento: null,
         activo: true
       },
+      items: ['Cédula', 'Pasaporte', 'RUC'],
       cargando: false,
       guardando: false,
       getError: false,
       mensajeValidacion: [],
       fechaFormateada: null,
+      fechaFormateadaIngreso: null,
       menuFecha: false,
+      menuFechaIngreso: false,
       snackbar: {
         visible: false,
         message: null,
@@ -179,6 +264,7 @@ export default {
     if (this.id) {
       this.getVendedor();
       this.fechaFormateada = this.formatDate(this.vendedor.fechaNacimiento);
+      this.fechaFormateadaIngreso = this.formatDate(this.vendedor.fechaIngreso);
     }
   },
   methods: {
@@ -283,6 +369,9 @@ export default {
     },
     fechaNacimiento() {
       return this.vendedor.fechaNacimiento;
+    },
+    fechaIngreso() {
+      return this.vendedor.fechaIngreso;
     }
   },
   watch: {
@@ -292,6 +381,13 @@ export default {
         : null;
       //console.log(this.fechaFormateada);
       this.$emit("input", this.vendedor.fechaNacimiento);
+    },
+    fechaIngreso() {
+      this.fechaFormateadaIngreso = this.vendedor.fechaIngreso
+        ? this.formatDate(this.vendedor.fechaIngreso)
+        : null;
+      //console.log(this.fechaFormateada);
+      this.$emit("input", this.vendedor.fechaIngreso);
     }
   }
 };
