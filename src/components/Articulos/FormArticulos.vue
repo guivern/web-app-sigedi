@@ -26,6 +26,7 @@
           </v-btn>
         </div>
         <template v-if="!cargando && !getError">
+          <!-- FORMULARIO DE ARTICULO -->
           <v-card>
             <v-card-text v-on:keyup.enter="guardar">
               <v-layout wrap row>
@@ -72,23 +73,24 @@
               </v-layout>
             </v-card-text>
           </v-card>
+          <!--LISTA DE PRECIOS -->
           <v-card>
             <v-card-text>
-              <v-layout row wrap class="mx-3">
+              <v-layout row wrap>
                 <v-flex>
                   <v-toolbar flat color="white">
-                    <h3 style="display:inline">Lista de Precios</h3>
+                    <h3 style="display:inline">Precios</h3>
                     <v-divider class="mx-3" inset vertical></v-divider>
-                    <v-btn color="info" depressed flat dark @click="agregarPrecio">Agregar</v-btn>
+                    <v-btn color="info" dark @click="agregarPrecio">Agregar</v-btn>
                   </v-toolbar>
-                  <v-data-table :headers="headers" :items="articulo.precios" :loading="cargando">
+                  <v-data-table class="mx-3" :headers="headers" :items="articulo.precios" :loading="cargando">
                     <template slot="items" slot-scope="props">
-                      <td class="justify-center layout px-0">
+                      <td>
                         <v-icon @click="eliminarPrecio(props.item)" class="icon">delete</v-icon>
                       </td>
                       <td>
                         <v-text-field
-                          autofocus
+                          :autofocus="focusPrecio"
                           :readonly="props.item.id != null"
                           v-model="props.item.descripcion"
                           :error-messages="mensajeValidacion[`Precios[${props.item.index}].Descripcion`]"
@@ -187,6 +189,7 @@ export default {
       guardando: false,
       getError: false,
       mensajeValidacion: [],
+      focusPrecio: false,
       snackbar: {
         visible: false,
         message: null,
@@ -258,6 +261,7 @@ export default {
         precioRendVendedor: null,
         index: this.articulo.precios.length + 1 - 1
       });
+      this.focusPrecio = true;
     },
     eliminarPrecio(item) {
       this.articulo.precios = this.articulo.precios.filter(

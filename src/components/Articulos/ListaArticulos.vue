@@ -40,7 +40,7 @@
                 <v-icon @click="mostrarDialogActivarDesactivar(props.item)">toggle_on</v-icon>
               </template>
             </td>
-            <td>{{ props.item.id }}</td>
+            <td>{{ props.item.codigo }}</td>
             <td>{{ props.item.descripcion }}</td>
             <td>{{ props.item.nombreCategoria }}</td>
             <td>{{ props.item.nombreProveedor }}</td>
