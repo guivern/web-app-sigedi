@@ -3,7 +3,7 @@
     <v-flex>
       <v-card>
         <v-toolbar flat color="info" dark>
-          <v-toolbar-title class="headline font-weight-regular">Proveedores</v-toolbar-title>
+          <v-toolbar-title class="headline font-weight-regular">Artículos</v-toolbar-title>
           <v-divider class="mx-2" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-text-field
@@ -21,7 +21,7 @@
         <!-------------------------- LISTA ---------------------------->
         <v-data-table
           :headers="headers"
-          :items="proveedores"
+          :items="articulos"
           class="elevation-1"
           :search="search"
           :loading="cargando"
@@ -29,7 +29,7 @@
         >
           <template slot="items" slot-scope="props">
             <td>
-              <v-icon @click="$router.push({path: '/proveedores/' + props.item.id, append: true})">edit</v-icon>
+              <v-icon @click="$router.push({path: '/articulos/' + props.item.id, append: true})">edit</v-icon>
               <template v-if="props.item.activo">
                 <v-icon
                   color="info"
@@ -40,11 +40,10 @@
                 <v-icon @click="mostrarDialogActivarDesactivar(props.item)">toggle_on</v-icon>
               </template>
             </td>
-            <td>{{ props.item.razonSocial }}</td>
-            <td>{{ props.item.numeroDocumento }}</td>
-            <td>{{ props.item.direccion }}</td>
-            <td>{{ props.item.telefono }}</td>
-            <td>{{ props.item.email }}</td>
+            <td>{{ props.item.codigo }}</td>
+            <td>{{ props.item.descripcion }}</td>
+            <td>{{ props.item.nombreCategoria }}</td>
+            <td>{{ props.item.nombreProveedor }}</td>
           </template>
 
           <template slot="no-data">
@@ -110,23 +109,21 @@
 </template>
 
 <script>
-//import usuarioMixin from '../../mixins/usuarioMixin.js'
 export default {
-  //mixins:[usuarioMixin],
   data() {
     return {
-      proveedores: [],
+      articulos: [],
       dialog: false,
       cargando: false,
       guardando: false,
       getError: false,
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
-        { text: "Razón Social", value: "razonSocial" },
-        { text: "RUC", value: "numeroDocumento"},
-        { text: "Dirección", value: "direccion"},
-        { text: "Teléfono", value: "telefono"},
-        { text: "Email", value: "email" }
+        { text: "Código", value: "id"},
+        { text: "Artículo", value: "descripcion" },
+        { text: "Categoría", value: "nombrearticulo" },
+        { text: "Proveedor", value: "nombreProveedor" },
+        
       ],
       activarDesactivarDialog: {
         titulo: "",
@@ -147,9 +144,9 @@ export default {
     listar() {
       this.cargando = true;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}proveedores?Inactivos=true`)
+        .get(`${process.env.VUE_APP_ROOT_API}articulos?Inactivos=true`)
         .then(response => {
-          this.proveedores = response.data;
+          this.articulos = response.data;
           this.cargando = false;
           this.getError = false;
         })
@@ -161,15 +158,17 @@ export default {
     },
     mostrarDialogActivarDesactivar(item) {
       if (item.activo) {
-        this.activarDesactivarDialog.titulo = "Desactivar proveedor";
+        this.activarDesactivarDialog.titulo = "Desactivar artículo";
         this.activarDesactivarDialog.mensaje =
-          "Desea dar de baja al proveedor " +
-           item.razonSocial + " ?";
+          "Desea dar de baja el artículo " +
+          item.descripcion +
+          " ?";
       } else {
-        this.activarDesactivarDialog.titulo = "Activar proveedor";
+        this.activarDesactivarDialog.titulo = "Activar artículo";
         this.activarDesactivarDialog.mensaje =
-          "Desea dar de alta al proveedor " +
-          item.razonSocial + " ?";
+          "Desea dar de alta el artículo " +
+          item.descripcion +
+          " ?";
       }
       this.activarDesactivarDialog.item = item;
       this.activarDesactivarDialog.mostrar = true;
@@ -180,12 +179,12 @@ export default {
     activarDesactivar() {
       this.$http
         .put(
-          `${process.env.VUE_APP_ROOT_API}proveedores/${
+          `${process.env.VUE_APP_ROOT_API}articulos/${
             this.activarDesactivarDialog.item.activo ? "desactivar" : "activar"
           }/${this.activarDesactivarDialog.item.id}`
         )
         .then(() => {
-          this.proveedores.map(u => {
+          this.articulos.map(u => {
             if (u.id == this.activarDesactivarDialog.item.id) {
               u.activo = !u.activo;
             }
