@@ -4,7 +4,7 @@ import Router from "vue-router";
 import Home from "./views/Home.vue";
 import Login from "./components/Login";
 import ListaUsuario from "./components/Usuarios/ListaUsuario.vue";
-import ListaRoles from "./components/Roles/ListaRoles.vue";
+import ListaRoles from "./components/Usuarios/ListaRoles.vue";
 import FormUsuario from "./components/Usuarios/FormUsuario.vue";
 import ListaVendedores from "./components/Vendedores/ListaVendedores.vue";
 import FormVendedores from "./components/Vendedores/FormVendedores.vue";
@@ -12,6 +12,8 @@ import ListaCategorias from "./components/Articulos/ListaCategorias.vue";
 import FormCategoria from "./components/Articulos/FormCategoria.vue";
 import ListaProveedores from "./components/Proveedores/ListaProveedores.vue";
 import FormProveedores from "./components/Proveedores/FormProveedores.vue";
+import ListaArticulos from "./components/Articulos/ListaArticulos.vue";
+import FormArticulos from "./components/Articulos/FormArticulos.vue";
 
 Vue.use(Router);
 
@@ -147,7 +149,35 @@ var router = new Router({
           meta: { administrador: true }
         }
       ]
-    }
+    },
+    {
+      path: "/articulos",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaArticulos,
+          meta: { administrador: true }
+        },
+        {
+          path: "nuevo",
+          component: FormArticulos,
+          meta: { administrador: true }
+        },
+        {
+          path: ":id",
+          component: FormArticulos,
+          props: route => ({
+            id: parseInt(route.params.id)
+          }),
+          meta: { administrador: true }
+        }
+      ]
+    },
   ]
 });
 // resuelve la navegacion
