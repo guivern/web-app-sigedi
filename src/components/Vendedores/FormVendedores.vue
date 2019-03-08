@@ -113,6 +113,7 @@
                   </v-flex>
                   <v-flex xs12 sm12 md6>
                     <v-text-field
+                      type="number"
                       class="mx-3"
                       v-model="vendedor.telefono"
                       label="Teléfono"
@@ -121,6 +122,7 @@
                   </v-flex>
                   <v-flex xs12 sm12 md6>
                     <v-text-field
+                      type="number"
                       class="mx-3"
                       v-model="vendedor.telefonoMovil"
                       label="Teléfono Móvil"
