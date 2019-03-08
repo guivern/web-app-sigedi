@@ -40,6 +40,7 @@
                 </v-flex>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
+                    type="number"
                     class="mx-3"
                     v-model="articulo.codigo"
                     label="Código"
@@ -114,7 +115,7 @@
                       </td>
                     </template>
                     <template slot="no-data">
-                      <div class="text-xs-center" v-if="!mensajeValidacion.hasOwnProperty('Precios')">No hay precios</div>
+                      <div class="text-xs-center" v-if="!mensajeValidacion.hasOwnProperty('Precios')">Haga click en "agregar" para ingresar precios</div>
                       <div class="text-xs-center" v-else><v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.</div>
                     </template>
                   </v-data-table>
