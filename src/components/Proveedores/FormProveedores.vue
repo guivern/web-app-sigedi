@@ -49,6 +49,22 @@
                   <v-flex xs12 sm12 md6>
                     <v-text-field
                       class="mx-3"
+                      v-model="proveedor.ciudad"
+                      label="Ciudad"
+                      :error-messages="mensajeValidacion['Ciudad']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
+                      v-model="proveedor.barrio"
+                      label="Barrio"
+                      :error-messages="mensajeValidacion['Barrio']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
                       v-model="proveedor.direccion"
                       label="Dirección"
                       :error-messages="mensajeValidacion['Direccion']"
@@ -68,6 +84,30 @@
                       v-model="proveedor.email"
                       label="Email"
                       :error-messages="mensajeValidacion['Email']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
+                      v-model="proveedor.direccionWeb"
+                      label="WEB"
+                      :error-messages="mensajeValidacion['DireccionWeb']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
+                      v-model="proveedor.contacto"
+                      label="Contacto"
+                      :error-messages="mensajeValidacion['Contacto']"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field
+                      class="mx-3"
+                      v-model="proveedor.numeroContacto"
+                      label="Número Contacto"
+                      :error-messages="mensajeValidacion['NumeroContacto']"
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -117,6 +157,11 @@ export default {
         direccion: null,
         telefono: null,
         email: null,
+        direccionWeb: null,
+        contacto: null,
+        numeroContacto: null,
+        ciudad: null,
+        barrio: null,
         activo: true
       },
       cargando: false,
