@@ -74,7 +74,7 @@
               </v-layout>
             </v-card-text>
           </v-card>
-          <!--LISTA DE PRECIOS -->
+          <!--LISTA DE detalle -->
           <v-card>
             <v-card-text>
               <v-layout row wrap>
@@ -82,19 +82,19 @@
                   <v-toolbar flat color="white">
                     <h3 style="display:inline">Precios</h3>
                     <v-divider class="mx-3" inset vertical></v-divider>
-                    <v-btn color="info" dark @click="agregarPrecio">Agregar</v-btn>
+                    <v-btn color="info" dark @click="agregarDetalle">Agregar</v-btn>
                   </v-toolbar>
-                  <v-data-table class="mx-3" :headers="headers" :items="articulo.precios" :loading="cargando">
-                    <template slot="items" slot-scope="props">
+                  <v-data-table class="mx-3" :headers="headers" :items="articulo.detalle" :loading="cargando">
+                    <template slot="items" slot-scope="props" v-if="props.item.activo">
                       <td>
-                        <v-icon @click="eliminarPrecio(props.item)" class="icon">delete</v-icon>
+                        <v-icon @click="eliminarDetalle(props.item)" class="icon">delete</v-icon>
                       </td>
                       <td>
                         <v-text-field
                           :autofocus="focusPrecio"
                           :readonly="props.item.id != null"
                           v-model="props.item.descripcion"
-                          :error-messages="mensajeValidacion[`Precios[${props.item.index}].Descripcion`]"
+                          :error-messages="mensajeValidacion[`Detalle[${props.item.index}].Descripcion`]"
                         ></v-text-field>
                       </td>
                       <td>
@@ -102,7 +102,7 @@
                           type="number"
                           v-model="props.item.precioVenta"
                           :readonly="props.item.id != null"
-                          :error-messages="mensajeValidacion[`Precios[${props.item.index}].PrecioVenta`]"
+                          :error-messages="mensajeValidacion[`Detalle[${props.item.index}].PrecioVenta`]"
                         ></v-text-field>
                       </td>
                       <td>
@@ -110,12 +110,12 @@
                           type="number"
                           v-model="props.item.precioRendVendedor"
                           :readonly="props.item.id != null"
-                          :error-messages="mensajeValidacion[`Precios[${props.item.index}].PrecioRendVendedor`]"
+                          :error-messages="mensajeValidacion[`Detalle[${props.item.index}].PrecioRendVendedor`]"
                         ></v-text-field>
                       </td>
                     </template>
                     <template slot="no-data">
-                      <div class="text-xs-center" v-if="!mensajeValidacion.hasOwnProperty('Precios')">Haga click en "agregar" para ingresar precios</div>
+                      <div class="text-xs-center" v-if="!mensajeValidacion.hasOwnProperty('Detalle')">Haga click en "agregar" para ingresar detalle</div>
                       <div class="text-xs-center" v-else><v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.</div>
                     </template>
                   </v-data-table>
@@ -166,7 +166,7 @@ export default {
         idCategoria: null,
         idProveedor: null,
         activo: true,
-        precios: []
+        detalle: []
       },
       categorias: [],
       proveedores: [],
@@ -254,20 +254,22 @@ export default {
           this.getError = true;
         });
     },
-    agregarPrecio() {
-      this.articulo.precios.push({
+    agregarDetalle() {
+      this.articulo.detalle.push({
         id: null,
         descripcion: null,
         precioVenta: null,
         precioRendVendedor: null,
-        index: this.articulo.precios.length + 1 - 1
+        activo: true,
+        index: this.articulo.detalle.length + 1 - 1
       });
       this.focusPrecio = true;
     },
-    eliminarPrecio(item) {
-      this.articulo.precios = this.articulo.precios.filter(
+    eliminarDetalle(item) {
+      item.activo = false;
+      /*this.articulo.detalle = this.articulo.detalle.filter(
         p => p.id != item.id || p.index != item.index
-      );
+      );*/
     },
     guardar() {
       this.guardando = true;
@@ -348,4 +350,11 @@ export default {
 </script>
 
 <style scoped>
+.icon:hover {
+  color: #FF5252;
+}
+.icon {
+  color: grey;
+}
+
 </style>
