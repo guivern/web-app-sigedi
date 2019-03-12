@@ -84,7 +84,7 @@
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn color="info" dark @click="agregarDetalle">Agregar</v-btn>
                   </v-toolbar>
-                  <v-data-table class="mx-3" :headers="headers" :items="articulo.detalle" :loading="cargando">
+                  <v-data-table class="mx-3" :headers="headers" :items="articulo.detalle" :loading="cargando" hide-actions>
                     <template slot="items" slot-scope="props" v-if="props.item.activo">
                       <td>
                         <v-icon @click="eliminarDetalle(props.item)" class="icon">delete</v-icon>
