@@ -32,6 +32,7 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
+                    :readonly="modoLectura"
                     class="mx-3"
                     v-model="ingreso.numeroComprobante"
                     label="Nro. Comprobante"
@@ -41,6 +42,7 @@
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
+                    :readonly="modoLectura"
                     v-model="ingreso.tipoComprobante"
                     :items="tiposCompronate"
                     label="Tipo Comprobante"
@@ -50,14 +52,27 @@
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
+                    :readonly="modoLectura"
                     v-model="ingreso.idProveedor"
                     :items="proveedores"
                     item-text="razonSocial"
                     item-value="id"
                     label="Proveedor"
                     :loading="cargando"
-                    :error-messages="mensajeValidacion['IdProveedor']"
+                    required
+                    @input="$v.ingreso.idProveedor.$touch()"
+                    @blur="$v.ingreso.idProveedor.$touch()"
+                    :error-messages="mensajeValidacion['IdProveedor'] || proveedorError"
                   ></v-select>
+                </v-flex>
+                <v-flex xs12 sm12 md6>
+                  <v-text-field
+                    type="date"
+                    class="mx-3"
+                    readonly
+                    :value="fechaIngreso"
+                    label="Fecha Ingreso"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
             </v-card-text>
@@ -67,12 +82,12 @@
             <v-card>
               <v-toolbar flat dark class="secondary" dense>
                 <v-toolbar-title>
-                  <span class="headline">Ingreso de stock</span>
+                  <span class="headline">Agregar detalle</span>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-divider></v-divider>
-              <v-card-text v-on:keyup.enter="guardar">
+              <v-card-text>
                 <v-container grid-list-md>
                   <v-layout wrap>
                     <v-flex xs6 sm6 md6>
@@ -83,19 +98,43 @@
                         label="Artículo"
                         :loading="getArticulos"
                         return-object
+                        required
+                        @input="$v.detalle.articulo.$touch()"
+                        @blur="$v.detalle.articulo.$touch()"
+                        :error-messages="articuloError"
                       ></v-select>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
-                      <v-text-field type="number" label="Cantidad" v-model="detalle.cantidad"></v-text-field>
+                      <v-text-field
+                        type="number"
+                        label="Cantidad"
+                        v-model="detalle.cantidad"
+                        required
+                        @input="$v.detalle.cantidad.$touch()"
+                        @blur="$v.detalle.cantidad.$touch()"
+                        :error-messages="cantidadError"
+                      ></v-text-field>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
-                      <v-text-field type="number" label="Edición Nro." v-model="detalle.nroEdicion"></v-text-field>
+                      <v-text-field
+                        type="number"
+                        label="Nro. Edición"
+                        v-model="detalle.nroEdicion"
+                        required
+                        @input="$v.detalle.nroEdicion.$touch()"
+                        @blur="$v.detalle.nroEdicion.$touch()"
+                        :error-messages="nroEdicionError"
+                      ></v-text-field>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
                       <v-text-field
                         type="date"
                         label="Fecha Edición"
                         v-model="detalle.fechaEdicion"
+                        required
+                        @input="$v.detalle.fechaEdicion.$touch()"
+                        @blur="$v.detalle.fechaEdicion.$touch()"
+                        :error-messages="fechaEdicionError"
                       ></v-text-field>
                     </v-flex>
 
@@ -107,6 +146,10 @@
                         label="Precio Venta"
                         :loading="getPrecios"
                         return-object
+                        required
+                        @input="$v.detalle.precio.$touch()"
+                        @blur="$v.detalle.precio.$touch()"
+                        :error-messages="precioError"
                       ></v-select>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
@@ -137,6 +180,7 @@
                     <h3 style="display:inline">Detalle</h3>
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn
+                      v-if="!modoLectura"
                       :outline="!activarDetalle"
                       color="info"
                       dark
@@ -162,9 +206,11 @@
                       <div
                         class="text-xs-center"
                         v-if="!mensajeValidacion.hasOwnProperty('Detalle')"
-                      ><v-icon class="mx-2" color="success">info</v-icon>Seleccione un proveedor y luego haga click en "agregar" para ingresar artículos.</div>
+                      >
+                        <v-icon class="mx-2" color="success">info</v-icon>Seleccione un proveedor y luego haga click en "agregar" para agregar artículos.
+                      </div>
                       <div class="text-xs-center" v-else>
-                        <v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.
+                        <v-icon class="mx-2">error</v-icon>Debe agregar al menos un artículo al detalle.
                       </div>
                     </template>
                   </v-data-table>
@@ -173,6 +219,7 @@
             </v-card-text>
           </v-card>
           <v-btn
+            v-if="!modoLectura"
             fixed
             dark
             fab
@@ -197,11 +244,14 @@
 </template>
 
 <script>
-import usuarioMixin from "../../mixins/usuarioMixin.js"
-import columnasMixin from "../../mixins/columnasMixin.js"
+import { validationMixin } from "vuelidate";
+import { required, between } from "vuelidate/lib/validators";
+import usuarioMixin from "../../mixins/usuarioMixin.js";
+import columnasMixin from "../../mixins/columnasMixin.js";
+
 export default {
   name: "FormIngresos",
-  mixins: [usuarioMixin, columnasMixin],
+  mixins: [usuarioMixin, columnasMixin, validationMixin],
   props: {
     id: {
       type: Number,
@@ -217,6 +267,7 @@ export default {
         idUsuarioCreador: null,
         tipoComprobante: null,
         numeroComprobante: null,
+        fechaCreacion: new Date(),
         detalle: []
       },
       detalle: {
@@ -236,12 +287,12 @@ export default {
       tiposCompronate: ["Boleta", "Recibo", "Factura"],
       proveedores: [],
       headers: [
-        { text: "Artículo", value: "nombreArticulo"},
-        { text: "Edición Nro.", value: "nroEdicion", sortable: false},
+        { text: "Artículo", value: "nombreArticulo" },
+        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
-        { text: "Cantidad", value: "cantidad", sortable: false},
-        {text: "Precio Venta",value: "precioVenta", sortable: false},
-        {text: "Precio Rendición", value: "precioRendicion", sortable: false}
+        { text: "Cantidad", value: "cantidad", sortable: false },
+        { text: "Precio Venta", value: "precioVenta", sortable: false },
+        { text: "Precio Rendición", value: "precioRendicion", sortable: false }
       ],
       cargando: false,
       guardando: false,
@@ -260,6 +311,18 @@ export default {
         icon: "info"
       }
     };
+  },
+  validations: {
+    detalle: {
+      articulo: { required },
+      precio: { required },
+      cantidad: { required, between: between(1, Number.MAX_SAFE_INTEGER) },
+      fechaEdicion: { required },
+      nroEdicion: { required, between: between(1, Number.MAX_SAFE_INTEGER) }
+    },
+    ingreso: {
+      idProveedor: { required }
+    }
   },
   created() {
     if (this.id) {
@@ -337,30 +400,29 @@ export default {
         });
     },
     agregarDetalle() {
-      this.ingreso.detalle.push({
-        id: null,
-        idArticulo: this.detalle.articulo ? this.detalle.articulo.id : null,
-        idPrecio: this.detalle.precio ? this.detalle.precio.id : null,
-        cantidad: this.detalle.cantidad,
-        fechaEdicion: this.detalle.fechaEdicion,
-        nroEdicion: this.detalle.nroEdicion,
-        nombreArticulo:this.detalle.articulo.descripcion,
-        precioVenta: this.detalle.precio.precioVenta,
-        precioRendicion: this.detalle.precio.precioRendVendedor
-      });
-      this.limpiar();
-      this.dialogDetalle = false;
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        this.ingreso.detalle.push({
+          id: null,
+          idArticulo: this.detalle.articulo.id,
+          idPrecio: this.detalle.precio.id,
+          cantidad: this.detalle.cantidad,
+          fechaEdicion: this.detalle.fechaEdicion + "T00:00:00",
+          nroEdicion: this.detalle.nroEdicion,
+          nombreArticulo: this.detalle.articulo.descripcion,
+          precioVenta: this.detalle.precio.precioVenta,
+          precioRendicion: this.detalle.precio.precioRendVendedor
+        });
+        this.limpiar();
+        this.dialogDetalle = false;
+      }
     },
-    abrirFormDetalle(){
-        if(this.idProveedor != null){
-            this.dialogDetalle = true
-        }
-        else{
-            this.snackbar.color = "error";
-            this.snackbar.message = "Debe seleccionar un proveedor";
-            this.snackbar.icon = "error";
-            this.snackbar.visible = true;
-        }
+    abrirFormDetalle() {
+      this.$v.ingreso.idProveedor.$touch();
+      if (this.idProveedor != null) {
+        this.dialogDetalle = true;
+        this.limpiar();
+      }
     },
     eliminarDetalle(item) {
       item.activo = false;
@@ -370,6 +432,7 @@ export default {
     },
     limpiar() {
       this.detalle = Object.assign({}, this.detalleDefault);
+      this.$v.$reset();
     },
     close() {
       this.limpiar();
@@ -449,6 +512,20 @@ export default {
     formTitle() {
       return !this.id ? "Registro de ingreso" : "Detalle de ingreso";
     },
+    modoLectura() {
+      return this.id ? true : false;
+    },
+    fechaIngreso() {
+      var d = new Date(this.ingreso.fechaCreacion),
+        month = "" + (d.getMonth() + 1),
+        day = "" + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2) month = "0" + month;
+      if (day.length < 2) day = "0" + day;
+
+      return [year, month, day].join("-");
+    },
     idProveedor() {
       return this.ingreso.idProveedor;
     },
@@ -457,6 +534,46 @@ export default {
         return this.detalle.articulo.id;
       }
       return null;
+    },
+    articuloError() {
+      const errors = [];
+      if (!this.$v.detalle.articulo.$dirty) return errors;
+      !this.$v.detalle.articulo.required && errors.push("Es requerido.");
+      return errors;
+    },
+    cantidadError() {
+      const errors = [];
+      if (!this.$v.detalle.cantidad.$dirty) return errors;
+      !this.$v.detalle.cantidad.between &&
+        errors.push("Debe ser un entero mayor a 0");
+      !this.$v.detalle.cantidad.required && errors.push("Es requerido.");
+      return errors;
+    },
+    nroEdicionError() {
+      const errors = [];
+      if (!this.$v.detalle.nroEdicion.$dirty) return errors;
+      !this.$v.detalle.nroEdicion.between &&
+        errors.push("Debe ser un entero mayor a 0");
+      !this.$v.detalle.nroEdicion.required && errors.push("Es requerido.");
+      return errors;
+    },
+    fechaEdicionError() {
+      const errors = [];
+      if (!this.$v.detalle.fechaEdicion.$dirty) return errors;
+      !this.$v.detalle.fechaEdicion.required && errors.push("Es requerido.");
+      return errors;
+    },
+    precioError() {
+      const errors = [];
+      if (!this.$v.detalle.precio.$dirty) return errors;
+      !this.$v.detalle.precio.required && errors.push("Es requerido.");
+      return errors;
+    },
+    proveedorError() {
+      const errors = [];
+      if (!this.$v.ingreso.idProveedor.$dirty) return errors;
+      !this.$v.ingreso.idProveedor.required && errors.push("Es requerido.");
+      return errors;
     }
   },
   watch: {

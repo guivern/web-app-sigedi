@@ -29,21 +29,27 @@
         >
           <template slot="items" slot-scope="props">
             <td>
-              <v-icon @click="$router.push({path: '/ingresos/' + props.item.id, append: true})">edit</v-icon>
+              <v-icon
+                class="icon"
+                title="ver detalle"
+                @click="$router.push({path: '/ingresos/' + props.item.id, append: true})"
+              >visibility</v-icon>
               <template v-if="props.item.activo">
                 <v-icon
-                  color="info"
                   @click="mostrarDialogActivarDesactivar(props.item)"
-                >toggle_off</v-icon>
+                  title="anular"
+                  class="icon mx-1"
+                >block</v-icon>
               </template>
               <template v-else>
-                <v-icon @click="mostrarDialogActivarDesactivar(props.item)">toggle_on</v-icon>
+                <span class="mx-2">Anulado</span>
               </template>
             </td>
-            <td>{{ props.item.id }}</td>
+            <td class="text-xs-right">{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreProveedor }}</td>
-            <td :class="{'text-xs-center':!props.item.numeroComprobante}">{{ culumnNullable(props.item.numeroComprobante) }}</td>
+            <td>{{ culumnNullable(props.item.tipoComprobante) }}</td>
+            <td>{{ culumnNullable(props.item.numeroComprobante) }}</td>
             <td>{{ props.item.nombreUsuarioCreador }}</td>
           </template>
 
@@ -110,10 +116,10 @@
 </template>
 
 <script>
-import usuarioMixin from '../../mixins/columnasMixin.js'
-import columnasMixin from '../../mixins/columnasMixin.js';
+import usuarioMixin from "../../mixins/columnasMixin.js";
+import columnasMixin from "../../mixins/columnasMixin.js";
 export default {
-  mixins:[columnasMixin],
+  mixins: [columnasMixin],
   data() {
     return {
       ingresos: [],
@@ -124,10 +130,15 @@ export default {
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
         { text: "Nro. Ingreso", value: "id" },
-        { text: "Fecha Ingreso", value: "fechaCreacion"},
-        { text: "Proveedor", value: "nombreProveedor"},
-        { text: "Nro. Comprobante", value: "numeroComprobante"},
-        { text: "Usuario", value: "nombreUsuario"}
+        { text: "Fecha Ingreso", value: "fechaCreacion" },
+        { text: "Proveedor", value: "nombreProveedor" },
+        { text: "Comprobante", value: "tipoComprobante", sortable: false },
+        {
+          text: "Nro. Comprobante",
+          value: "numeroComprobante",
+          sortable: false
+        },
+        { text: "Usuario", value: "nombreUsuario" }
       ],
       activarDesactivarDialog: {
         titulo: "",
@@ -164,8 +175,8 @@ export default {
       if (item.activo) {
         this.activarDesactivarDialog.titulo = "Anular ingreso";
         this.activarDesactivarDialog.mensaje =
-          "Desea anular el ingreso? ";
-      } 
+          "Desea anular el ingreso Nro. " + item.id + " ?";
+      }
       this.activarDesactivarDialog.item = item;
       this.activarDesactivarDialog.mostrar = true;
     },
@@ -204,4 +215,10 @@ export default {
 };
 </script>
 <style scoped>
+.icon:hover {
+  color: #1976d2;
+}
+.icon {
+  color: grey;
+}
 </style>
