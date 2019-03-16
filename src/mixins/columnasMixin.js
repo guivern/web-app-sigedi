@@ -16,7 +16,7 @@ export default {
       if (mm < 10) {
         mm = "0" + mm;
       }
-      return dd + "/" + mm + "/" + yyyy + " " + date.toLocaleTimeString();
+      return dd + "-" + mm + "-" + yyyy + " " + date.toLocaleTimeString();
     },
     columnDateWithoutTime(val) {
       var date = new Date(val);
@@ -31,7 +31,7 @@ export default {
       if (mm < 10) {
         mm = "0" + mm;
       }
-      return dd + "/" + mm + "/" + yyyy;
+      return dd + "-" + mm + "-" + yyyy;
     },
     columnMoney(val) {
       if (val != null) {
