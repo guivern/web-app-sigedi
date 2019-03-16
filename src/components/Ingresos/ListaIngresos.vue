@@ -41,10 +41,10 @@
               </template>
             </td>
             <td>{{ props.item.id }}</td>
-            <td>{{ props.item.fechaCreacion }}</td>
+            <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreProveedor }}</td>
-            <td>{{ props.item.numeroComprobante }}</td>
-            <td>{{ props.item.usuarioCreador }}</td>
+            <td :class="{'text-xs-center':!props.item.numeroComprobante}">{{ culumnNullable(props.item.numeroComprobante) }}</td>
+            <td>{{ props.item.nombreUsuarioCreador }}</td>
           </template>
 
           <template slot="no-data">
@@ -110,9 +110,10 @@
 </template>
 
 <script>
-import usuarioMixin from '../../mixins/usuarioMixin.js'
+import usuarioMixin from '../../mixins/columnasMixin.js'
+import columnasMixin from '../../mixins/columnasMixin.js';
 export default {
-  mixins:[usuarioMixin],
+  mixins:[columnasMixin],
   data() {
     return {
       ingresos: [],
@@ -123,7 +124,7 @@ export default {
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
         { text: "Nro. Ingreso", value: "id" },
-        { text: "Fecha", value: "fechaCreacion"},
+        { text: "Fecha Ingreso", value: "fechaCreacion"},
         { text: "Proveedor", value: "nombreProveedor"},
         { text: "Nro. Comprobante", value: "numeroComprobante"},
         { text: "Usuario", value: "nombreUsuario"}
