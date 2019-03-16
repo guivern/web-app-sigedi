@@ -15,6 +15,7 @@ import FormProveedores from "./components/Proveedores/FormProveedores.vue";
 import ListaArticulos from "./components/Articulos/ListaArticulos.vue";
 import FormArticulos from "./components/Articulos/FormArticulos.vue";
 import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
+import FormIngresos from "./components/Ingresos/FormIngresos.vue"
 
 Vue.use(Router);
 
@@ -192,7 +193,7 @@ var router = new Router({
           component: ListaIngresos,
           meta: { administrador: true, repartidor: true }
         },
-        /*{
+        {
           path: "nuevo",
           component: FormIngresos,
           meta: { administrador: true }
@@ -204,7 +205,7 @@ var router = new Router({
             id: parseInt(route.params.id)
           }),
           meta: { administrador: true }
-        }*/
+        }
       ]
     },
   ]
