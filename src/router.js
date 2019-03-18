@@ -14,6 +14,8 @@ import ListaProveedores from "./components/Proveedores/ListaProveedores.vue";
 import FormProveedores from "./components/Proveedores/FormProveedores.vue";
 import ListaArticulos from "./components/Articulos/ListaArticulos.vue";
 import FormArticulos from "./components/Articulos/FormArticulos.vue";
+import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
+import FormIngresos from "./components/Ingresos/FormIngresos.vue"
 
 Vue.use(Router);
 
@@ -171,6 +173,34 @@ var router = new Router({
         {
           path: ":id",
           component: FormArticulos,
+          props: route => ({
+            id: parseInt(route.params.id)
+          }),
+          meta: { administrador: true }
+        }
+      ]
+    },
+    {
+      path: "/ingresos",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaIngresos,
+          meta: { administrador: true, repartidor: true }
+        },
+        {
+          path: "nuevo",
+          component: FormIngresos,
+          meta: { administrador: true }
+        },
+        {
+          path: ":id",
+          component: FormIngresos,
           props: route => ({
             id: parseInt(route.params.id)
           }),
