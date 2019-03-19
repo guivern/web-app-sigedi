@@ -84,7 +84,13 @@
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn color="info" dark @click="agregarDetalle">Agregar</v-btn>
                   </v-toolbar>
-                  <v-data-table class="mx-3" :headers="headers" :items="articulo.detalle" :loading="cargando" hide-actions>
+                  <v-data-table
+                    class="mx-3"
+                    :headers="headers"
+                    :items="articulo.detalle"
+                    :loading="cargando"
+                    hide-actions
+                  >
                     <template slot="items" slot-scope="props" v-if="props.item.activo">
                       <td>
                         <v-icon @click="eliminarDetalle(props.item)" class="icon">delete</v-icon>
@@ -115,10 +121,26 @@
                       </td>
                     </template>
                     <template slot="no-data">
-                      <div class="text-xs-center" v-if="!mensajeValidacion.hasOwnProperty('Detalle')">Haga click en "agregar" para ingresar detalle</div>
-                      <div class="text-xs-center" v-else><v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.</div>
+                      <div
+                        class="text-xs-center"
+                        v-if="!mensajeValidacion.hasOwnProperty('Detalle')"
+                      >
+                        <v-icon class="mx-2" color="success">info</v-icon>Haga click en "agregar" para agregar un precio.
+                      </div>
+                      <div class="text-xs-center" v-else>
+                        <v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.
+                      </div>
                     </template>
                   </v-data-table>
+                  <!-- hay precios, pero ninguno activo -->
+                  <template v-if="ningunPrecioActivo">
+                    <div class="text-xs-center my-2" v-if="!mensajeValidacion.hasOwnProperty('Detalle')">
+                      <v-icon class="mx-2" color="success">info</v-icon>Haga click en "agregar" para agregar un precio.
+                    </div>
+                    <div class="text-xs-center my-2" v-else>
+                      <v-icon class="mx-2">error</v-icon>Debe ingresar al menos un precio de venta y rendición.
+                    </div>
+                  </template>
                 </v-flex>
               </v-layout>
             </v-card-text>
@@ -266,10 +288,15 @@ export default {
       this.focusPrecio = true;
     },
     eliminarDetalle(item) {
-      item.activo = false;
-      /*this.articulo.detalle = this.articulo.detalle.filter(
-        p => p.id != item.id || p.index != item.index
-      );*/
+      if (item.id) {
+        // los que tienen id se desactivan
+        item.activo = false;
+      } else {
+        // los que no tienen id se eliminan directamente
+        this.articulo.detalle = this.articulo.detalle.filter(
+          i => i.id != item.id || i.index != item.index
+        );
+      }
     },
     guardar() {
       this.guardando = true;
@@ -343,7 +370,22 @@ export default {
   },
   computed: {
     formTitle() {
-      return !this.id ? "Nuevo artículo" : "Actualizar artículo";
+      return !this.id ? "Registro de artículo" : "Actualización de artículo";
+    },
+    ningunPrecioActivo() {
+      // verificamos si hay precios
+      if (this.articulo.detalle.length > 0) {
+        var resp = true;
+        this.articulo.detalle.forEach(function(a) {
+          if (a.activo) {
+            // hay algun activo
+            resp = false;
+            return;
+          }
+        });
+        return resp;
+      }
+      return false;
     }
   }
 };
@@ -351,10 +393,9 @@ export default {
 
 <style scoped>
 .icon:hover {
-  color: #FF5252;
+  color: #ff5252;
 }
 .icon {
   color: grey;
 }
-
 </style>
