@@ -29,12 +29,12 @@
         >
           <template slot="items" slot-scope="props">
             <td>{{ props.item.nombreArticulo }}</td>
-            <td>{{ props.item.precioVenta }}</td>
-            <td>{{ props.item.precioRendicion }}</td>
+            <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
             <td>{{ props.item.nroEdicion }}</td>
-            <td>{{ props.item.fechaEdicion }}</td>
-            <td>{{ props.item.cantidadInicial }}</td>
-            <td>{{ props.item.cantidadActual }}</td>
+            <td class="text-xs-right">{{ props.item.precioVenta }}</td>
+            <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
+            <td class="text-xs-right">{{ props.item.cantidadInicial }}</td>
+            <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
           </template>
 
           <template slot="no-data">
@@ -68,7 +68,10 @@
 </template>
 
 <script>
+import columnasMixin from "../../mixins/columnasMixin.js"
 export default {
+  name: "ListaEdiciones",
+  mixins: [columnasMixin],
   data() {
     return {
       ediciones: [],
@@ -78,12 +81,12 @@ export default {
       getError: false,
       headers: [
         { text: "Artículo", value: "nombreArticulo"},
+        { text: "Fecha Edición", value: "fechaEdicion" },
+        { text: "Nro Edición", value: "nroEdicion" },
         { text: "Precio Venta", value: "precioVenta" },
         { text: "Precio Rendición", value: "precioRendicion" },
-        { text: "Nro Edición", value: "nroEdicion" },
-        { text: "Fecha Edición", value: "fechaEdicion" },
-        { text: "Cant. Inicial", value: "cantidadInicial" },
-        { text: "Cant. Actual", value: "cantidadActual" },
+        { text: "Cant. Ingreso", value: "cantidadInicial" },
+        { text: "Stock", value: "cantidadActual" },
       ],
       search: "",
       snackbar: {
