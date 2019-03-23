@@ -33,7 +33,7 @@
             <td>{{ props.item.nroEdicion }}</td>
             <td class="text-xs-right">{{ props.item.precioVenta }}</td>
             <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
-            <td class="text-xs-right">{{ props.item.cantidadInicial }}</td>
+            <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
             <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
           </template>
 
@@ -85,7 +85,7 @@ export default {
         { text: "Nro Edición", value: "nroEdicion" },
         { text: "Precio Venta", value: "precioVenta" },
         { text: "Precio Rendición", value: "precioRendicion" },
-        { text: "Cant. Ingreso", value: "cantidadInicial" },
+        //{ text: "Cant. Ingreso", value: "cantidadInicial" },
         { text: "Stock", value: "cantidadActual" },
       ],
       search: "",
@@ -100,7 +100,7 @@ export default {
     listar() {
       this.cargando = true;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}ediciones?Inactivos=true`)
+        .get(`${process.env.VUE_APP_ROOT_API}ediciones`)
         .then(response => {
           this.ediciones = response.data;
           this.cargando = false;
