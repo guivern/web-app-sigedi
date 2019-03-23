@@ -30,7 +30,7 @@
           <template slot="items" slot-scope="props">
             <td>{{ props.item.nombreArticulo }}</td>
             <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-            <td>{{ props.item.nroEdicion }}</td>
+            <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
             <td class="text-xs-right">{{ props.item.precioVenta }}</td>
             <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
             <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
