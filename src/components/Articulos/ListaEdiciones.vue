@@ -28,6 +28,18 @@
           :disable-initial-sort="true"
         >
           <template slot="items" slot-scope="props">
+            <td>
+              <template v-if="props.item.activo">
+                <v-icon
+                  @click="mostrarDialogActivarDesactivar(props.item)"
+                  title="anular"
+                  class="icon mx-1"
+                >block</v-icon>
+              </template>
+              <template v-else>
+                <span class="mx-2">Anulado</span>
+              </template>
+            </td>
             <td>{{ props.item.nombreArticulo }}</td>
             <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
             <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
@@ -56,6 +68,24 @@
           </template>
         </v-data-table>
       </v-card>
+
+      <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
+      <v-dialog v-model="activarDesactivarDialog.mostrar" max-width="420">
+        <v-card>
+          <v-toolbar color="secondary" flat dark dense extense>
+            <v-toolbar-title>
+              {{activarDesactivarDialog.titulo}}
+              <v-icon class="mx-2" color="warning">warning</v-icon>
+            </v-toolbar-title>
+          </v-toolbar>
+          <v-card-text>{{activarDesactivarDialog.mensaje}}</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn flat color="error" @click="cerrarDialogActivarDesactivar()">Cancelar</v-btn>
+            <v-btn flat color="info" @click="activarDesactivar()">Confirmar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-flex>
     <v-snackbar
       :timeout="1500"
@@ -80,6 +110,7 @@ export default {
       guardando: false,
       getError: false,
       headers: [
+        { text: "Opciones", value: "opciones", sortable: false },
         { text: "Artículo", value: "nombreArticulo"},
         { text: "Fecha Edición", value: "fechaEdicion" },
         { text: "Nro Edición", value: "nroEdicion" },
@@ -88,6 +119,13 @@ export default {
         //{ text: "Cant. Ingreso", value: "cantidadInicial" },
         { text: "Stock", value: "cantidadActual" },
       ],
+      activarDesactivarDialog: {
+        titulo: "",
+        mensaje: "",
+        id: null,
+        mostrar: false,
+        item: {}
+      },
       search: "",
       snackbar: {
         visible: false,
@@ -112,6 +150,41 @@ export default {
           this.getError = true;
         });
     },
+    mostrarDialogActivarDesactivar(item) {
+      if (item.activo) {
+        this.activarDesactivarDialog.titulo = "Anular edicion";
+        this.activarDesactivarDialog.mensaje =
+          "Desea anular el stock Nro. " + item.id + " ?";
+      }
+      this.activarDesactivarDialog.item = item;
+      this.activarDesactivarDialog.mostrar = true;
+    },
+    cerrarDialogActivarDesactivar() {
+      this.activarDesactivarDialog.mostrar = false;
+    },
+    activarDesactivar() {
+      this.$http
+        .put(
+          `${process.env.VUE_APP_ROOT_API}ediciones/${
+            this.activarDesactivarDialog.item.activo ? "desactivar" : "activar"
+          }/${this.activarDesactivarDialog.item.id}`
+        )
+        .then(() => {
+          this.ediciones.map(u => {
+            if (u.id == this.activarDesactivarDialog.item.id) {
+              u.activo = !u.activo;
+            }
+          });
+          this.cerrarDialogActivarDesactivar();
+        })
+        .catch(error => {
+          console.log(error);
+          this.snackbar.color = "error";
+          this.snackbar.message = "Ocurrió un error, revise su conexión.";
+          this.snackbar.visible = true;
+          this.cerrarDialogActivarDesactivar();
+        });
+    }
   },
   computed: {},
   watch: {},
