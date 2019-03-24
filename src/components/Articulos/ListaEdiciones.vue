@@ -28,25 +28,35 @@
           :disable-initial-sort="true"
         >
           <template slot="items" slot-scope="props">
-            <td>
+            <!--<td>
               <template v-if="props.item.activo">
+                <v-icon>check</v-icon>
+              </template>
+              <template v-else>
                 <v-icon
-                  @click="mostrarDialogActivarDesactivar(props.item)"
-                  title="anular"
+                  @click="showAlert(props.item)"
                   class="icon mx-1"
                 >block</v-icon>
               </template>
+            </td>-->
+            <td class="text-xs-center">
+              <template v-if="props.item.activo">
+                <v-icon color="info" @click="showAlert(props.item)">toggle_off</v-icon>
+              </template>
               <template v-else>
-                <span class="mx-2">Anulado</span>
+                <v-icon @click="showAlert(props.item)">toggle_on</v-icon>
               </template>
             </td>
             <td>{{ props.item.nombreArticulo }}</td>
-            <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+            <td class="text-xs-center">{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
             <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
             <td class="text-xs-right">{{ props.item.precioVenta }}</td>
             <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
             <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
             <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
+            <td class="text-xs-center">
+              <v-icon>{{props.item.activo?'check':'block'}}</v-icon>
+            </td>
           </template>
 
           <template slot="no-data">
@@ -60,7 +70,8 @@
                 transition="scale-transition"
                 type="error"
               >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-              <v-btn color="info" title="recargar" @click="listar()">Reintentar
+              <v-btn color="info" title="recargar" @click="listar()">
+                Reintentar
                 <v-icon small>refresh</v-icon>
               </v-btn>
             </div>
@@ -70,19 +81,19 @@
       </v-card>
 
       <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
-      <v-dialog v-model="activarDesactivarDialog.mostrar" max-width="420">
+      <v-dialog v-model="alertDialog.mostrar" max-width="420">
         <v-card>
           <v-toolbar color="secondary" flat dark dense extense>
             <v-toolbar-title>
-              {{activarDesactivarDialog.titulo}}
-              <v-icon class="mx-2" color="warning">warning</v-icon>
+              {{alertDialog.titulo}}
+              <v-icon class="mx-2" :color="alertDialog.icono">{{alertDialog.icono}}</v-icon>
             </v-toolbar-title>
           </v-toolbar>
-          <v-card-text>{{activarDesactivarDialog.mensaje}}</v-card-text>
+          <v-card-text>{{alertDialog.mensaje}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn flat color="error" @click="cerrarDialogActivarDesactivar()">Cancelar</v-btn>
-            <v-btn flat color="info" @click="activarDesactivar()">Confirmar</v-btn>
+            <v-btn flat color="error" @click="closeDialog()">{{alertDialog.item ?"Cancelar":"Aceptar"}}</v-btn>
+            <v-btn v-if="alertDialog.item" flat color="info" @click="desactivar()">Confirmar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -98,7 +109,7 @@
 </template>
 
 <script>
-import columnasMixin from "../../mixins/columnasMixin.js"
+import columnasMixin from "../../mixins/columnasMixin.js";
 export default {
   name: "ListaEdiciones",
   mixins: [columnasMixin],
@@ -112,19 +123,21 @@ export default {
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
         { text: "Artículo", value: "nombreArticulo"},
-        { text: "Fecha Edición", value: "fechaEdicion" },
-        { text: "Nro Edición", value: "nroEdicion" },
-        { text: "Precio Venta", value: "precioVenta" },
-        { text: "Precio Rendición", value: "precioRendicion" },
+        { text: "Fecha Edición", value: "fechaEdicion"},
+        { text: "Nro. Edición", value: "nroEdicion"},
+        { text: "Precio Venta", value: "precioVenta"},
+        { text: "Precio Rendición", value: "precioRendicion"},
         //{ text: "Cant. Ingreso", value: "cantidadInicial" },
-        { text: "Stock", value: "cantidadActual" },
+        { text: "Cantidad", value: "cantidadActual"},
+        { text: "En stock", value: "activo"}
       ],
-      activarDesactivarDialog: {
+      alertDialog: {
         titulo: "",
         mensaje: "",
         id: null,
+        icono: null,
         mostrar: false,
-        item: {}
+        item: null
       },
       search: "",
       snackbar: {
@@ -138,7 +151,7 @@ export default {
     listar() {
       this.cargando = true;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}ediciones`)
+        .get(`${process.env.VUE_APP_ROOT_API}ediciones?Inactivos=true`)
         .then(response => {
           this.ediciones = response.data;
           this.cargando = false;
@@ -150,39 +163,48 @@ export default {
           this.getError = true;
         });
     },
-    mostrarDialogActivarDesactivar(item) {
+    showAlert(item) {
       if (item.activo) {
-        this.activarDesactivarDialog.titulo = "Anular edicion";
-        this.activarDesactivarDialog.mensaje =
-          "Desea anular el stock Nro. " + item.id + " ?";
+        this.alertDialog.titulo = "Baja de stock";
+        this.alertDialog.mensaje =
+          "Si da de baja una edición, ya no podrá realizar distribuciones con dicha edición. Desea dar de baja el stock Nro. " +
+          item.id +
+          " ?";
+        this.alertDialog.icono = "warning";
+        this.alertDialog.item = item;
+      } else {
+        this.alertDialog.titulo = "Info";
+        this.alertDialog.mensaje =
+          "Solo puede dar de alta una edición a través de un ingreso ";
+        this.alertDialog.icono = "info";
       }
-      this.activarDesactivarDialog.item = item;
-      this.activarDesactivarDialog.mostrar = true;
+      this.alertDialog.mostrar = true;
     },
-    cerrarDialogActivarDesactivar() {
-      this.activarDesactivarDialog.mostrar = false;
+    closeDialog() {
+      this.alertDialog.mostrar = false;
+      this.alertDialog.item = null;
     },
-    activarDesactivar() {
+    desactivar() {
       this.$http
         .put(
           `${process.env.VUE_APP_ROOT_API}ediciones/${
-            this.activarDesactivarDialog.item.activo ? "desactivar" : "activar"
-          }/${this.activarDesactivarDialog.item.id}`
+            this.alertDialog.item.activo ? "desactivar" : "activar"
+          }/${this.alertDialog.item.id}`
         )
         .then(() => {
           this.ediciones.map(u => {
-            if (u.id == this.activarDesactivarDialog.item.id) {
+            if (u.id == this.alertDialog.item.id) {
               u.activo = !u.activo;
             }
           });
-          this.cerrarDialogActivarDesactivar();
+          this.closeDialog();
         })
         .catch(error => {
           console.log(error);
           this.snackbar.color = "error";
           this.snackbar.message = "Ocurrió un error, revise su conexión.";
           this.snackbar.visible = true;
-          this.cerrarDialogActivarDesactivar();
+          this.closeDialog();
         });
     }
   },
