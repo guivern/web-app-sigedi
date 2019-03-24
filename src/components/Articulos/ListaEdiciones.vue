@@ -167,9 +167,7 @@ export default {
       if (item.activo) {
         this.alertDialog.titulo = "Baja de stock";
         this.alertDialog.mensaje =
-          "Si da de baja una edición, ya no podrá realizar distribuciones con dicha edición. Desea dar de baja el stock Nro. " +
-          item.id +
-          " ?";
+          "Si da de baja una edición, ya no podrá realizar distribuciones con dicha edición. Desea dar de baja el stock ?";
         this.alertDialog.icono = "warning";
         this.alertDialog.item = item;
       } else {
