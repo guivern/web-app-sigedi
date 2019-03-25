@@ -28,12 +28,12 @@
           :disable-initial-sort="true"
         >
           <template slot="items" slot-scope="props">
+            <td>{{ columnDateWithoutTime(props.item.fecha) }}</td>
             <td>{{ props.item.nombreArticulo }}</td>
-            <td class="text-xs-center">{{ columnDateWithoutTime(props.item.fecha) }}</td>
+            <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
             <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
-            <td class="text-xs-right">{{ props.item.precioVenta }}</td>
-            <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
             <td class="text-xs-right">{{ props.item.cantidad }}</td>
+            <td class="text-xs-right">{{ props.item.nombreUsuario }}</td>
           </template>
 
           <template slot="no-data">
@@ -72,12 +72,12 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Artículo", value: "nombreArticulo" },
         { text: "Fecha Egreso", value: "fecha"},
+        { text: "Artículo", value: "nombreArticulo" },
+        { text: "Fecha Edicion", value: "fechaEdicion"},
         { text: "Nro. Edición", value: "nroEdicion"},
-        { text: "Precio Venta", value: "precioVenta"},
-        { text: "Precio Rendición", value: "precioRendicion"},
-        { text: "Cantidad Devuelta", value: "cantidad" }
+        { text: "Devoluciones", value: "cantidad" },
+        { text: "Usuario", value: "NombreUsuario"}
       ],
       /*
       activarDesactivarDialog: {

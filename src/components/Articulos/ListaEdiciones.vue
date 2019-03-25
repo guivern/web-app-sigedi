@@ -41,7 +41,7 @@
             </td>-->
             <td class="text-xs-center">
               <template v-if="props.item.activo">
-                <v-icon color="info" @click="showAlert(props.item)">toggle_off</v-icon>
+                <v-icon title="dar de baja" color="info" @click="showAlert(props.item)">toggle_off</v-icon>
               </template>
               <template v-else>
                 <v-icon @click="showAlert(props.item)">toggle_on</v-icon>
@@ -135,7 +135,7 @@ export default {
         { text: "Precio Venta", value: "precioVenta"},
         { text: "Precio Rendición", value: "precioRendicion"},
         //{ text: "Cant. Ingreso", value: "cantidadInicial" },
-        { text: "Cantidad", value: "cantidadActual"},
+        { text: "Stock", value: "cantidadActual"},
         //{ text: "En stock", value: "activo"}
       ],
       alertDialog: {
