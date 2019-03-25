@@ -54,9 +54,9 @@
             <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
             <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
             <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
-            <td class="text-xs-center">
+            <!--<td class="text-xs-center">
               <v-icon>{{props.item.activo?'check':'block'}}</v-icon>
-            </td>
+            </td>-->
           </template>
 
           <template slot="no-data">
@@ -93,7 +93,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn flat color="error" @click="closeDialog()">{{alertDialog.item ?"Cancelar":"Aceptar"}}</v-btn>
-            <v-btn v-if="alertDialog.item" flat color="info" @click="desactivar()">Confirmar</v-btn>
+            <v-btn v-if="alertDialog.item" flat color="info" @click="darBaja()">Confirmar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -109,13 +109,20 @@
 </template>
 
 <script>
+
+import usuarioMixin from "../../mixins/usuarioMixin.js";
 import columnasMixin from "../../mixins/columnasMixin.js";
 export default {
   name: "ListaEdiciones",
-  mixins: [columnasMixin],
+  mixins: [columnasMixin, usuarioMixin],
+
   data() {
     return {
       ediciones: [],
+      edicion: {
+        id: null,
+        idUsuarioCreador: null
+      },
       dialog: false,
       cargando: false,
       guardando: false,
@@ -129,7 +136,7 @@ export default {
         { text: "Precio Rendición", value: "precioRendicion"},
         //{ text: "Cant. Ingreso", value: "cantidadInicial" },
         { text: "Cantidad", value: "cantidadActual"},
-        { text: "En stock", value: "activo"}
+        //{ text: "En stock", value: "activo"}
       ],
       alertDialog: {
         titulo: "",
@@ -151,7 +158,7 @@ export default {
     listar() {
       this.cargando = true;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}ediciones?Inactivos=true`)
+        .get(`${process.env.VUE_APP_ROOT_API}ediciones`)
         .then(response => {
           this.ediciones = response.data;
           this.cargando = false;
@@ -182,19 +189,20 @@ export default {
       this.alertDialog.mostrar = false;
       this.alertDialog.item = null;
     },
-    desactivar() {
+    darBaja() {
+  
+      this.edicion.idUsuarioCreador = this.getUserId();
+      this.edicion.id = this.alertDialog.item.id;
+
       this.$http
-        .put(
-          `${process.env.VUE_APP_ROOT_API}ediciones/${
-            this.alertDialog.item.activo ? "desactivar" : "activar"
-          }/${this.alertDialog.item.id}`
-        )
-        .then(() => {
-          this.ediciones.map(u => {
-            if (u.id == this.alertDialog.item.id) {
+          .post(`${process.env.VUE_APP_ROOT_API}ediciones`, this.edicion)
+        .then(response => {
+          this.listar();
+          /*this.ediciones.map(u => {
+           if (u.id == this.alertDialog.item.id) {
               u.activo = !u.activo;
             }
-          });
+          });*/
           this.closeDialog();
         })
         .catch(error => {
