@@ -17,6 +17,7 @@ import FormArticulos from "./components/Articulos/FormArticulos.vue";
 import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
 import FormIngresos from "./components/Ingresos/FormIngresos.vue"
 import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
+import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
 
 Vue.use(Router);
 
@@ -220,6 +221,21 @@ var router = new Router({
         {
           path: "",
           component: ListaEdiciones,
+          meta: { administrador: true }
+        },
+      ]
+    },
+    {
+      path: "/egresos",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaEgresos,
           meta: { administrador: true }
         },
       ]
