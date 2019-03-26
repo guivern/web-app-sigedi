@@ -21,7 +21,8 @@
             type="error"
             outline
           >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-          <v-btn color="info" title="recargar" @click="recargar()">Reintentar
+          <v-btn color="info" title="recargar" @click="recargar()">
+            Reintentar
             <v-icon small>refresh</v-icon>
           </v-btn>
         </div>
@@ -50,6 +51,9 @@
                   ></v-select>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
+                  <v-text-field class="mx-3" label="RUC" :readonly="modoLectura" v-model="ruc"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
                     :readonly="modoLectura"
@@ -64,15 +68,6 @@
                     @blur="$v.ingreso.idProveedor.$touch()"
                     :error-messages="mensajeValidacion['IdProveedor'] || proveedorError"
                   ></v-select>
-                </v-flex>
-                <v-flex xs12 sm12 md6>
-                  <v-text-field
-                    type="date"
-                    class="mx-3"
-                    readonly
-                    :value="fechaIngreso"
-                    label="Fecha Ingreso"
-                  ></v-text-field>
                 </v-flex>
               </v-layout>
             </v-card-text>
@@ -284,6 +279,7 @@ export default {
         fechaEdicion: null,
         nroEdicion: null
       },
+      ruc: null,
       tiposCompronate: ["Boleta", "Recibo", "Factura"],
       proveedores: [],
       headers: [
@@ -325,10 +321,10 @@ export default {
     }
   },
   created() {
+    this.getProveedores();
     if (this.id) {
       this.getingreso();
     }
-    this.getProveedores();
   },
   methods: {
     getingreso() {
@@ -502,10 +498,10 @@ export default {
       }
     },
     recargar() {
+      this.getProveedores();
       if (this.id) {
         this.getingreso();
       }
-      this.getProveedores();
     }
   },
   computed: {
@@ -577,12 +573,30 @@ export default {
     }
   },
   watch: {
-    idProveedor() {
-      if (this.idProveedor != null && this.id == null) {
+    idProveedor(newValue, oldValue) {
+      if (oldValue != null) {
+        this.ingreso.detalle = [];
+      }
+
+      if (this.idProveedor) {
         // obtenemos los articulos del proveedor
         this.activarDetalle = true;
         this.listarArticulos();
-        this.ingreso.detalle = [];
+      }
+      //console.log(this.proveedores);
+      let proveedor = this.proveedores.find(
+        p => p.id == this.ingreso.idProveedor
+      );
+
+      this.ruc = proveedor && proveedor.numeroDocumento;
+    },
+    ruc() {
+      if (this.ruc) {
+        let proveedor = this.proveedores.find(
+          p => p.numeroDocumento == this.ruc
+        );
+        this.ingreso.idProveedor = proveedor && proveedor.id;
+        this.activarDetalle = this.ingreso.idProveedor && true;
       }
     },
     idArticulo() {
