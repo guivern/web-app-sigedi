@@ -17,12 +17,9 @@ import FormArticulos from "./components/Articulos/FormArticulos.vue";
 import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
 import FormIngresos from "./components/Ingresos/FormIngresos.vue"
 import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
-<<<<<<< HEAD
 import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
-=======
 import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue"
 import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
->>>>>>> rebase devel
 
 Vue.use(Router);
 
