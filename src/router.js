@@ -18,6 +18,8 @@ import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
 import FormIngresos from "./components/Ingresos/FormIngresos.vue"
 import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
 import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
+import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue"
+import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
 
 Vue.use(Router);
 
@@ -221,8 +223,36 @@ var router = new Router({
         {
           path: "",
           component: ListaEdiciones,
-          meta: { administrador: true }
+          meta: { administrador: true, repartidor: true }
         },
+      ]
+    },
+    {
+      path: "/distribuciones",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaDistribuciones,
+          meta: { administrador: true, repartidor: true }
+        },
+        {
+          path: "nuevo",
+          component: FormDistribuciones,
+          meta: { administrador: true, repartidor: true }
+        },
+        {
+          path: ":id",
+          component: FormDistribuciones,
+          props: route => ({
+            id: parseInt(route.params.id)
+          }),
+          meta: { administrador: true, repartidor: true }
+        }
       ]
     },
     {
