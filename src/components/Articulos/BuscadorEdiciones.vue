@@ -14,24 +14,31 @@
             v-model="nombre"
             autofocus
             label="Buscar"
-            @keyup="searchTimeOut()"
           ></v-text-field>
           <v-data-table
             :headers="header"
             :items="ediciones"
             :loading="cargando"
             :disable-initial-sort="true"
-            :rows-per-page-items="[]"
             :search="nombre"
+            hide-actions
+            class="scrollable-list"
           >
             <template slot="items" slot-scope="props">
-              <td>
-                <!--<v-icon @click="agregar(props.item)">add</v-icon>-->
+              <!--<td>
+                
                 <v-checkbox v-model="props.item.selected" @change="agregar(props.item)"></v-checkbox>
+              </td>-->
+              <td>
+                  
+                <v-checkbox
+                  v-model="props.item.selected"
+                  @change="agregar(props.item)"
+                  :label="props.item.nombreArticulo"
+                ></v-checkbox>
               </td>
-              <td>{{ props.item.nombreArticulo }}</td>
-              <td>{{ props.item.nroEdicion }}</td>
-              <td>{{ props.item.fechaEdicion }}</td>
+              <td class="text-xs-center">{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+              <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
               <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
             </template>
             <template slot="no-data">
@@ -44,16 +51,18 @@
   </v-card>
 </template>
 <script>
+import columnasMixin from "../../mixins/columnasMixin.js";
 export default {
   name: "BuscadorEdiciones",
+  mixins: [columnasMixin],
   props: ["detalle"],
   data() {
     return {
       header: [
-        { text: "Seleccionar", value: "seleccionar", sortable: false },
+        //{ text: "Seleccionar", value: "seleccionar", sortable: false },
         { text: "Artículo", value: "nombreArticulo" },
-        { text: "Nro. Edición", value: "nroEdicion" },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Nro. Edición", value: "nroEdicion" },
         { text: "Stock", value: "stock", sortable: false }
       ],
       ediciones: [],
@@ -204,18 +213,43 @@ export default {
         id: 1 //idEdicion
       });
     },
+    getEdiciones() {
+      this.cargando = true;
+      this.getOk = false;
+      this.getError = false;
+
+      this.$http
+        .get(`${process.env.VUE_APP_ROOT_API}ediciones`)
+        .then(response => {
+          this.cargando = false;
+          this.getOk = true;
+          this.ediciones = response.data;
+          for(var i = 0; i<this.ediciones.length; i++ )
+          {
+            for(var j = 0; j<this.detalle.length; j++ )
+            {
+              if(this.ediciones[i].id == this.detalle[j].idEdicion)
+              {
+                this.ediciones[i].selected = true;
+                this.detalle[j].selected = true;
+              }
+            }  
+          }
+        })
+        .catch(error => {
+          this.cargando = false;
+          this.getError = true;
+        });
+    },
     agregar(item) {
-      //this.$emit("input");
-      //this.$emit("getArticulo", item);
-      //this.nombre = null;
-      //this.limpiar();
+      item.idEdicion = item.id?item.id:item.idEdicion;
       if (item.selected) {
-        //item.idEdicion = item.id
-        if (!this.detalle.some(d => d.id == item.id)) {
+        //item.index = this.detalle.length  
+        if (!this.detalle.some(d => d.idEdicion == item.idEdicion)) {
           this.detalle.push(item);
         }
-      }
-      else{
+      } else {
+        console.log("hola");
         this.$emit("quitar", item);
       }
     },
@@ -240,21 +274,25 @@ export default {
     }
   },
   created() {
-    this.getDatosFake();
-    console.log("hola");
+    //this.getDatosFake();
+    this.getEdiciones();
   },
   computed: {
     mensaje() {
-      if (this.getOk && this.articulos.length == 0) {
-        return "La búsqueda no produjo resultados.";
-      } else if (this.getError) {
-        return "Ocurrió un error al intentar realizar la búsqueda, revise su conexión e intente nuevamente.";
+      if (this.getError) {
+        return "Ocurrió un error al intentar obtener los datos, revise su conexión e intente nuevamente.";
       } else {
-        return "Aquí apareceran los resultados de la búsqueda.";
+        return "Aquí apareceran los artículos en stock.";
       }
     }
   }
 };
 </script>
 <style>
+.scrollable-list {
+  /*max-height: 400px;*/
+  height: 300px;
+  overflow-y: auto;
+}
+
 </style>

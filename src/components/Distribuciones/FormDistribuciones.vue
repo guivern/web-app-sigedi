@@ -13,6 +13,7 @@
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
           <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+          <p class="mt-2">Cargando...</p>
         </div>
         <div v-if="getError" class="text-xs-center" style="padding:50px">
           <v-alert
@@ -21,7 +22,8 @@
             type="error"
             outline
           >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-          <v-btn color="info" title="recargar" @click="recargar()">Reintentar
+          <v-btn color="info" title="recargar" @click="recargar()">
+            Reintentar
             <v-icon small>refresh</v-icon>
           </v-btn>
         </div>
@@ -31,7 +33,12 @@
             <v-card-text v-on:keyup.enter="guardar">
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
-                  <v-text-field class="mx-3" label="Nro. Documento" v-model="nroDocumento"></v-text-field>
+                  <v-text-field
+                    class="mx-3"
+                    label="Nro. Documento"
+                    v-model="nroDocumento"
+                    :append-icon="this.id? '' : 'search'"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
               <v-layout wrap row>
@@ -58,20 +65,23 @@
               <v-layout row wrap>
                 <v-flex>
                   <v-toolbar flat color="white">
-                    <span style="display:inline" class="title">Artículos</span>
+                    <span style="display:inline" class="title">Detalle</span>
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn
+                      
                       class="ml-3"
-                      small
-                      fab
+                      
+                      
                       :outline="!activarDetalle"
                       @click="abrirFormDetalle"
                       color="teal"
                       dark
-                    ><v-icon>launch</v-icon> </v-btn>
+                    >Articulos
+                      <v-icon small class="ml-1">launch</v-icon>
+                    </v-btn>
                   </v-toolbar>
                   <v-data-table
-                    class="mx-3"
+                    class="scrollable"
                     :headers="headers"
                     :items="distribucion.detalle"
                     :loading="cargando"
@@ -79,13 +89,22 @@
                   >
                     <template slot="items" slot-scope="props">
                       <td>{{ props.item.nombreArticulo }}</td>
-                      <td>{{ props.item.nroEdicion }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                      <td>
-                        <v-text-field type="number" v-model="props.item.cantidad"></v-text-field>
+                      <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
+                      <td class="text-xs-right">
+                        <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
+                        <template >
+                          <v-text-field
+                            class="style-input"
+                            type="number"
+                            v-model="props.item.cantidad"
+                            :error-messages="mensajeValidacion[`Detalle[${distribucion.detalle.indexOf(props.item)}].Cantidad`]"
+                            @focus="limpiarDetalle(props.item)"
+                          ></v-text-field>
+                        </template>
                       </td>
-                      <td>{{ props.item.precioVenta }}</td>
-                      <td>{{ props.item.precioRendicion }}</td>
+                      <td class="text-xs-right">{{ props.item.precioVenta }}</td>
+                      <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
                     </template>
                     <template slot="no-data">
                       <div
@@ -112,6 +131,21 @@
               @quitar="quitarItem"
             ></buscador-ediciones>
           </v-dialog>
+          <v-btn
+            
+            fixed
+            dark
+            fab
+            bottom
+            right
+            type="button"
+            title="Guardar"
+            color="success"
+            @click="guardar"
+            :loading="guardando"
+          >
+            <v-icon>send</v-icon>
+          </v-btn>
         </template>
       </v-card>
     </v-flex>
@@ -145,9 +179,9 @@ export default {
       },
       headers: [
         { text: "Artículo", value: "nombreArticulo" },
-        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
-        { text: "Cantidad", value: "cantidad", sortable: false, width: "5%" },
+        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
+        { text: "Cantidad", value: "cantidad", sortable: false, width: "12%" },
         { text: "Precio Venta", value: "precioVenta", sortable: false },
         { text: "Precio Rendición", value: "precioRendicion", sortable: false }
       ],
@@ -175,8 +209,30 @@ export default {
   },
   created() {
     this.getVendedores();
+    if (this.id) {
+      this.getDistribucion();
+    }
   },
   methods: {
+    getDistribucion() {
+      this.cargando = true;
+      this.getError = false;
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ROOT_API}distribuciones/${
+            this.id
+          }?Inactivo=true`
+        )
+        .then(response => {
+          this.distribucion = response.data;
+          this.cargando = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.cargando = false;
+          this.getError = true;
+        });
+    },
     getVendedores() {
       this.cargando = true;
       this.getError = false;
@@ -193,12 +249,95 @@ export default {
         });
     },
     quitarItem(item) {
-      this.distribucion.detalle = this.distribucion.detalle.filter(d => d.id != item.id);
+      //item.cantidad = null;
+      this.distribucion.detalle.forEach(d => this.limpiarDetalle(d));
+      this.distribucion.detalle = this.distribucion.detalle.filter(
+        d => d.idEdicion != item.idEdicion
+      );
     },
     abrirFormDetalle() {
       this.$v.distribucion.idVendedor.$touch();
       if (this.distribucion.idVendedor != null) {
         this.mostrarBuscador = true;
+      }
+    },
+    limpiarDetalle(item) {
+      delete this.mensajeValidacion[
+        `Detalle[${this.distribucion.detalle.indexOf(item)}].Cantidad`
+      ];
+    },
+    guardar() {
+      this.guardando = true;
+      if (this.distribucion.id) {
+        // Editar
+        this.$http
+          .put(
+            `${process.env.VUE_APP_ROOT_API}distribuciones/${
+              this.distribucion.id
+            }`,
+            this.distribucion
+          )
+          .then(response => {
+            this.guardando = false;
+            this.snackbar.color = "info";
+            this.snackbar.message = "Actualización exitosa";
+            this.snackbar.icon = "check_circle";
+            this.snackbar.visible = true;
+            setTimeout(() => {
+              this.$router.push(".");
+            }, 2000);
+          })
+          .catch(error => {
+            this.guardando = false;
+            if (error.response) {
+              this.mensajeValidacion = error.response.data.errors
+                ? error.response.data.errors
+                : error.response.data;
+            } else {
+              this.snackbar.color = "error";
+              this.snackbar.message = "Ocurrió un error, revise su conexión.";
+              this.snackbar.icon = "error";
+              this.snackbar.visible = true;
+            }
+          });
+      } else {
+        // Guardar
+        this.distribucion.idUsuarioCreador = this.getUserId();
+        this.distribucion.detalle.forEach(d => (d.id = null));
+        this.$http
+          .post(
+            `${process.env.VUE_APP_ROOT_API}distribuciones`,
+            this.distribucion
+          )
+          .then(response => {
+            this.guardando = false;
+            this.snackbar.color = "info";
+            this.snackbar.message = "Registro exitoso";
+            this.snackbar.icon = "check_circle";
+            this.snackbar.visible = true;
+            setTimeout(() => {
+              this.$router.push(".");
+            }, 2000);
+          })
+          .catch(error => {
+            this.guardando = false;
+            if (error.response) {
+              this.mensajeValidacion = error.response.data.errors
+                ? error.response.data.errors
+                : error.response.data;
+            } else {
+              this.snackbar.color = "error";
+              this.snackbar.message = "Ocurrió un error, revise su conexión.";
+              this.snackbar.icon = "error";
+              this.snackbar.visible = true;
+            }
+          });
+      }
+    },
+    recargar() {
+      this.getVendedores();
+      if (this.id) {
+        this.getDistribucion();
       }
     }
   },
@@ -219,7 +358,7 @@ export default {
   },
   computed: {
     formTitle() {
-      return this.id ? "Detalle de distribución" : "Registro de distribución";
+      return this.id ? "Detalle de Distribución" : "Registro de Distribución";
     },
     idVendedor() {
       return this.distribucion.idVendedor;
@@ -229,7 +368,20 @@ export default {
       if (!this.$v.distribucion.idVendedor.$dirty) return errors;
       !this.$v.distribucion.idVendedor.required && errors.push("Es requerido.");
       return errors;
+    },
+    modoLectura() {
+      return this.id ? true : false;
     }
   }
 };
 </script>
+<style>
+.scrollable {
+  max-height: 350px;
+  overflow-y: auto;
+}
+.style-input input {
+  text-align: right;
+  font-size: 0.9em;
+}
+</style>
