@@ -35,20 +35,21 @@
                 @click="$router.push({path: '/distribuciones/' + props.item.id, append: true})"
               >visibility</v-icon>
               <template v-if="props.item.activo">
-                <v-icon
+                <!--<v-icon
                   @click="mostrarDialogActivarDesactivar(props.item)"
                   title="anular"
                   class="icon mx-1"
-                >block</v-icon>
+                >block</v-icon>-->
               </template>
               <template v-else>
                 <span class="mx-2">Anulado</span>
               </template>
             </td>
-            <td class="text-xs-right">{{ props.item.id }}</td>
+            <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreVendedor }}</td>
             <td>{{ props.item.nombreUsuarioCreador }}</td>
+            
           </template>
 
           <template slot="no-data">
@@ -126,11 +127,12 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Opciones", value: "opciones", sortable: false },
-        { text: "Nro. Distribución", value: "id" },
-        { text: "Fecha Distribución", value: "fechaCreacion" },
-        { text: "Vendedor", value: "nombreVendedor" },
-        { text: "Distribuidor", value: "nombreUsuario" }
+        { text: "Detalle", value: "detalle", sortable: false, },
+        { text: "Nro. Distribución", value: "id"  },
+        { text: "Fecha Distribución", value: "fechaCreacion"   },
+        { text: "Vendedor", value: "nombreVendedor"  },
+        { text: "Distribuidor", value: "nombreUsuario" },
+        
       ],
       activarDesactivarDialog: {
         titulo: "",

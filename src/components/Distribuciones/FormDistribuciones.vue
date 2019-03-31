@@ -9,6 +9,16 @@
             </v-btn>
             {{formTitle}}
           </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn-toggle v-if="!modoCarga" v-model="toggle_exclusive" light>
+            <v-btn flat @click="activarModoLectura">
+              <v-icon>visibility</v-icon>
+            </v-btn>
+            <v-divider vertical></v-divider>
+            <v-btn flat @click="activarModoEdicion">
+              <v-icon>edit</v-icon>
+            </v-btn>
+          </v-btn-toggle>
         </v-toolbar>
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
@@ -34,16 +44,18 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
+                    :disabled="modoLectura || (!modoLectura && !distribucion.editable)"
                     class="mx-3"
                     label="Nro. Documento"
                     v-model="nroDocumento"
-                    :append-icon="this.id? '' : 'search'"
+                    :append-icon="modoLectura? '' : 'search'"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-select
+                    :disabled="modoLectura || (!modoLectura && !distribucion.editable)"
                     class="mx-3"
                     label="Vendedor"
                     v-model="distribucion.idVendedor"
@@ -51,9 +63,7 @@
                     item-value="id"
                     item-text="nombreCompleto"
                     required
-                    @input="$v.distribucion.idVendedor.$touch()"
-                    @blur="$v.distribucion.idVendedor.$touch()"
-                    :error-messages="mensajeValidacion['IdVendedor'] || vendedorError"
+                    :error-messages="mensajeValidacion['IdVendedor']"
                   ></v-select>
                 </v-flex>
               </v-layout>
@@ -66,19 +76,14 @@
                 <v-flex>
                   <v-toolbar flat color="white">
                     <span style="display:inline" class="title">Detalle</span>
-                    <v-divider class="mx-3" inset vertical></v-divider>
+                    <v-divider class="mx-2" inset vertical></v-divider>
+                    <!--<v-spacer></v-spacer>-->
                     <v-btn
-                      
-                      class="ml-3"
-                      
-                      
-                      :outline="!activarDetalle"
-                      @click="abrirFormDetalle"
-                      color="teal"
+                      v-if="!modoLectura"
+                      @click="mostrarBuscador = true"
+                      color="info"
                       dark
-                    >Articulos
-                      <v-icon small class="ml-1">launch</v-icon>
-                    </v-btn>
+                    >Agregar</v-btn>
                   </v-toolbar>
                   <v-data-table
                     class="scrollable"
@@ -88,13 +93,20 @@
                     hide-actions
                   >
                     <template slot="items" slot-scope="props">
+                      <td v-if="props.item.editable && !modoLectura">
+                        <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
+                      </td>
+                      <td v-else>
+                        <v-icon>delete_outlined</v-icon>
+                      </td>
                       <td>{{ props.item.nombreArticulo }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
                       <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
                       <td class="text-xs-right">
                         <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
-                        <template >
+                        <template>
                           <v-text-field
+                            :disabled="modoLectura || (!modoLectura && !props.item.editable)"
                             class="style-input"
                             type="number"
                             v-model="props.item.cantidad"
@@ -125,14 +137,61 @@
 
           <!-- BUSCADOR ARTICULOS -->
           <v-dialog v-model="mostrarBuscador" max-width="700px">
-            <buscador-ediciones
+            <!--<buscador-ediciones
               :detalle="distribucion.detalle"
               @close="mostrarBuscador = false"
               @quitar="quitarItem"
-            ></buscador-ediciones>
+            ></buscador-ediciones>-->
+            <v-card>
+              <v-toolbar color="secondary" flat dark dense extense>
+                <v-toolbar-title>Agregar artículos</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn dark flat @click.native="cerrarBuscador">Cerrar</v-btn>
+              </v-toolbar>
+              <v-card-text>
+                <v-flex xs12>
+                  <template>
+                    <v-text-field
+                      append-icon="search"
+                      class="text-xs-center"
+                      v-model="nombre"
+                      autofocus
+                      label="Buscar"
+                    ></v-text-field>
+                    <v-data-table
+                      :headers="headerArticulos"
+                      :items="ediciones"
+                      :loading="cargando"
+                      :disable-initial-sort="true"
+                      :search="nombre"
+                      hide-actions
+                      class="scrollable-list"
+                    >
+                      <template slot="items" slot-scope="props">
+                        <td>
+                          <v-checkbox
+                            v-model="props.item.selected"
+                            @change="seleccionDeEdicion(props.item)"
+                            :label="props.item.nombreArticulo"
+                          ></v-checkbox>
+                        </td>
+                        <td
+                          class="text-xs-center"
+                        >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+                        <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
+                        <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
+                      </template>
+                      <template slot="no-data">
+                        <div class="text-xs-center">{{mensaje}}</div>
+                      </template>
+                    </v-data-table>
+                  </template>
+                </v-flex>
+              </v-card-text>
+            </v-card>
           </v-dialog>
           <v-btn
-            
+            v-if="!modoLectura"
             fixed
             dark
             fab
@@ -149,6 +208,10 @@
         </template>
       </v-card>
     </v-flex>
+    <v-snackbar :timeout="1500" bottom v-model="snackbar.visible" :color="snackbar.color">
+      {{snackbar.message}}
+      <v-icon class="ml-2">{{snackbar.icon}}</v-icon>
+    </v-snackbar>
   </v-layout>
 </template>
 <script>
@@ -170,14 +233,18 @@ export default {
   },
   data() {
     return {
+      toggle_exclusive: 2,
       distribucion: {
         id: null,
         idVendedor: null,
         idUsuarioCreador: null,
         fechaCreacion: new Date(),
-        detalle: []
+        detalle: [],
+        editable: true,
+        anulable: true
       },
       headers: [
+        { text: "Opciones", value: "opciones" },
         { text: "Artículo", value: "nombreArticulo" },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
         { text: "Edición Nro.", value: "nroEdicion", sortable: false },
@@ -185,6 +252,14 @@ export default {
         { text: "Precio Venta", value: "precioVenta", sortable: false },
         { text: "Precio Rendición", value: "precioRendicion", sortable: false }
       ],
+      headerArticulos: [
+        { text: "Artículo", value: "nombreArticulo" },
+        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Nro. Edición", value: "nroEdicion" },
+        { text: "Stock", value: "stock", sortable: false }
+      ],
+      ediciones: [],
+      nombre: null,
       nroDocumento: null,
       vendedores: [],
       cargando: false,
@@ -194,6 +269,9 @@ export default {
       activarDetalle: false,
       mensajeValidacion: [],
       dialogDetalle: false,
+      modoLectura: false,
+      modoEdicion: false,
+      modoCarga: false,
       snackbar: {
         visible: false,
         message: null,
@@ -208,9 +286,12 @@ export default {
     }
   },
   created() {
-    this.getVendedores();
+    this.getRegistros();
     if (this.id) {
-      this.getDistribucion();
+      this.modoLectura = true;
+      this.toggle_exclusive = 0;
+    } else {
+      this.modoCarga = true;
     }
   },
   methods: {
@@ -225,7 +306,7 @@ export default {
         )
         .then(response => {
           this.distribucion = response.data;
-          this.cargando = false;
+          this.getEdiciones();
         })
         .catch(error => {
           console.log(error);
@@ -233,14 +314,18 @@ export default {
           this.getError = true;
         });
     },
-    getVendedores() {
+    getRegistros() {
       this.cargando = true;
       this.getError = false;
       this.$http
         .get(`${process.env.VUE_APP_ROOT_API}vendedores/`)
         .then(response => {
           this.vendedores = response.data;
-          this.cargando = false;
+          if (this.id) {
+            this.getDistribucion();
+          } else {
+            this.getEdiciones();
+          }
         })
         .catch(error => {
           console.log(error);
@@ -248,23 +333,74 @@ export default {
           this.getError = true;
         });
     },
-    quitarItem(item) {
-      //item.cantidad = null;
+    getEdiciones() {
+      this.cargando = true;
+
+      this.$http
+        .get(`${process.env.VUE_APP_ROOT_API}ediciones`)
+        .then(response => {
+          this.getOk = true;
+          this.ediciones = response.data;
+          for (var i = 0; i < this.ediciones.length; i++) {
+            for (var j = 0; j < this.distribucion.detalle.length; j++) {
+              if (
+                this.ediciones[i].id == this.distribucion.detalle[j].idEdicion
+              ) {
+                this.ediciones[i].selected = true;
+                this.distribucion.detalle[j].selected = true;
+              }
+            }
+          }
+          this.cargando = false;
+        })
+        .catch(error => {
+          this.cargando = false;
+          this.getError = true;
+        });
+    },
+    seleccionDeEdicion(item) {
+      item.idEdicion = item.id ? item.id : item.idEdicion;
+      if (item.selected) {
+        this.agregarDetalle(item);
+      } else {
+        this.quitarDetalle(item);
+      }
+    },
+    agregarDetalle(item) {
+      if (!this.distribucion.detalle.some(d => d.idEdicion == item.idEdicion)) {
+        this.distribucion.detalle.push({
+          idEdicion: item.idEdicion,
+          cantidad: null,
+          nombreArticulo: item.nombreArticulo,
+          nroEdicion: item.nroEdicion,
+          fechaEdicion: item.fechaEdicion,
+          precioVenta: item.precioVenta,
+          precioRendicion: item.precioRendicion,
+          id: null,
+          anulable: true,
+          editable: true
+        });
+      }
+    },
+    quitarDetalle(item) {
       this.distribucion.detalle.forEach(d => this.limpiarDetalle(d));
       this.distribucion.detalle = this.distribucion.detalle.filter(
         d => d.idEdicion != item.idEdicion
       );
-    },
-    abrirFormDetalle() {
-      this.$v.distribucion.idVendedor.$touch();
-      if (this.distribucion.idVendedor != null) {
-        this.mostrarBuscador = true;
-      }
+      this.ediciones.forEach(e => {
+        if (e.id == item.idEdicion) {
+          e.selected = false;
+        }
+      });
     },
     limpiarDetalle(item) {
       delete this.mensajeValidacion[
         `Detalle[${this.distribucion.detalle.indexOf(item)}].Cantidad`
       ];
+    },
+    cerrarBuscador() {
+      this.nombre = null;
+      this.mostrarBuscador = false;
     },
     guardar() {
       this.guardando = true;
@@ -315,9 +451,10 @@ export default {
             this.snackbar.message = "Registro exitoso";
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
-            setTimeout(() => {
+            /*setTimeout(() => {
               this.$router.push(".");
-            }, 2000);
+            }, 2000);*/
+            this.$router.push({ path: "/distribuciones/" + response.data.id });
           })
           .catch(error => {
             this.guardando = false;
@@ -335,10 +472,22 @@ export default {
       }
     },
     recargar() {
-      this.getVendedores();
+      this.getRegistros();
       if (this.id) {
-        this.getDistribucion();
+        this.modoLectura = true;
+        this.toggle_exclusive = 0;
+      } else {
+        this.modoCarga = true;
       }
+    },
+    activarModoEdicion() {
+      this.modoLectura = false;
+      this.modoEdicion = true;
+      //desplegar un mensaje si ya no se puede editar cabecera ni detalle
+    },
+    activarModoLectura() {
+      this.modoLectura = true;
+      this.modoEdicion = false;
     }
   },
   watch: {
@@ -369,8 +518,12 @@ export default {
       !this.$v.distribucion.idVendedor.required && errors.push("Es requerido.");
       return errors;
     },
-    modoLectura() {
-      return this.id ? true : false;
+    mensaje() {
+      if (this.getError) {
+        return "Ocurrió un error al intentar obtener los datos, revise su conexión e intente nuevamente.";
+      } else {
+        return "Aquí apareceran los artículos en stock.";
+      }
     }
   }
 };
@@ -383,5 +536,10 @@ export default {
 .style-input input {
   text-align: right;
   font-size: 0.9em;
+}
+.scrollable-list {
+  /*max-height: 400px;*/
+  height: 300px;
+  overflow-y: auto;
 }
 </style>

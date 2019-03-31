@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-toolbar color="secondary" flat dark dense extense>
-      <v-toolbar-title>Selección de artículos</v-toolbar-title>
+      <v-toolbar-title>Agregar artículos</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn dark flat @click.native="cancelar">Cerrar</v-btn>
     </v-toolbar>
@@ -25,12 +25,7 @@
             class="scrollable-list"
           >
             <template slot="items" slot-scope="props">
-              <!--<td>
-                
-                <v-checkbox v-model="props.item.selected" @change="agregar(props.item)"></v-checkbox>
-              </td>-->
               <td>
-                  
                 <v-checkbox
                   v-model="props.item.selected"
                   @change="agregar(props.item)"
@@ -75,144 +70,6 @@ export default {
     };
   },
   methods: {
-    /*buscarArticulos() {
-      this.cargando = true;
-      this.getOk = false;
-      this.getError = false;
-      if (!this.nombre) {
-        this.articulos = [];
-        this.cargando = false;
-      } else {
-        this.$http
-          .get(
-            `${process.env.VUE_APP_ROOT_API}articulos/buscar?nombre=` +
-              this.nombre
-          )
-          .then(response => {
-            this.cargando = false;
-            this.getOk = true;
-            this.articulos = response.data;
-            console.log(response.data);
-          })
-          .catch(error => {
-            this.cargando = false;
-            this.getError = true;
-            console.log(response.data);
-          });
-      }
-    },*/
-    getDatosFake() {
-      this.ediciones.push({
-        nombreArticulo: "Diario ABC Color",
-        nroEdicion: "12234",
-        fechaEdicion: "02-03-2019",
-        cantidadActual: 77,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 10 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Ultima Hora",
-        nroEdicion: "123123",
-        fechaEdicion: "02-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 9 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Cronica",
-        nroEdicion: "1123123",
-        fechaEdicion: "02-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 8 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Popular",
-        nroEdicion: "12211",
-        fechaEdicion: "02-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 7 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario La Nación",
-        nroEdicion: "13212",
-        fechaEdicion: "02-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 6 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario ABC Color",
-        nroEdicion: "12234",
-        fechaEdicion: "03-03-2019",
-        cantidadActual: 10,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 5 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Ultima Hora",
-        nroEdicion: "121224",
-        fechaEdicion: "03-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 4 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Cronica",
-        nroEdicion: "122323",
-        fechaEdicion: "03-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 3 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario Popular",
-        nroEdicion: "1221134",
-        fechaEdicion: "03-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 2 //idEdicion
-      });
-      this.ediciones.push({
-        nombreArticulo: "Diario La Nación",
-        nroEdicion: "122324",
-        fechaEdicion: "03-03-2019",
-        cantidadActual: 110,
-        precioVenta: 6000,
-        precioRendicion: 5200,
-        idArticulo: null,
-        idPrecio: null,
-        id: 1 //idEdicion
-      });
-    },
     getEdiciones() {
       this.cargando = true;
       this.getOk = false;
@@ -243,25 +100,23 @@ export default {
     },
     agregar(item) {
       item.idEdicion = item.id?item.id:item.idEdicion;
-      if (item.selected) {
-        //item.index = this.detalle.length  
+      if (item.selected) { 
         if (!this.detalle.some(d => d.idEdicion == item.idEdicion)) {
-          this.detalle.push(item);
+          this.detalle.push({
+            idEdicion : item.idEdicion,
+            cantidad : null,
+            nombreArticulo : item.nombreArticulo,
+            nroEdicion : item.nroEdicion,
+            fechaEdicion : item.fechaEdicion,
+            precioVenta : item.precioVenta,
+            precioRendicion : item.precioRendicion,
+            id : null
+          });
         }
       } else {
-        console.log("hola");
         this.$emit("quitar", item);
       }
     },
-    /*searchTimeOut() {
-      if (this.timer) {
-        clearTimeout(this.timer);
-        this.timer = null;
-      }
-      this.timer = setTimeout(() => {
-        this.buscarArticulos();
-      }, 800); // agrega delay luego de cada tipeo
-    },*/
     cancelar() {
       this.$emit("close");
       this.nombre = null;
@@ -270,11 +125,9 @@ export default {
     limpiar() {
       this.getOk = false;
       this.getError = false;
-      //this.ediciones = [];
     }
   },
   created() {
-    //this.getDatosFake();
     this.getEdiciones();
   },
   computed: {
