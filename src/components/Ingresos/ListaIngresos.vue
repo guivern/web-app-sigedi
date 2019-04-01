@@ -45,7 +45,7 @@
                 <span class="mx-2">Anulado</span>
               </template>
             </td>
-            <td class="text-xs-right">{{ props.item.id }}</td>
+            <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreProveedor }}</td>
             <td>{{ culumnNullable(props.item.tipoComprobante) }}</td>

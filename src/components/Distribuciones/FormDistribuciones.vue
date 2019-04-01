@@ -76,7 +76,7 @@
                 <v-flex>
                   <v-toolbar flat color="white">
                     <span style="display:inline" class="title">Detalle</span>
-                    <v-divider class="mx-2" inset vertical></v-divider>
+                    <v-divider class="mx-4" inset vertical></v-divider>
                     <!--<v-spacer></v-spacer>-->
                     <v-btn
                       v-if="!modoLectura"
@@ -144,7 +144,7 @@
             ></buscador-ediciones>-->
             <v-card>
               <v-toolbar color="secondary" flat dark dense extense>
-                <v-toolbar-title>Agregar artículos</v-toolbar-title>
+                <v-toolbar-title>Artículos en stock</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn dark flat @click.native="cerrarBuscador">Cerrar</v-btn>
               </v-toolbar>

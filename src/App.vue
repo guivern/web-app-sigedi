@@ -20,7 +20,7 @@
           <v-list-group prepend-icon="settings">
             <v-list-tile slot="activator">
               <v-list-tile-content>
-                <v-list-tile-title>Administración</v-list-tile-title>
+                <v-list-tile-title>Configuración</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-list-tile :to="'/articulos'">
@@ -53,31 +53,6 @@
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Proveedores</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-          </v-list-group>
-        </template>
-        <template v-if="esAdministrador">
-          <v-list-group prepend-icon="supervisor_account">
-            <v-list-tile slot="activator">
-              <v-list-tile-content>
-                <v-list-tile-title>Accesos</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile :to="'/usuarios'">
-              <v-list-tile-action>
-                <v-icon></v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Usuarios</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile :to="{name: 'roles'}">
-              <v-list-tile-action>
-                <v-icon></v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Perfiles</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list-group>
@@ -152,6 +127,31 @@
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Reportes</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+        </template>
+        <template v-if="esAdministrador">
+          <v-list-group prepend-icon="supervisor_account">
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>Accesos</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/usuarios'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Usuarios</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="{name: 'roles'}">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Perfiles</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list-group>
