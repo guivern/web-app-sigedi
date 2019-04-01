@@ -38,6 +38,7 @@
           </v-btn>
         </div>
         <template v-if="!cargando && !getError">
+          
           <!-- FORMULARIO DE DISTRIBUCION -->
           <v-card>
             <v-card-text v-on:keyup.enter="guardar">
@@ -69,6 +70,7 @@
               </v-layout>
             </v-card-text>
           </v-card>
+          
           <!--LISTA DETALLE -->
           <v-card>
             <v-card-text>
@@ -101,8 +103,8 @@
                       </td>
                       <td>{{ props.item.nombreArticulo }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                      <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
-                      <td class="text-xs-right">
+                      <td>{{ props.item.nroEdicion }}</td>
+                      <td>
                         <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
                         <template>
                           <v-text-field
@@ -115,8 +117,8 @@
                           ></v-text-field>
                         </template>
                       </td>
-                      <td class="text-xs-right">{{ props.item.precioVenta }}</td>
-                      <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
+                      <td>{{ props.item.precioVenta }}</td>
+                      <td>{{ props.item.precioRendicion }}</td>
                     </template>
                     <template slot="no-data">
                       <div
@@ -137,11 +139,6 @@
 
           <!-- BUSCADOR ARTICULOS -->
           <v-dialog v-model="mostrarBuscador" max-width="700px">
-            <!--<buscador-ediciones
-              :detalle="distribucion.detalle"
-              @close="mostrarBuscador = false"
-              @quitar="quitarItem"
-            ></buscador-ediciones>-->
             <v-card>
               <v-toolbar color="secondary" flat dark dense extense>
                 <v-toolbar-title>Artículos en stock</v-toolbar-title>
@@ -208,7 +205,7 @@
         </template>
       </v-card>
     </v-flex>
-    <v-snackbar :timeout="1500" bottom v-model="snackbar.visible" :color="snackbar.color">
+    <v-snackbar :timeout="1200" bottom v-model="snackbar.visible" :color="snackbar.color">
       {{snackbar.message}}
       <v-icon class="ml-2">{{snackbar.icon}}</v-icon>
     </v-snackbar>
@@ -406,6 +403,7 @@ export default {
       this.guardando = true;
       if (this.distribucion.id) {
         // Editar
+        this.distribucion.idUsuarioModificador = this.getUserId();
         this.$http
           .put(
             `${process.env.VUE_APP_ROOT_API}distribuciones/${
@@ -415,8 +413,8 @@ export default {
           )
           .then(response => {
             this.guardando = false;
-            this.snackbar.color = "info";
-            this.snackbar.message = "Actualización exitosa";
+            this.snackbar.color = "success";
+            this.snackbar.message = "Se ha actualizado con éxito";
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
             setTimeout(() => {
@@ -447,14 +445,15 @@ export default {
           )
           .then(response => {
             this.guardando = false;
-            this.snackbar.color = "info";
-            this.snackbar.message = "Registro exitoso";
+            this.snackbar.color = "success";
+            this.snackbar.message = "La distribución se ha realizado con éxito";
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
-            /*setTimeout(() => {
-              this.$router.push(".");
-            }, 2000);*/
-            this.$router.push({ path: "/distribuciones/" + response.data.id });
+            setTimeout(() => {
+              this.$router.push({
+                path: "/distribuciones/" + response.data.id
+              });
+            }, 2000);
           })
           .catch(error => {
             this.guardando = false;
@@ -481,9 +480,15 @@ export default {
       }
     },
     activarModoEdicion() {
-      this.modoLectura = false;
-      this.modoEdicion = true;
-      //desplegar un mensaje si ya no se puede editar cabecera ni detalle
+      if (!this.distribucion.anulado && this.distribucion.editable) {
+        this.modoLectura = false;
+        this.modoEdicion = true;
+      } else {
+        this.snackbar.color = "error";
+        this.snackbar.message = this.distribucion.anulado?"No se puede editar una distribución anulada.":"No se puede editar";
+        this.snackbar.icon = "error";
+        this.snackbar.visible = true;
+      }
     },
     activarModoLectura() {
       this.modoLectura = true;
