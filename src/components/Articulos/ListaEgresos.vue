@@ -31,9 +31,9 @@
             <td>{{ columnDateWithoutTime(props.item.fecha) }}</td>
             <td>{{ props.item.nombreArticulo }}</td>
             <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-            <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
-            <td class="text-xs-right">{{ props.item.cantidad }}</td>
-            <td class="text-xs-right">{{ props.item.nombreUsuario }}</td>
+            <td>{{ props.item.nroEdicion }}</td>
+            <td>{{ props.item.cantidad }}</td>
+            <td>{{ props.item.nombreUsuario }}</td>
           </template>
 
           <template slot="no-data">
