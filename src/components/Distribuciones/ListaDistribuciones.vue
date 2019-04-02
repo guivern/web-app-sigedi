@@ -30,25 +30,26 @@
           <template slot="items" slot-scope="props">
             <td>
               <v-icon
-                class="icon"
+                class="icon mx-1"
                 title="ver detalle"
                 @click="$router.push({path: '/distribuciones/' + props.item.id, append: true})"
               >visibility</v-icon>
-              <template v-if="props.item.activo">
+              <template v-if="props.item.anulable">
                 <v-icon
-                  @click="mostrarDialogActivarDesactivar(props.item)"
+                  @click="mostrarDialog(props.item)"
                   title="anular"
-                  class="icon mx-1"
                 >block</v-icon>
               </template>
-              <template v-else>
-                <span class="mx-2">Anulado</span>
+              <template v-else-if="props.item.anulado">
+                
+                <span>ANULADO</span>
               </template>
             </td>
-            <td class="text-xs-right">{{ props.item.id }}</td>
+            <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreVendedor }}</td>
             <td>{{ props.item.nombreUsuarioCreador }}</td>
+            
           </template>
 
           <template slot="no-data">
@@ -72,19 +73,19 @@
       </v-card>
 
       <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
-      <v-dialog v-model="activarDesactivarDialog.mostrar" max-width="420">
+      <v-dialog v-model="alertDialog.mostrar" max-width="420">
         <v-card>
           <v-toolbar color="secondary" flat dark dense extense>
             <v-toolbar-title>
-              {{activarDesactivarDialog.titulo}}
+              {{alertDialog.titulo}}
               <v-icon class="mx-2" color="warning">warning</v-icon>
             </v-toolbar-title>
           </v-toolbar>
-          <v-card-text>{{activarDesactivarDialog.mensaje}}</v-card-text>
+          <v-card-text>{{alertDialog.mensaje}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn flat color="error" @click="cerrarDialogActivarDesactivar()">Cancelar</v-btn>
-            <v-btn flat color="info" @click="activarDesactivar()">Confirmar</v-btn>
+            <v-btn flat color="error" @click="cerrarDialog()">Cancelar</v-btn>
+            <v-btn flat color="info" @click="anular()">Confirmar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -126,13 +127,14 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Opciones", value: "opciones", sortable: false },
-        { text: "Nro. Distribución", value: "id" },
-        { text: "Fecha Distribución", value: "fechaCreacion" },
-        { text: "Vendedor", value: "nombreVendedor" },
-        { text: "Distribuidor", value: "nombreUsuario" }
+        { text: "Opciones", value: "opciones", sortable: false, },
+        { text: "Nro. Distribución", value: "id"  },
+        { text: "Fecha Distribución", value: "fechaCreacion"   },
+        { text: "Vendedor", value: "nombreVendedor"  },
+        { text: "Distribuidor", value: "nombreUsuario" },
+        
       ],
-      activarDesactivarDialog: {
+      alertDialog: {
         titulo: "",
         mensaje: "",
         id: null,
@@ -163,39 +165,35 @@ export default {
           this.getError = true;
         });
     },
-    mostrarDialogActivarDesactivar(item) {
+    mostrarDialog(item) {
       if (item.activo) {
-        this.activarDesactivarDialog.titulo = "Anular distribución";
-        this.activarDesactivarDialog.mensaje =
-          "Desea anular el ingreso Nro. " + item.id + " ?";
+        this.alertDialog.titulo = "Anular distribución";
+        this.alertDialog.mensaje =
+          "Está seguro que desea anular la distribución nro. " + item.id + " ?";
       }
-      this.activarDesactivarDialog.item = item;
-      this.activarDesactivarDialog.mostrar = true;
+      this.alertDialog.item = item;
+      this.alertDialog.mostrar = true;
     },
-    cerrarDialogActivarDesactivar() {
-      this.activarDesactivarDialog.mostrar = false;
+    cerrarDialog() {
+      this.alertDialog.mostrar = false;
     },
-    activarDesactivar() {
+    anular() {
       this.$http
         .put(
           `${process.env.VUE_APP_ROOT_API}distribuciones/${
-            this.activarDesactivarDialog.item.activo ? "desactivar" : "activar"
-          }/${this.activarDesactivarDialog.item.id}`
+            this.alertDialog.item.activo ? "desactivar" : "activar"
+          }/${this.alertDialog.item.id}`
         )
         .then(() => {
-          this.distribuciones.map(u => {
-            if (u.id == this.activarDesactivarDialog.item.id) {
-              u.activo = !u.activo;
-            }
-          });
-          this.cerrarDialogActivarDesactivar();
+          this.cerrarDialog();
+          this.listar();
         })
         .catch(error => {
           console.log(error);
           this.snackbar.color = "error";
           this.snackbar.message = "Ocurrió un error, revise su conexión.";
           this.snackbar.visible = true;
-          this.cerrarDialogActivarDesactivar();
+          this.cerrarDialog();
         });
     }
   },

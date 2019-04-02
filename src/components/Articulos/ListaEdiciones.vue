@@ -48,12 +48,12 @@
               </template>
             </td>
             <td>{{ props.item.nombreArticulo }}</td>
-            <td class="text-xs-center">{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-            <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
-            <td class="text-xs-right">{{ props.item.precioVenta }}</td>
-            <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
+            <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+            <td>{{ props.item.nroEdicion }}</td>
+            <td>{{ props.item.precioVenta }}</td>
+            <td>{{ props.item.precioRendicion }}</td>
             <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
-            <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
+            <td >{{ props.item.cantidadActual }}</td>
             <!--<td class="text-xs-center">
               <v-icon>{{props.item.activo?'check':'block'}}</v-icon>
             </td>-->
