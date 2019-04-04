@@ -9,10 +9,21 @@
             </v-btn>
             {{formTitle}}
           </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn-toggle v-if="!modoCarga" v-model="toggle_exclusive" light>
+            <v-btn flat @click="activarModoLectura">
+              <v-icon>visibility</v-icon>
+            </v-btn>
+            <v-divider vertical></v-divider>
+            <v-btn flat @click="activarModoEdicion">
+              <v-icon>edit</v-icon>
+            </v-btn>
+          </v-btn-toggle>
         </v-toolbar>
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
           <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+          <p class="mt-2">Cargando...</p>
         </div>
         <div v-if="getError" class="text-xs-center" style="padding:50px">
           <v-alert
@@ -33,7 +44,7 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
-                    :readonly="modoLectura"
+                    :disabled="modoLectura || modoEdicion"
                     class="mx-3"
                     v-model="ingreso.numeroComprobante"
                     label="Nro. Comprobante"
@@ -43,20 +54,20 @@
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
-                    :readonly="modoLectura"
+                    :disabled="modoLectura || modoEdicion"
                     v-model="ingreso.tipoComprobante"
-                    :items="tiposCompronate"
+                    :items="tiposComprobante"
                     label="Tipo Comprobante"
                     :error-messages="mensajeValidacion['TipoComprobante']"
                   ></v-select>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
-                  <v-text-field class="mx-3" label="RUC" :readonly="modoLectura" v-model="ruc"></v-text-field>
+                  <v-text-field class="mx-3" label="RUC" :disabled="modoLectura || modoEdicion" v-model="ruc"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
-                    :readonly="modoLectura"
+                    :disabled="modoLectura || modoEdicion"
                     v-model="ingreso.idProveedor"
                     :items="proveedores"
                     item-text="razonSocial"
@@ -190,10 +201,28 @@
                     hide-actions
                   >
                     <template slot="items" slot-scope="props">
+                      <td v-if="props.item.editable && !modoLectura">
+                        <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
+                      </td>
+                      <td v-else>
+                        <v-icon>delete_outlined</v-icon>
+                      </td>
                       <td>{{ props.item.nombreArticulo }}</td>
                       <td>{{ props.item.nroEdicion }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                      <td>{{ props.item.cantidad }}</td>
+                      <td>
+                        <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
+                        <template>
+                          <v-text-field
+                            :disabled="modoLectura || (!modoLectura && !props.item.editable)"
+                            class="style-input"
+                            type="number"
+                            v-model="props.item.cantidad"
+                            :error-messages="mensajeValidacion[`Detalle[${ingreso.detalle.indexOf(props.item)}].Cantidad`]"
+                            @focus="limpiarDetalle(props.item)"
+                          ></v-text-field>
+                        </template>
+                      </td>
                       <td>{{ props.item.precioVenta }}</td>
                       <td>{{ props.item.precioRendicion }}</td>
                     </template>
@@ -256,14 +285,18 @@ export default {
   },
   data() {
     return {
+      toggle_exclusive: 2,
       ingreso: {
         id: null,
         idProveedor: null,
         idUsuarioCreador: null,
+        idUsuarioModificador: null,
         tipoComprobante: null,
         numeroComprobante: null,
         fechaCreacion: new Date(),
-        detalle: []
+        detalle: [],
+        editable: true,
+        anulable: true
       },
       detalle: {
         articulo: null,
@@ -280,9 +313,10 @@ export default {
         nroEdicion: null
       },
       ruc: null,
-      tiposCompronate: ["Boleta", "Recibo", "Factura"],
+      tiposComprobante: ["Boleta", "Recibo", "Factura"],
       proveedores: [],
       headers: [
+        { text: "Opciones", value: "opciones" },
         { text: "Artículo", value: "nombreArticulo" },
         { text: "Edición Nro.", value: "nroEdicion", sortable: false },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
@@ -296,6 +330,9 @@ export default {
       activarDetalle: false,
       mensajeValidacion: [],
       dialogDetalle: false,
+      modoLectura: false,
+      modoEdicion: false,
+      modoCarga: false,
       getArticulos: false,
       getPrecios: false,
       articulos: [],
@@ -324,6 +361,10 @@ export default {
     this.getProveedores();
     if (this.id) {
       this.getingreso();
+      this.modoLectura = true;
+      this.toggle_exclusive = 0;
+    }else {
+      this.modoCarga = true;
     }
   },
   methods: {
@@ -407,11 +448,29 @@ export default {
           nroEdicion: this.detalle.nroEdicion,
           nombreArticulo: this.detalle.articulo.descripcion,
           precioVenta: this.detalle.precio.precioVenta,
-          precioRendicion: this.detalle.precio.precioRendVendedor
+          precioRendicion: this.detalle.precio.precioRendVendedor,
+          anulable: true,
+          editable: true
         });
         this.limpiar();
         this.dialogDetalle = false;
       }
+    },
+    quitarDetalle(item) {
+      this.ingreso.detalle.forEach(d => this.limpiarDetalle(d));
+      this.ingreso.detalle = this.ingreso.detalle.filter(
+        d => d.idEdicion != item.idEdicion
+      );
+      this.ediciones.forEach(e => {
+        if (e.id == item.idEdicion) {
+          e.selected = false;
+        }
+      });
+    },
+    limpiarDetalle(item) {
+      delete this.mensajeValidacion[
+        `Detalle[${this.ingreso.detalle.indexOf(item)}].Cantidad`
+      ];
     },
     abrirFormDetalle() {
       this.$v.ingreso.idProveedor.$touch();
@@ -421,7 +480,7 @@ export default {
       }
     },
     eliminarDetalle(item) {
-      item.activo = false;
+      item.anulado = true;
       /*this.ingreso.detalle = this.ingreso.detalle.filter(
         p => p.id != item.id || p.index != item.index
       );*/
@@ -438,6 +497,7 @@ export default {
       this.guardando = true;
       if (this.ingreso.id) {
         // Editar
+        this.ingreso.idUsuarioModificador = this.getUserId();
         this.$http
           .put(
             `${process.env.VUE_APP_ROOT_API}ingresos/${this.ingreso.id}`,
@@ -469,6 +529,7 @@ export default {
       } else {
         // Guardar
         this.ingreso.idUsuarioCreador = this.getUserId();
+        this.ingreso.detalle.forEach(d => (d.id = null));
         this.$http
           .post(`${process.env.VUE_APP_ROOT_API}ingresos`, this.ingreso)
           .then(response => {
@@ -479,7 +540,9 @@ export default {
             this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
             setTimeout(() => {
-              this.$router.push(".");
+              this.$router.push({
+                path: "/ingresos/" + response.data.id
+              });
             }, 2000);
           })
           .catch(error => {
@@ -501,16 +564,35 @@ export default {
       this.getProveedores();
       if (this.id) {
         this.getingreso();
+        this.modoLectura = true;
+        this.toggle_exclusive = 0;
+      }else {
+        this.modoCarga = true;
       }
+    },
+    activarModoEdicion() {
+      if (!this.ingreso.anulado && this.ingreso.editable) {
+        this.modoLectura = false;
+        this.modoEdicion = true;
+      } else {
+        this.snackbar.color = "error";
+        this.snackbar.message = this.ingreso.anulado?"No se puede editar un ingreso anulado.":"No se puede editar";
+        this.snackbar.icon = "error";
+        this.snackbar.visible = true;
+      }
+    },
+    activarModoLectura() {
+      this.modoLectura = true;
+      this.modoEdicion = false;
     }
   },
   computed: {
     formTitle() {
-      return !this.id ? "Registro de ingreso" : "Detalle de ingreso";
-    },
+      return !this.id ? "Registro de ingreso" : "Detalle de Ingreso";
+    },/*
     modoLectura() {
       return this.id ? true : false;
-    },
+    },*/
     fechaIngreso() {
       var d = new Date(this.ingreso.fechaCreacion),
         month = "" + (d.getMonth() + 1),
