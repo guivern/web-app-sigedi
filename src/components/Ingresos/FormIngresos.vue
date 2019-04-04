@@ -421,7 +421,7 @@ export default {
       }
     },
     eliminarDetalle(item) {
-      item.activo = false;
+      item.anulado = true;
       /*this.ingreso.detalle = this.ingreso.detalle.filter(
         p => p.id != item.id || p.index != item.index
       );*/

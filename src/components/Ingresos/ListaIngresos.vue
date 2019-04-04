@@ -34,16 +34,22 @@
                 title="ver detalle"
                 @click="$router.push({path: '/ingresos/' + props.item.id, append: true})"
               >visibility</v-icon>
-              <template v-if="props.item.activo">
+              <template v-if="props.item.anulable">
                 <v-icon
                   @click="mostrarDialogActivarDesactivar(props.item)"
                   title="anular"
                   class="icon mx-1"
                 >block</v-icon>
               </template>
+              <template v-else-if="props.item.anulado">
+                
+                <span>ANULADO</span>
+              </template>
+              <!--
               <template v-else>
                 <span class="mx-2">Anulado</span>
               </template>
+              -->
             </td>
             <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
@@ -193,10 +199,11 @@ export default {
         .then(() => {
           this.ingresos.map(u => {
             if (u.id == this.activarDesactivarDialog.item.id) {
-              u.activo = !u.activo;
+              u.anulado = !u.anulado;
             }
           });
           this.cerrarDialogActivarDesactivar();
+          this.listar();
         })
         .catch(error => {
           console.log(error);
