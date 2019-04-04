@@ -588,7 +588,7 @@ export default {
   },
   computed: {
     formTitle() {
-      return !this.id ? "Registro de ingreso" : "Detalle de ingreso";
+      return !this.id ? "Registro de ingreso" : "Detalle de Ingreso";
     },/*
     modoLectura() {
       return this.id ? true : false;
