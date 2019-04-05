@@ -62,7 +62,13 @@
                   ></v-select>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
-                  <v-text-field class="mx-3" label="RUC" :disabled="modoLectura || modoEdicion" v-model="ruc"></v-text-field>
+                  <v-text-field
+                    class="mx-3"
+                    label="RUC"
+                    :disabled="modoLectura || modoEdicion"
+                    v-model="ruc"
+                    :append-icon="modoLectura? '' : 'search'"
+                  ></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
                   <v-select
@@ -183,7 +189,7 @@
               <v-layout row wrap>
                 <v-flex>
                   <v-toolbar flat color="white">
-                    <h3 style="display:inline">Detalle</h3>
+                    <span style="display:inline" class="title">Detalle</span>
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn
                       v-if="!modoLectura"
@@ -358,12 +364,11 @@ export default {
     }
   },
   created() {
+    this.getDatos();
     if (this.id) {
-      this.getingreso();
       this.modoLectura = true;
       this.toggle_exclusive = 0;
-    }else {
-      this.getProveedores();
+    } else {
       this.modoCarga = true;
     }
   },
@@ -421,14 +426,18 @@ export default {
           //this.getError = true;
         });
     },
-    getProveedores() {
+    getDatos() {
       this.cargando = true;
       this.getError = false;
       this.$http
         .get(`${process.env.VUE_APP_ROOT_API}proveedores/`)
         .then(response => {
           this.proveedores = response.data;
-          this.cargando = false;
+          if (this.id) {
+            this.getingreso();
+          } else {
+            this.cargando = false;
+          }
         })
         .catch(error => {
           console.log(error);
@@ -561,12 +570,11 @@ export default {
       }
     },
     recargar() {
+      this.getDatos();
       if (this.id) {
-        this.getingreso();
         this.modoLectura = true;
         this.toggle_exclusive = 0;
-      }else {
-        this.getProveedores();
+      } else {
         this.modoCarga = true;
       }
     },
@@ -576,7 +584,9 @@ export default {
         this.modoEdicion = true;
       } else {
         this.snackbar.color = "error";
-        this.snackbar.message = this.ingreso.anulado?"No se puede editar un ingreso anulado.":"No se puede editar";
+        this.snackbar.message = this.ingreso.anulado
+          ? "No se puede editar un ingreso anulado."
+          : "No se puede editar";
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
@@ -588,11 +598,11 @@ export default {
   },
   computed: {
     formTitle() {
-      return !this.id ? "Registro de ingreso" : "Detalle de Ingreso";
-    },/*
+      return !this.id ? "Registro de Ingreso" : "Detalle de Ingreso";
+    } /*
     modoLectura() {
       return this.id ? true : false;
-    },*/
+    },*/,
     fechaIngreso() {
       var d = new Date(this.ingreso.fechaCreacion),
         month = "" + (d.getMonth() + 1),
