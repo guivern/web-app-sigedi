@@ -358,12 +358,12 @@ export default {
     }
   },
   created() {
-    this.getProveedores();
     if (this.id) {
       this.getingreso();
       this.modoLectura = true;
       this.toggle_exclusive = 0;
     }else {
+      this.getProveedores();
       this.modoCarga = true;
     }
   },
@@ -561,12 +561,12 @@ export default {
       }
     },
     recargar() {
-      this.getProveedores();
       if (this.id) {
         this.getingreso();
         this.modoLectura = true;
         this.toggle_exclusive = 0;
       }else {
+        this.getProveedores();
         this.modoCarga = true;
       }
     },
