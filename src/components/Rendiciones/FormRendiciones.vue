@@ -79,22 +79,34 @@
                       :outline="!activarDetalle"
                       color="info"
                       dark
+                      @click="mostrarBuscador"
                     >Agregar</v-btn>
                   </v-toolbar>
                   <v-data-table
-                    class="mx-3"
+                    class="scrollable"
                     :headers="headers"
                     :items="rendicion.detalle"
                     :loading="cargando"
                     hide-actions
                   >
                     <template slot="items" slot-scope="props">
-                      <!--<td v-if="props.item.editable && !modoLectura">
+                      <td v-if="props.item.editable && !modoLectura">
                         <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
                       </td>
                       <td v-else>
                         <v-icon>delete_outlined</v-icon>
-                      </td>-->
+                      </td>
+                      <td>{{props.item.nombreArticulo}}</td>
+                      <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
+                      <td>{{props.item.cantidad}}</td>
+                      <td>
+                        <v-text-field class="style-input" type="number" v-model="props.item.devoluciones"></v-text-field>
+                      </td>
+                      <td>{{props.item.monto}}</td>
+                      <td>
+                        <v-text-field class="style-input" type="number" v-model="props.item.importe"></v-text-field>
+                      </td>
+                      <td>{{props.item.saldo}}</td>
                     </template>
                     <template slot="no-data">
                       <div
@@ -112,6 +124,60 @@
               </v-layout>
             </v-card-text>
           </v-card>
+          <!-- BUSCADOR DISTRIBUCIONES -->
+          <v-dialog v-model="dialog" max-width="800px">
+            <v-card>
+              <v-toolbar color="secondary" flat dark dense extense>
+                <v-toolbar-title>Deudas del vendedor</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn dark flat @click.native="cerrarBuscador">Cerrar</v-btn>
+              </v-toolbar>
+              <v-card-text>
+                <v-flex xs12>
+                  <template>
+                    <v-text-field
+                      append-icon="search"
+                      class="text-xs-center"
+                      v-model="busqueda"
+                      autofocus
+                      label="Buscar"
+                    ></v-text-field>
+                    <v-data-table
+                      :headers="headerDistribuciones"
+                      :items="distribuciones"
+                      :loading="cargandoDistribuciones"
+                      :disable-initial-sort="true"
+                      :search="busqueda"
+                      hide-actions
+                      class="scrollable-list"
+                    >
+                      <template slot="items" slot-scope="props">
+                        <td>
+                          <v-checkbox
+                            v-model="props.item.selected"
+                            @change="seleccionDeDistribucion(props.item)"
+                            :label="props.item.nombreArticulo"
+                          ></v-checkbox>
+                        </td>
+                        <td
+                          class="text-xs-center"
+                        >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+                        <td class="text-xs-right">{{ props.item.cantidad }}</td>
+                        <td class="text-xs-right">{{ props.item.devoluciones }}</td>
+                        <td class="text-xs-right">{{ props.item.monto }}</td>
+                        <td class="text-xs-right">{{ props.item.importe }}</td>
+                        <td class="text-xs-right">{{ props.item.saldo }}</td>
+                      </template>
+                      <template slot="no-data">
+                        <div class="text-xs-center">{{mensaje}}</div>
+                      </template>
+                    </v-data-table>
+                  </template>
+                </v-flex>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+
           <v-btn
             v-if="!modoLectura"
             fixed
@@ -167,13 +233,22 @@ export default {
       headers: [
         { text: "Opciones", value: "opciones" },
         { text: "Artículo", value: "nombreArticulo" },
-        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
-        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Fecha Edición", value: "nroEdicion", sortable: false },
+        //{ text: "Precio", value: "precioRendicion", sortable: false },
         { text: "Cantidad", value: "cantidad", sortable: false },
         { text: "Devoluciones", value: "", sortable: false },
         { text: "Monto", value: "", sortable: false },
         { text: "Importe", value: "", sortable: false },
-        { text: "Saldo", value: "", sortable: false },
+        { text: "Saldo", value: "", sortable: false }
+      ],
+      headerDistribuciones: [
+        { text: "Artículo", value: "nombreArticulo" },
+        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Cantidad", value: "cantidad", sortable: false },
+        { text: "Devoluciones", value: "", sortable: false },
+        { text: "Monto", value: "", sortable: false },
+        { text: "Importe", value: "", sortable: false},
+        { text: "Saldo", value: "", sortable: false }
       ],
       nroDocumento: null,
       vendedores: [],
@@ -185,6 +260,11 @@ export default {
       modoLectura: false,
       modoEdicion: false,
       modoCarga: false,
+      dialog: false,
+      cargandoDistribuciones: false,
+      errorDistribuciones: false,
+      distribuciones: [],
+      busqueda: null,
       snackbar: {
         visible: false,
         message: null,
@@ -230,11 +310,73 @@ export default {
     getRendicion() {
       //TODO
     },
-    listarDistribuciones() {
-      //TODO
+    getDistribuciones() {
+      this.cargandoDistribuciones = true;
+      this.errorDistribuciones = false;
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ROOT_API}distribuciones/detalle/vendedor/${
+            this.idVendedor
+          }`
+        )
+        .then(response => {
+          this.distribuciones = response.data;
+          this.cargandoDistribuciones = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.cargandoDistribuciones = false;
+          this.errorDistribuciones = true;
+        });
     },
     guardar() {
       //TODO
+    },
+    seleccionDeDistribucion(item) {
+      item.idDistribucionDetalle = item.id
+        ? item.id
+        : item.idDistribucionDetalle;
+      if (item.selected) {
+        this.agregarDetalle(item);
+      } else {
+        this.quitarDetalle(item);
+      }
+    },
+    agregarDetalle(item) {
+      if (!this.rendicion.detalle.some(d => d.idDistribucionDetalle == item.idDistribucionDetalle)) 
+      {
+        this.rendicion.detalle.push({
+          idDistribucionDetalle: item.idDistribucionDetalle,
+          cantidad: item.cantidad,
+          nombreArticulo: item.nombreArticulo,
+          nroEdicion: item.nroEdicion,
+          fechaEdicion: item.fechaEdicion,
+          precioVenta: item.precioVenta,
+          precioRendicion: item.precioRendicion,
+          monto: item.monto,
+          importe: item.importe,
+          saldo: item.saldo,
+          devoluciones: item.devoluciones,
+          id: null,
+          anulable: true,
+          editable: true
+        });
+      }
+    },
+    quitarDetalle(item) {
+      //this.rendicion.detalle.forEach(d => this.limpiarDetalle(d));
+      this.rendicion.detalle = this.rendicion.detalle.filter(
+        d => d.idDistribucionDetalle != item.idDistribucionDetalle
+      );
+      this.distribuciones.forEach(d => {
+        if (d.id == item.idDistribucionDetalle) {
+          d.selected = false;
+        }
+      });
+    },
+    cerrarBuscador() {
+      this.busqueda = null;
+      this.dialog = false;
     },
     recargar() {
       this.getDatos();
@@ -243,6 +385,13 @@ export default {
         this.toggle_exclusive = 0;
       } else {
         this.modoCarga = true;
+      }
+    },
+    mostrarBuscador() {
+      this.$v.rendicion.idVendedor.$touch();
+      if (this.idVendedor != null) {
+        this.dialog = true;
+        this.$v.$reset();
       }
     }
   },
@@ -258,6 +407,13 @@ export default {
       if (!this.$v.rendicion.idVendedor.$dirty) return errors;
       !this.$v.rendicion.idVendedor.required && errors.push("Es requerido.");
       return errors;
+    },
+    mensaje() {
+      if (this.errorDistribuciones) {
+        return "Ocurrió un error al intentar obtener los datos, revise su conexión e intente nuevamente.";
+      } else {
+        return "Aquí apareceran los las deudas del vendedor.";
+      }
     }
   },
   watch: {
@@ -269,7 +425,7 @@ export default {
       if (this.idVendedor) {
         // obtenemos las distribuciones pendientes de  rendicion del vendedor
         this.activarDetalle = true;
-        this.listarDistribuciones();
+        this.getDistribuciones();
       }
 
       let vendedor = this.vendedores.find(
@@ -290,4 +446,19 @@ export default {
   }
 };
 </script>
+<style scoped>
+.scrollable {
+  max-height: 350px;
+  overflow-y: auto;
+}
+.style-input input {
+  text-align: right;
+  font-size: 0.9em;
+}
+.scrollable-list {
+  /*max-height: 400px;*/
+  height: 300px;
+  overflow-y: auto;
+}
+</style>
 
