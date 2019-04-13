@@ -42,7 +42,7 @@
                   <v-text-field
                     class="mx-3"
                     label="Nro. Documento"
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura"
                     v-model="nroDocumento"
                     :prepend-icon="modoLectura? 'subtitles' : 'search'"
                   ></v-text-field>
@@ -50,7 +50,7 @@
                 <v-flex xs12 sm12 md5>
                   <v-select
                     class="mx-3"
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura"
                     v-model="rendicion.idVendedor"
                     :items="vendedores"
                     item-text="nombreCompleto"
@@ -95,7 +95,7 @@
               </v-container>
             </v-card-text>
           </v-card>
-          <!-- LISTA DETALLE -->
+          <!-- LISTA/FORM DETALLE -->
           <v-card>
             <v-card-text>
               <v-form v-model="valid" ref="form">
@@ -105,7 +105,7 @@
                       <span style="display:inline" class="title">Detalle</span>
                       <v-divider class="mx-3" inset vertical></v-divider>
                       <v-btn
-                        v-if="!modoLectura"
+                        v-if="modoCarga"
                         :outline="!activarDetalle"
                         color="info"
                         dark
@@ -120,39 +120,45 @@
                       hide-actions
                     >
                       <template slot="items" slot-scope="props">
-                        <td v-if="modoCarga">
-                          <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
+                        <td>
+                          <v-icon v-if="modoCarga" @click="quitarDetalle(props.item)">delete</v-icon>
                         </td>
                         <td>{{props.item.nombreArticulo}}</td>
                         <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
                         <td>{{columnMoney(props.item.precioRendicion)}}</td>
                         <td class="text-xs-right">{{props.item.cantidad}}</td>
                         <td>
-                          <v-text-field
-                            class="style-input"
-                            type="number"
-                            v-model="props.item.devoluciones"
-                            @input="calcularSubTotal(props.item)"
-                            required
-                            :rules="[
+                          <template v-if="modoCarga">
+                            <v-text-field
+                              class="style-input"
+                              type="number"
+                              v-model="props.item.devoluciones"
+                              @input="calcularSubTotal(props.item)"
+                              required
+                              :rules="[
                             (v) => props.item.devoluciones <= props.item.cantidad || 'excede la cantidad consignada',
                             (v) => props.item.devoluciones >= 0 || 'debe ser positivo',
                             (v) => props.item.devoluciones != null || 'es requerido']"
-                          ></v-text-field>
+                            ></v-text-field>
+                          </template>
+                          <template v-else>{{props.item.devoluciones}}</template>
                         </td>
                         <td class="text-xs-right">{{columnMoney(props.item.monto)}}</td>
                         <td>
-                          <v-text-field
-                            class="style-input"
-                            type="number"
-                            v-model="props.item.importe"
-                            required
-                            :rules="[
+                          <template v-if="modoCarga">
+                            <v-text-field
+                              class="style-input"
+                              type="number"
+                              v-model="props.item.importe"
+                              required
+                              :rules="[
                             (v) => props.item.importe <= props.item.monto || 'excede el monto',
                             (v) => props.item.importe >= 0 || 'debe ser positivo',
                             (v) => props.item.importe != null || 'es requerido']"
-                            @input="calcularSaldo(props.item)"
-                          ></v-text-field>
+                              @input="calcularSaldo(props.item)"
+                            ></v-text-field>
+                          </template>
+                          <template v-else>{{columnMoney(props.item.monto)}}</template>
                         </td>
                         <td class="text-xs-right">{{columnMoney(props.item.saldo)}}</td>
                       </template>
@@ -228,7 +234,7 @@
           </v-dialog>
 
           <v-btn
-            v-if="!modoLectura"
+            v-if="modoCarga"
             fixed
             dark
             fab
@@ -334,9 +340,11 @@ export default {
     this.getDatos();
     if (this.id) {
       this.modoLectura = true;
+      this.modoCarga = false;
       this.toggle_exclusive = 0;
     } else {
       this.modoCarga = true;
+      this.modoLectura = false;
     }
   },
   methods: {
@@ -360,7 +368,20 @@ export default {
         });
     },
     getRendicion() {
-      //TODO
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ROOT_API}rendiciones/${this.id}?Inactivo=true`
+        )
+        .then(response => {
+          this.rendicion = response.data;
+          this.cargando = false;
+          //this.getDistribuciones();
+        })
+        .catch(error => {
+          console.log(error);
+          this.cargando = false;
+          this.getError = true;
+        });
     },
     getDistribuciones() {
       this.cargandoDistribuciones = true;
@@ -406,7 +427,80 @@ export default {
     guardar() {
       console.log(this.$refs.form.validate());
       if (this.$refs.form.validate()) {
-        //TODO
+        this.guardando = true;
+        if (this.rendicion.id) {
+          // Editar
+          this.rendicion.idUsuarioModificador = this.getUserId();
+          this.$http
+            .put(
+              `${process.env.VUE_APP_ROOT_API}rendiciones/${
+                this.rendicion.id
+              }`,
+              this.rendicion
+            )
+            .then(response => {
+              this.guardando = false;
+              this.snackbar.color = "info";
+              this.snackbar.message = "Registro actualizado";
+              this.snackbar.icon = "info";
+              this.snackbar.visible = true;
+              setTimeout(() => {
+                this.$router.push(".");
+              }, 2000);
+            })
+            .catch(error => {
+              this.guardando = false;
+              if (error.response) {
+                this.mensajeValidacion = error.response.data.errors
+                  ? error.response.data.errors
+                  : error.response.data;
+              } else {
+                this.snackbar.color = "error";
+                this.snackbar.message = "Ocurrió un error, revise su conexión.";
+                this.snackbar.icon = "error";
+                this.snackbar.visible = true;
+              }
+            });
+        } else {
+          // Guardar
+          this.rendicion.idUsuarioCreador = this.getUserId();
+          this.rendicion.detalle.forEach(d => (d.id = null));
+          this.$http
+            .post(
+              `${process.env.VUE_APP_ROOT_API}rendiciones`,
+              this.rendicion
+            )
+            .then(response => {
+              this.guardando = false;
+              this.snackbar.color = "info";
+              this.snackbar.message = "Registro guardado";
+              this.snackbar.icon = "info";
+              this.snackbar.visible = true;
+              setTimeout(() => {
+                this.$router.push({
+                  path: "/rendiciones/" + response.data.id
+                });
+              }, 2000);
+            })
+            .catch(error => {
+              this.guardando = false;
+              if (error.response) {
+                this.mensajeValidacion = error.response.data.errors
+                  ? error.response.data.errors
+                  : error.response.data;
+              } else {
+                this.snackbar.color = "error";
+                this.snackbar.message = "Ocurrió un error, revise su conexión.";
+                this.snackbar.icon = "error";
+                this.snackbar.visible = true;
+              }
+            });
+        }
+      } else {
+        this.snackbar.color = "error";
+        this.snackbar.message = "Hay errores de validación.";
+        this.snackbar.icon = "error";
+        this.snackbar.visible = true;
       }
     },
     seleccionDeDistribucion(item) {
@@ -468,9 +562,11 @@ export default {
       this.getDatos();
       if (this.id) {
         this.modoLectura = true;
+        this.modoCarga = false;
         this.toggle_exclusive = 0;
       } else {
         this.modoCarga = true;
+        this.modoLectura = false;
       }
     },
     mostrarBuscador() {
