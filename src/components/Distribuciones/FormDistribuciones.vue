@@ -45,7 +45,7 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
-                    :disabled="modoLectura || (!modoLectura && !distribucion.editable)"
+                    :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
                     class="mx-3"
                     label="Nro. Documento"
                     v-model="nroDocumento"
@@ -56,7 +56,7 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-select
-                    :disabled="modoLectura || (!modoLectura && !distribucion.editable)"
+                    :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
                     class="mx-3"
                     label="Vendedor"
                     v-model="distribucion.idVendedor"
@@ -96,20 +96,20 @@
                     hide-actions
                   >
                     <template slot="items" slot-scope="props">
-                      <td v-if="props.item.editable && !modoLectura">
-                        <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
-                      </td>
-                      <td v-else>
-                        <v-icon>delete_outlined</v-icon>
+                      <td>
+                        <v-icon right v-if="props.item.editable && !modoLectura" @click="quitarDetalle(props.item)">delete</v-icon>
+                        <v-icon right v-else>delete_outlined</v-icon>
                       </td>
                       <td>{{ props.item.nombreArticulo }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                      <td>{{ props.item.nroEdicion }}</td>
-                      <td>
-                        <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
-                        <template>
+                      <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
+                      <td class="text-xs-right">{{ columnMoney(props.item.precioRendicion) }}</td>
+                      <td class="text-xs-right">{{ columnMoney(props.item.precioVenta) }}</td>
+                      <td class="text-xs-right">
+                        <template v-if="modoLectura">{{props.item.cantidad}}</template>
+                        <template v-else>
                           <v-text-field
-                            :disabled="modoLectura || (!modoLectura && !props.item.editable)"
+                            :readonly="modoLectura || (!modoLectura && !props.item.editable)"
                             class="style-input"
                             type="number"
                             v-model="props.item.cantidad"
@@ -118,8 +118,7 @@
                           ></v-text-field>
                         </template>
                       </td>
-                      <td>{{ props.item.precioVenta }}</td>
-                      <td>{{ props.item.precioRendicion }}</td>
+                      
                     </template>
                     <template slot="no-data">
                       <div
@@ -242,19 +241,20 @@ export default {
         anulable: true
       },
       headers: [
-        { text: "Opciones", value: "opciones" },
-        { text: "Artículo", value: "nombreArticulo" },
-        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
-        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
-        { text: "Cantidad", value: "cantidad", sortable: false, width: "12%" },
-        { text: "Precio Venta", value: "precioVenta", sortable: false },
-        { text: "Precio Rendición", value: "precioRendicion", sortable: false }
+        { text: "", value: "opciones", sortable: false, width:"7%" },
+        { text: "Nombre del artículo", value: "nombreArticulo" },
+        { text: "Fecha Edición", value: "fechaEdicion", sortable: false, width:"7%" },
+        { text: "Edición Nro.", value: "nroEdicion", sortable: false, width:"7%" },
+        { text: "Precio Rendición", value: "precioRendicion", sortable: false, width:"7%" },
+        { text: "Precio Venta", value: "precioVenta", sortable: false, width:"7%" },
+        { text: "Cantidad", value: "cantidad", sortable: false, width:"7%" },
+        
       ],
       headerArticulos: [
-        { text: "Artículo", value: "nombreArticulo" },
-        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Artículo", value: "nombreArticulo", width:"50%" },
+        { text: "Fecha Edición", value: "fechaEdicion" },
         { text: "Nro. Edición", value: "nroEdicion" },
-        { text: "Stock", value: "stock", sortable: false }
+        { text: "Stock", value: "cantidadActual" }
       ],
       ediciones: [],
       nombre: null,
@@ -481,12 +481,12 @@ export default {
       }
     },
     activarModoEdicion() {
-      if (!this.distribucion.anulado && this.distribucion.editable) {
+      if (!this.distribucion.anulado && this.distribucion.detalle.some(d => d.editable)) {
         this.modoLectura = false;
         this.modoEdicion = true;
       } else {
         this.snackbar.color = "error";
-        this.snackbar.message = this.distribucion.anulado?"Distribución anulada.":"No se puede editar";
+        this.snackbar.message = this.distribucion.anulado ? "Distribución anulada." : "No se puede editar." ;
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
