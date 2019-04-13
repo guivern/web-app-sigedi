@@ -38,16 +38,16 @@
           <v-card>
             <v-card-text v-on:keyup.enter="guardar">
               <v-layout wrap row>
-                <v-flex xs12 sm12 md6>
+                <v-flex xs12 sm12 md4>
                   <v-text-field
                     class="mx-3"
                     label="Nro. Documento"
                     :disabled="modoLectura || modoEdicion"
                     v-model="nroDocumento"
-                    :append-icon="modoLectura? '' : 'search'"
+                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
                   ></v-text-field>
                 </v-flex>
-                <v-flex xs12 sm12 md6>
+                <v-flex xs12 sm12 md5>
                   <v-select
                     class="mx-3"
                     :disabled="modoLectura || modoEdicion"
@@ -58,72 +58,122 @@
                     label="Vendedor"
                     :loading="cargando"
                     required
+                    prepend-icon="person"
                     @input="$v.rendicion.idVendedor.$touch()"
                     @blur="$v.rendicion.idVendedor.$touch()"
                     :error-messages="mensajeValidacion['IdVendedor'] || vendedorError"
                   ></v-select>
                 </v-flex>
               </v-layout>
+              <v-container grid-list-xl fluid>
+                <v-layout wrap row>
+                  <v-flex xs4 md3>
+                    <v-text-field
+                      outline
+                      readonly
+                      label="Total Rendición Gs."
+                      :value="columnMoney(rendicion.montoTotal)"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 md3>
+                    <v-text-field
+                      outline
+                      readonly
+                      label="Total Importe Gs."
+                      :value="columnMoney(rendicion.importeTotal)"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs4 md3>
+                    <v-text-field
+                      outline
+                      readonly
+                      label="Total Saldo Gs."
+                      :value="columnMoney(rendicion.saldoTotal)"
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+              </v-container>
             </v-card-text>
           </v-card>
           <!-- LISTA DETALLE -->
           <v-card>
             <v-card-text>
-              <v-layout row wrap>
-                <v-flex>
-                  <v-toolbar flat color="white">
-                    <span style="display:inline" class="title">Detalle</span>
-                    <v-divider class="mx-3" inset vertical></v-divider>
-                    <v-btn
-                      v-if="!modoLectura"
-                      :outline="!activarDetalle"
-                      color="info"
-                      dark
-                      @click="mostrarBuscador"
-                    >Agregar</v-btn>
-                  </v-toolbar>
-                  <v-data-table
-                    class="scrollable"
-                    :headers="headers"
-                    :items="rendicion.detalle"
-                    :loading="cargando"
-                    hide-actions
-                  >
-                    <template slot="items" slot-scope="props">
-                      <td v-if="props.item.editable && !modoLectura">
-                        <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
-                      </td>
-                      <td v-else>
-                        <v-icon>delete_outlined</v-icon>
-                      </td>
-                      <td>{{props.item.nombreArticulo}}</td>
-                      <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
-                      <td>{{props.item.cantidad}}</td>
-                      <td>
-                        <v-text-field class="style-input" type="number" v-model="props.item.devoluciones"></v-text-field>
-                      </td>
-                      <td>{{props.item.monto}}</td>
-                      <td>
-                        <v-text-field class="style-input" type="number" v-model="props.item.importe"></v-text-field>
-                      </td>
-                      <td>{{props.item.saldo}}</td>
-                    </template>
-                    <template slot="no-data">
-                      <div
-                        class="text-xs-center"
-                        v-if="!mensajeValidacion.hasOwnProperty('Detalle')"
-                      >
-                        <v-icon class="mx-2" color="success">info</v-icon>Seleccione un vendedor y luego haga click en "agregar" para agregar detalle.
-                      </div>
-                      <div class="text-xs-center" v-else>
-                        <v-icon class="mx-2">error</v-icon>Debe agregar al menos una rendición al detalle.
-                      </div>
-                    </template>
-                  </v-data-table>
-                </v-flex>
-              </v-layout>
+              <v-form v-model="valid" ref="form">
+                <v-layout row wrap>
+                  <v-flex>
+                    <v-toolbar flat color="white">
+                      <span style="display:inline" class="title">Detalle</span>
+                      <v-divider class="mx-3" inset vertical></v-divider>
+                      <v-btn
+                        v-if="!modoLectura"
+                        :outline="!activarDetalle"
+                        color="info"
+                        dark
+                        @click="mostrarBuscador"
+                      >Agregar</v-btn>
+                    </v-toolbar>
+                    <v-data-table
+                      class="scrollable"
+                      :headers="headers"
+                      :items="rendicion.detalle"
+                      :loading="cargando"
+                      hide-actions
+                    >
+                      <template slot="items" slot-scope="props">
+                        <td v-if="modoCarga">
+                          <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
+                        </td>
+                        <td>{{props.item.nombreArticulo}}</td>
+                        <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
+                        <td>{{columnMoney(props.item.precioRendicion)}}</td>
+                        <td class="text-xs-right">{{props.item.cantidad}}</td>
+                        <td>
+                          <v-text-field
+                            class="style-input"
+                            type="number"
+                            v-model="props.item.devoluciones"
+                            @input="calcularSubTotal(props.item)"
+                            required
+                            :rules="[
+                            (v) => props.item.devoluciones <= props.item.cantidad || 'excede la cantidad consignada',
+                            (v) => props.item.devoluciones >= 0 || 'debe ser positivo',
+                            (v) => props.item.devoluciones != null || 'es requerido']"
+                          ></v-text-field>
+                        </td>
+                        <td class="text-xs-right">{{columnMoney(props.item.monto)}}</td>
+                        <td>
+                          <v-text-field
+                            class="style-input"
+                            type="number"
+                            v-model="props.item.importe"
+                            required
+                            :rules="[
+                            (v) => props.item.importe <= props.item.monto || 'excede el monto',
+                            (v) => props.item.importe >= 0 || 'debe ser positivo',
+                            (v) => props.item.importe != null || 'es requerido']"
+                            @input="calcularSaldo(props.item)"
+                          ></v-text-field>
+                        </td>
+                        <td class="text-xs-right">{{columnMoney(props.item.saldo)}}</td>
+                      </template>
+                      <template slot="no-data">
+                        <div
+                          class="text-xs-center"
+                          v-if="!mensajeValidacion.hasOwnProperty('Detalle')"
+                        >
+                          <v-icon class="mx-2" color="success">info</v-icon>Seleccione un vendedor y luego haga click en "agregar" para agregar detalle.
+                        </div>
+                        <div class="text-xs-center" v-else>
+                          <v-icon class="mx-2">error</v-icon>Debe agregar al menos una rendición al detalle.
+                        </div>
+                      </template>
+                    </v-data-table>
+                  </v-flex>
+                </v-layout>
+              </v-form>
             </v-card-text>
           </v-card>
+
           <!-- BUSCADOR DISTRIBUCIONES -->
           <v-dialog v-model="dialog" max-width="800px">
             <v-card>
@@ -164,7 +214,6 @@
                         >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
                         <td class="text-xs-right">{{ props.item.cantidad }}</td>
                         <td class="text-xs-right">{{ props.item.devoluciones }}</td>
-                        <td class="text-xs-right">{{ props.item.monto }}</td>
                         <td class="text-xs-right">{{ props.item.importe }}</td>
                         <td class="text-xs-right">{{ props.item.saldo }}</td>
                       </template>
@@ -226,19 +275,22 @@ export default {
         idUsuarioCreador: null,
         idUsuarioModificador: null,
         fechaCreacion: new Date(),
+        montoTotal: 0.0,
+        importeTotal: 0.0,
+        saldoTotal: 0.0,
         detalle: [],
         editable: true,
         anulable: true
       },
       headers: [
-        { text: "Opciones", value: "opciones" },
-        { text: "Artículo", value: "nombreArticulo" },
-        { text: "Fecha Edición", value: "nroEdicion", sortable: false },
-        //{ text: "Precio", value: "precioRendicion", sortable: false },
-        { text: "Cantidad", value: "cantidad", sortable: false },
-        { text: "Devoluciones", value: "", sortable: false },
-        { text: "Monto", value: "", sortable: false },
-        { text: "Importe", value: "", sortable: false },
+        { text: "", value: "opciones", sortable: false },
+        { text: "Artículo", value: "nombreArticulo", width: "15%" },
+        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
+        { text: "Precio", value: "precioRendicion", sortable: false },
+        { text: "Llevó", value: "cantidad", sortable: false },
+        { text: "Devolvió", value: "", sortable: false, width: "12%" },
+        { text: "Subtotal", value: "", sortable: false },
+        { text: "Importe", value: "", sortable: false, width: "12%" },
         { text: "Saldo", value: "", sortable: false }
       ],
       headerDistribuciones: [
@@ -246,8 +298,7 @@ export default {
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
         { text: "Cantidad", value: "cantidad", sortable: false },
         { text: "Devoluciones", value: "", sortable: false },
-        { text: "Monto", value: "", sortable: false },
-        { text: "Importe", value: "", sortable: false},
+        { text: "Importe", value: "", sortable: false },
         { text: "Saldo", value: "", sortable: false }
       ],
       nroDocumento: null,
@@ -265,6 +316,7 @@ export default {
       errorDistribuciones: false,
       distribuciones: [],
       busqueda: null,
+      valid: false,
       snackbar: {
         visible: false,
         message: null,
@@ -329,8 +381,33 @@ export default {
           this.errorDistribuciones = true;
         });
     },
+    calcularSubTotal(detalle) {
+      detalle.monto =
+        detalle.precioRendicion * (detalle.cantidad - detalle.devoluciones);
+      let suma = 0;
+      this.rendicion.detalle.forEach(d => {
+        suma += parseFloat(d.monto);
+      });
+      this.rendicion.montoTotal = suma;
+      this.calcularSaldo(detalle);
+    },
+    calcularSaldo(rendicion) {
+      rendicion.saldo = rendicion.monto - rendicion.importe;
+      let sumaSaldo = 0;
+      let sumaImporte = 0;
+
+      this.rendicion.detalle.forEach(d => {
+        sumaSaldo += parseFloat(d.saldo);
+        sumaImporte += d.importe ? parseFloat(d.importe) : 0;
+      });
+      this.rendicion.saldoTotal = sumaSaldo;
+      this.rendicion.importeTotal = sumaImporte;
+    },
     guardar() {
-      //TODO
+      console.log(this.$refs.form.validate());
+      if (this.$refs.form.validate()) {
+        //TODO
+      }
     },
     seleccionDeDistribucion(item) {
       item.idDistribucionDetalle = item.id
@@ -343,8 +420,11 @@ export default {
       }
     },
     agregarDetalle(item) {
-      if (!this.rendicion.detalle.some(d => d.idDistribucionDetalle == item.idDistribucionDetalle)) 
-      {
+      if (
+        !this.rendicion.detalle.some(
+          d => d.idDistribucionDetalle == item.idDistribucionDetalle
+        )
+      ) {
         this.rendicion.detalle.push({
           idDistribucionDetalle: item.idDistribucionDetalle,
           cantidad: item.cantidad,
@@ -353,14 +433,17 @@ export default {
           fechaEdicion: item.fechaEdicion,
           precioVenta: item.precioVenta,
           precioRendicion: item.precioRendicion,
-          monto: item.monto,
-          importe: item.importe,
+          monto: item.saldo,
+          importe: null,
           saldo: item.saldo,
-          devoluciones: item.devoluciones,
+          devoluciones: null,
           id: null,
           anulable: true,
           editable: true
         });
+
+        this.rendicion.saldoTotal += item.saldo;
+        this.rendicion.montoTotal += item.saldo;
       }
     },
     quitarDetalle(item) {
@@ -373,6 +456,9 @@ export default {
           d.selected = false;
         }
       });
+      this.rendicion.montoTotal -= item.monto;
+      this.rendicion.saldoTotal -= item.saldo;
+      this.rendicion.importeTotal -= item.importe;
     },
     cerrarBuscador() {
       this.busqueda = null;
@@ -420,10 +506,11 @@ export default {
     idVendedor(newValue, oldValue) {
       if (oldValue != null) {
         this.rendicion.detalle = [];
+        this.$refs.form.reset();
       }
 
       if (this.idVendedor) {
-        // obtenemos las distribuciones pendientes de  rendicion del vendedor
+        // obtenemos las distribuciones pendientes del vendedor
         this.activarDetalle = true;
         this.getDistribuciones();
       }
