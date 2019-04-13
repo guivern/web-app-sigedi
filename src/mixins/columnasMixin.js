@@ -35,7 +35,7 @@ export default {
     },
     columnMoney(val) {
       if (val != null) {
-        return new Intl.NumberFormat(["ban", "id"]).format(val) + ' Gs.';
+        return new Intl.NumberFormat(["ban", "id"]).format(val);
       }
       return null;
     },
