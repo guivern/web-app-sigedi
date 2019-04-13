@@ -49,7 +49,7 @@
                     class="mx-3"
                     label="Nro. Documento"
                     v-model="nroDocumento"
-                    :append-icon="modoLectura? '' : 'search'"
+                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -65,6 +65,7 @@
                     item-text="nombreCompleto"
                     required
                     :error-messages="mensajeValidacion['IdVendedor']"
+                    prepend-icon="person"
                   ></v-select>
                 </v-flex>
               </v-layout>
@@ -81,7 +82,7 @@
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <!--<v-spacer></v-spacer>-->
                     <v-btn
-                      v-if="!modoLectura"
+                      v-if="modoCarga"
                       @click="mostrarBuscador = true"
                       color="info"
                       dark
@@ -413,9 +414,9 @@ export default {
           )
           .then(response => {
             this.guardando = false;
-            this.snackbar.color = "success";
-            this.snackbar.message = "Se ha actualizado con éxito";
-            this.snackbar.icon = "check_circle";
+            this.snackbar.color = "info";
+            this.snackbar.message = "Registro actualizado";
+            this.snackbar.icon = "info";
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push(".");
@@ -445,9 +446,9 @@ export default {
           )
           .then(response => {
             this.guardando = false;
-            this.snackbar.color = "success";
-            this.snackbar.message = "La distribución se ha realizado con éxito";
-            this.snackbar.icon = "check_circle";
+            this.snackbar.color = "info";
+            this.snackbar.message = "Registro guardado";
+            this.snackbar.icon = "info";
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push({
@@ -485,7 +486,7 @@ export default {
         this.modoEdicion = true;
       } else {
         this.snackbar.color = "error";
-        this.snackbar.message = this.distribucion.anulado?"No se puede editar una distribución anulada.":"No se puede editar";
+        this.snackbar.message = this.distribucion.anulado?"Distribución anulada.":"No se puede editar";
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
