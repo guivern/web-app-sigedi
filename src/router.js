@@ -20,6 +20,8 @@ import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
 import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
 import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue"
 import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
+import ListaRendiciones from "./components/Rendiciones/ListaRendiciones.vue"
+import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue"
 
 Vue.use(Router);
 
@@ -268,6 +270,34 @@ var router = new Router({
           component: ListaEgresos,
           meta: { administrador: true }
         },
+      ]
+    },
+    {
+      path: "/rendiciones",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaRendiciones,
+          meta: { administrador: true, cajero: true }
+        },
+        {
+          path: "nuevo",
+          component: FormRendiciones,
+          meta: { administrador: true, cajero: true }
+        },
+        {
+          path: ":id",
+          component: FormRendiciones,
+          props: route => ({
+            id: parseInt(route.params.id)
+          }),
+          meta: { administrador: true, cajero: true }
+        }
       ]
     },
   ]
