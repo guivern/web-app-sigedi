@@ -526,7 +526,7 @@ export default {
           d => d.idDistribucionDetalle == item.idDistribucionDetalle
         )
       ) {
-        this.rendicion.detalle.push({
+        let detalle = {
           idDistribucionDetalle: item.idDistribucionDetalle,
           cantidad: item.cantidad,
           nombreArticulo: item.nombreArticulo,
@@ -538,12 +538,17 @@ export default {
           importe: null,
           yaSeDevolvio: item.yaSeDevolvio,
           saldo: item.saldo,
-          devoluciones: item.devoluciones > 0 ? item.devoluciones : null,
+          //devoluciones: ,
           id: null,
           anulable: true,
           editable: true
-        });
+        };
 
+        if(!item.yaSeDevolvio){ detalle.devoluciones = null }
+        else{ detalle.devoluciones = item.devoluciones }
+
+        this.rendicion.detalle.push( detalle );
+        
         this.rendicion.saldoTotal += item.saldo;
         this.rendicion.montoTotal += item.saldo;
       }
@@ -602,7 +607,7 @@ export default {
       if (this.errorDistribuciones) {
         return "Ocurrió un error al intentar obtener los datos, revise su conexión e intente nuevamente.";
       } else if(this.distribuciones.length == 0){
-        return "El vendedor seleccionado no registra deudas.";
+        return "El vendedor seleccionado no registra deudas";
       }
       else{
         return "Aquí apareceran los las deudas del vendedor."
