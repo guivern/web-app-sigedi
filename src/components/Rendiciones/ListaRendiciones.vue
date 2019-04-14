@@ -48,6 +48,9 @@
             <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreVendedor }}</td>
+            <td>{{ columnMoney(props.item.montoTotal) }}</td>
+            <td>{{ columnMoney(props.item.importeTotal) }}</td>
+            <td>{{ columnMoney(props.item.saldoTotal) }}</td>
             <td>{{ props.item.nombreUsuarioCreador }}</td>
             
           </template>
@@ -127,10 +130,13 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Opciones", value: "opciones", sortable: false, },
-        { text: "Nro. Rendición", value: "id"  },
-        { text: "Fecha Rendición", value: "fechaCreacion"   },
+        { text: "Detalle", value: "opciones", sortable: false, },
+        { text: "Nro.", value: "id"  },
+        { text: "Fecha", value: "fechaCreacion"   },
         { text: "Vendedor", value: "nombreVendedor"  },
+        { text: "Total Monto", value: "montoTotal"  },
+        { text: "Total Importe", value: "importeTotal"  },
+        { text: "Total Saldo", value: "saldoTotal"  },
         { text: "Usuario", value: "nombreUsuario" },
         
       ],

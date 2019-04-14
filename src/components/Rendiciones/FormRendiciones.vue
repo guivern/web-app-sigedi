@@ -110,7 +110,9 @@
                         color="info"
                         dark
                         @click="mostrarBuscador"
-                      >Agregar</v-btn>
+                      >Deudas
+                      <v-icon class="ml-1" small>launch</v-icon>
+                      </v-btn>
                     </v-toolbar>
                     <v-data-table
                       class="scrollable"
@@ -125,9 +127,9 @@
                         </td>
                         <td>{{props.item.nombreArticulo}}</td>
                         <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
-                        <td>{{columnMoney(props.item.precioRendicion)}}</td>
-                        <td class="text-xs-right">{{props.item.cantidad}}</td>
-                        <td>
+                        <td >{{columnMoney(props.item.precioRendicion)}}</td>
+                        <td >{{props.item.cantidad}}</td>
+                        <td >
                           <template v-if="modoCarga">
                             <v-text-field
                               class="style-input"
@@ -135,16 +137,17 @@
                               v-model="props.item.devoluciones"
                               @input="calcularSubTotal(props.item)"
                               required
+                              :disabled="props.item.yaSeDevolvio"
                               :rules="[
-                            (v) => props.item.devoluciones <= props.item.cantidad || 'excede la cantidad consignada',
+                            (v) => props.item.devoluciones <= props.item.cantidad || `llevó ${props.item.cantidad} artículos`,
                             (v) => props.item.devoluciones >= 0 || 'debe ser positivo',
                             (v) => props.item.devoluciones != null || 'es requerido']"
                             ></v-text-field>
                           </template>
                           <template v-else>{{props.item.devoluciones}}</template>
                         </td>
-                        <td class="text-xs-right">{{columnMoney(props.item.monto)}}</td>
-                        <td>
+                        <td >{{columnMoney(props.item.monto)}}</td>
+                        <td >
                           <template v-if="modoCarga">
                             <v-text-field
                               class="style-input"
@@ -158,9 +161,9 @@
                               @input="calcularSaldo(props.item)"
                             ></v-text-field>
                           </template>
-                          <template v-else>{{columnMoney(props.item.monto)}}</template>
+                          <template v-else>{{columnMoney(props.item.importe)}}</template>
                         </td>
-                        <td class="text-xs-right">{{columnMoney(props.item.saldo)}}</td>
+                        <td >{{columnMoney(props.item.saldo)}}</td>
                       </template>
                       <template slot="no-data">
                         <div
@@ -181,10 +184,10 @@
           </v-card>
 
           <!-- BUSCADOR DISTRIBUCIONES -->
-          <v-dialog v-model="dialog" max-width="800px">
+          <v-dialog v-model="dialog" max-width="850px">
             <v-card>
               <v-toolbar color="secondary" flat dark dense extense>
-                <v-toolbar-title>Deudas del vendedor</v-toolbar-title>
+                <v-toolbar-title>Deudas</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn dark flat @click.native="cerrarBuscador">Cerrar</v-btn>
               </v-toolbar>
@@ -220,8 +223,9 @@
                         >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
                         <td class="text-xs-right">{{ props.item.cantidad }}</td>
                         <td class="text-xs-right">{{ props.item.devoluciones }}</td>
-                        <td class="text-xs-right">{{ props.item.importe }}</td>
-                        <td class="text-xs-right">{{ props.item.saldo }}</td>
+                        <td class="text-xs-right">{{ columnMoney(props.item.monto) }}</td>
+                        <td class="text-xs-right">{{ columnMoney(props.item.importe) }}</td>
+                        <td class="text-xs-right">{{ columnMoney(props.item.saldo) }}</td>
                       </template>
                       <template slot="no-data">
                         <div class="text-xs-center">{{mensaje}}</div>
@@ -289,21 +293,22 @@ export default {
         anulable: true
       },
       headers: [
-        { text: "", value: "opciones", sortable: false },
-        { text: "Artículo", value: "nombreArticulo", width: "15%" },
-        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
-        { text: "Precio", value: "precioRendicion", sortable: false },
-        { text: "Llevó", value: "cantidad", sortable: false },
-        { text: "Devolvió", value: "", sortable: false, width: "12%" },
-        { text: "Subtotal", value: "", sortable: false },
-        { text: "Importe", value: "", sortable: false, width: "12%" },
-        { text: "Saldo", value: "", sortable: false }
+        { text: "", value: "opciones", sortable: false, width:"7%" },
+        { text: "Artículo", value: "nombreArticulo", sortable: false },
+        { text: "Fecha Edición", value: "fechaEdicion", sortable: false, width:"7%" },
+        { text: "Precio Unit.", value: "precioRendicion", sortable: false, width:"7%" },
+        { text: "Cantidad", value: "cantidad", sortable: false, width:"7%" },
+        { text: "Devoluciones", value: "", sortable: false, width:"7%" },
+        { text: "Subtotal", value: "", sortable: false, width:"7%" },
+        { text: "Importe", value: "", sortable: false, width:"12%" },
+        { text: "Saldo", value: "", sortable: false, width:"7%" }
       ],
       headerDistribuciones: [
         { text: "Artículo", value: "nombreArticulo" },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
         { text: "Cantidad", value: "cantidad", sortable: false },
         { text: "Devoluciones", value: "", sortable: false },
+        { text: "Monto", value: "", sortable: false },
         { text: "Importe", value: "", sortable: false },
         { text: "Saldo", value: "", sortable: false }
       ],
@@ -410,6 +415,7 @@ export default {
         suma += parseFloat(d.monto);
       });
       this.rendicion.montoTotal = suma;
+      if(detalle.devoluciones == detalle.cantidad){detalle.importe = 0}
       this.calcularSaldo(detalle);
     },
     calcularSaldo(rendicion) {
@@ -465,6 +471,7 @@ export default {
           // Guardar
           this.rendicion.idUsuarioCreador = this.getUserId();
           this.rendicion.detalle.forEach(d => (d.id = null));
+          this.rendicion.detalle.forEach(d => (d.devoluciones = d.yaSeDevolvio ? 0 : d.devoluciones));
           this.$http
             .post(
               `${process.env.VUE_APP_ROOT_API}rendiciones`,
@@ -529,8 +536,9 @@ export default {
           precioRendicion: item.precioRendicion,
           monto: item.saldo,
           importe: null,
+          yaSeDevolvio: item.yaSeDevolvio,
           saldo: item.saldo,
-          devoluciones: null,
+          devoluciones: item.devoluciones > 0 ? item.devoluciones : null,
           id: null,
           anulable: true,
           editable: true
@@ -593,8 +601,11 @@ export default {
     mensaje() {
       if (this.errorDistribuciones) {
         return "Ocurrió un error al intentar obtener los datos, revise su conexión e intente nuevamente.";
-      } else {
-        return "Aquí apareceran los las deudas del vendedor.";
+      } else if(this.distribuciones.length == 0){
+        return "El vendedor seleccionado no registra deudas.";
+      }
+      else{
+        return "Aquí apareceran los las deudas del vendedor."
       }
     }
   },
