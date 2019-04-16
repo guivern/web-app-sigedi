@@ -416,7 +416,7 @@ export default {
             this.guardando = false;
             this.snackbar.color = "info";
             this.snackbar.message = "Registro actualizado";
-            this.snackbar.icon = "info";
+            this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push(".");
@@ -448,7 +448,7 @@ export default {
             this.guardando = false;
             this.snackbar.color = "info";
             this.snackbar.message = "Registro guardado";
-            this.snackbar.icon = "info";
+            this.snackbar.icon = "check_circle";
             this.snackbar.visible = true;
             setTimeout(() => {
               this.$router.push({
