@@ -44,7 +44,7 @@
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura || modoEdicion"
                     class="mx-3"
                     v-model="ingreso.numeroComprobante"
                     label="Nro. Comprobante"
@@ -54,7 +54,7 @@
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura || modoEdicion"
                     v-model="ingreso.tipoComprobante"
                     :items="tiposComprobante"
                     label="Tipo Comprobante"
@@ -65,15 +65,15 @@
                   <v-text-field
                     class="mx-3"
                     label="RUC"
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura || modoEdicion"
                     v-model="ruc"
-                    :append-icon="modoLectura? '' : 'search'"
+                    :prepend-icon="modoCarga? 'search' : ''"
                   ></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm12 md6>
                   <v-select
                     class="mx-3"
-                    :disabled="modoLectura || modoEdicion"
+                    :readonly="modoLectura || modoEdicion"
                     v-model="ingreso.idProveedor"
                     :items="proveedores"
                     item-text="razonSocial"
@@ -94,7 +94,9 @@
             <v-card>
               <v-toolbar flat dark class="secondary" dense>
                 <v-toolbar-title>
-                  <span class="headline">Agregar detalle</span>
+                  <span
+                    class="headline"
+                  >{{this.detalle.id || this.detalle.idArt ? "Editar Detalle" : "Agregar Detalle"}}</span>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
               </v-toolbar>
@@ -104,6 +106,7 @@
                   <v-layout wrap>
                     <v-flex xs6 sm6 md6>
                       <v-select
+                        :disabled="modoEdicion"
                         :items="articulos"
                         item-text="descripcion"
                         v-model="detalle.articulo"
@@ -118,6 +121,7 @@
                     </v-flex>
                     <v-flex xs6 sm6 md6>
                       <v-text-field
+                        :disabled="!modoCarga && !detalle.editable"
                         type="number"
                         label="Cantidad"
                         v-model="detalle.cantidad"
@@ -129,6 +133,7 @@
                     </v-flex>
                     <v-flex xs6 sm6 md6>
                       <v-text-field
+                        :disabled="modoEdicion"
                         type="number"
                         label="Nro. Edición"
                         v-model="detalle.nroEdicion"
@@ -140,6 +145,7 @@
                     </v-flex>
                     <v-flex xs6 sm6 md6>
                       <v-text-field
+                        :disabled="modoEdicion"
                         type="date"
                         label="Fecha Edición"
                         v-model="detalle.fechaEdicion"
@@ -179,11 +185,11 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" flat :disabled="guardando" @click="close">Cancelar</v-btn>
-                <v-btn flat color="primary" :loading="guardando" @click="agregarDetalle">Agregar</v-btn>
+                <v-btn flat color="primary" :loading="guardando" @click="agregarDetalle">Confirmar</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <!--LISTA DE detalle -->
+          <!--LISTA DETALLE -->
           <v-card>
             <v-card-text>
               <v-layout row wrap>
@@ -192,7 +198,7 @@
                     <span style="display:inline" class="title">Detalle</span>
                     <v-divider class="mx-3" inset vertical></v-divider>
                     <v-btn
-                      v-if="!modoLectura"
+                      v-if="modoCarga"
                       :outline="!activarDetalle"
                       color="info"
                       dark
@@ -207,30 +213,31 @@
                     hide-actions
                   >
                     <template slot="items" slot-scope="props">
-                      <td v-if="props.item.editable && !modoLectura">
-                        <v-icon @click="quitarDetalle(props.item)">delete</v-icon>
-                      </td>
-                      <td v-else>
-                        <v-icon>delete_outlined</v-icon>
-                      </td>
-                      <td>{{ props.item.nombreArticulo }}</td>
-                      <td>{{ props.item.nroEdicion }}</td>
-                      <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                      <td>
-                        <!--<template v-if="modoLectura">{{props.item.cantidad}}</template>-->
+                      <td class="text-xs-left">
                         <template>
-                          <v-text-field
-                            :disabled="modoLectura || (!modoLectura && !props.item.editable)"
-                            class="style-input"
-                            type="number"
-                            v-model="props.item.cantidad"
-                            :error-messages="mensajeValidacion[`Detalle[${ingreso.detalle.indexOf(props.item)}].Cantidad`]"
-                            @focus="limpiarDetalle(props.item)"
-                          ></v-text-field>
+                          <v-icon
+                            v-if="modoCarga || modoEdicion"
+                            class="active-icon"
+                            @click="editarDetalle(props.item)"
+                          >edit</v-icon>
+                          <v-icon v-else-if="modoLectura">edit</v-icon>
+                        </template>
+                        <template>
+                          <v-icon
+                            v-if="props.item.editable && !modoLectura"
+                            class="active-icon"
+                            @click="quitarDetalle(props.item)"
+                          >delete</v-icon>
+                          <v-icon v-else>delete</v-icon>
                         </template>
                       </td>
-                      <td>{{ props.item.precioVenta }}</td>
-                      <td>{{ props.item.precioRendicion }}</td>
+
+                      <td>{{ props.item.nombreArticulo }}</td>
+                      <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
+                      <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+                      <td class="text-xs-right">{{props.item.cantidad}}</td>
+                      <td class="text-xs-right">{{ props.item.precioVenta }}</td>
+                      <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
                     </template>
                     <template slot="no-data">
                       <div
@@ -309,7 +316,9 @@ export default {
         precio: null,
         cantidad: null,
         fechaEdicion: null,
-        nroEdicion: null
+        nroEdicion: null,
+        editable: true,
+        index: null
       },
       detalleDefault: {
         articulo: null,
@@ -322,13 +331,33 @@ export default {
       tiposComprobante: ["Boleta", "Recibo", "Factura"],
       proveedores: [],
       headers: [
-        { text: "Opciones", value: "opciones" },
-        { text: "Artículo", value: "nombreArticulo" },
-        { text: "Edición Nro.", value: "nroEdicion", sortable: false },
-        { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
-        { text: "Cantidad", value: "cantidad", sortable: false },
-        { text: "Precio Venta", value: "precioVenta", sortable: false },
-        { text: "Precio Rendición", value: "precioRendicion", sortable: false }
+        { text: "Opciones", value: "opciones", width: "12%", sortable: false },
+        { text: "Descripción Artículo", value: "nombreArticulo" },
+        {
+          text: "Edición Nro.",
+          value: "nroEdicion",
+          sortable: false,
+          width: "7%"
+        },
+        {
+          text: "Fecha Edición",
+          value: "fechaEdicion",
+          sortable: false,
+          width: "7%"
+        },
+        { text: "Cantidad", value: "cantidad", sortable: false, width: "7%" },
+        {
+          text: "Precio Venta",
+          value: "precioVenta",
+          sortable: false,
+          width: "7%"
+        },
+        {
+          text: "Precio Rendición",
+          value: "precioRendicion",
+          sortable: false,
+          width: "7%"
+        }
       ],
       cargando: false,
       guardando: false,
@@ -419,6 +448,9 @@ export default {
         .then(response => {
           this.precios = response.data;
           this.getPrecios = false;
+          this.detalle.precio = this.precios.find(
+            p => p.id == this.detalle.idPrec
+          );
         })
         .catch(error => {
           console.log(error);
@@ -448,33 +480,39 @@ export default {
     agregarDetalle() {
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        this.ingreso.detalle.push({
-          id: null,
-          idArticulo: this.detalle.articulo.id,
-          idPrecio: this.detalle.precio.id,
-          cantidad: this.detalle.cantidad,
-          fechaEdicion: this.detalle.fechaEdicion + "T00:00:00",
-          nroEdicion: this.detalle.nroEdicion,
-          nombreArticulo: this.detalle.articulo.descripcion,
-          precioVenta: this.detalle.precio.precioVenta,
-          precioRendicion: this.detalle.precio.precioRendVendedor,
-          anulable: true,
-          editable: true
-        });
+        if (this.detalle.index != null) {
+          let d = this.ingreso.detalle[this.detalle.index];
+              d.cantidad = this.detalle.cantidad;
+              d.idPrecio = this.detalle.precio.id;
+              d.precioVenta = this.detalle.precio.precioVenta;
+              d.precioRendicion = this.detalle.precio.precioRendVendedor;
+              d.fechaEdicion = this.detalle.fechaEdicion + "T00:00:00";
+              d.nroEdicion = this.detalle.nroEdicion; 
+              d.nombreArticulo = this.detalle.articulo.descripcion;
+              d.precioVenta = this.detalle.precio.precioVenta;
+              d.precioRendicion = this.detalle.precio.precioRendVendedor;
+        } else {
+          this.ingreso.detalle.push({
+            id: null,
+            idArticulo: this.detalle.articulo.id,
+            idPrecio: this.detalle.precio.id,
+            cantidad: this.detalle.cantidad,
+            fechaEdicion: this.detalle.fechaEdicion + "T00:00:00",
+            nroEdicion: this.detalle.nroEdicion,
+            nombreArticulo: this.detalle.articulo.descripcion,
+            precioVenta: this.detalle.precio.precioVenta,
+            precioRendicion: this.detalle.precio.precioRendVendedor,
+            anulable: true,
+            editable: true
+          });
+        }
         this.limpiar();
         this.dialogDetalle = false;
       }
     },
     quitarDetalle(item) {
       this.ingreso.detalle.forEach(d => this.limpiarDetalle(d));
-      this.ingreso.detalle = this.ingreso.detalle.filter(
-        d => d.idEdicion != item.idEdicion
-      );
-      this.ediciones.forEach(e => {
-        if (e.id == item.idEdicion) {
-          e.selected = false;
-        }
-      });
+      this.ingreso.detalle = this.ingreso.detalle.filter(d => d != item);
     },
     limpiarDetalle(item) {
       delete this.mensajeValidacion[
@@ -485,22 +523,19 @@ export default {
       this.$v.ingreso.idProveedor.$touch();
       if (this.idProveedor != null) {
         this.dialogDetalle = true;
-        this.limpiar();
+        if (!this.detalle.id && !this.detalle.articulo) {
+          this.limpiar();
+        }
       }
-    },
-    eliminarDetalle(item) {
-      item.anulado = true;
-      /*this.ingreso.detalle = this.ingreso.detalle.filter(
-        p => p.id != item.id || p.index != item.index
-      );*/
     },
     limpiar() {
       this.detalle = Object.assign({}, this.detalleDefault);
+      this.precios = [];
       this.$v.$reset();
     },
     close() {
-      this.limpiar();
       this.dialogDetalle = false;
+      this.limpiar();
     },
     guardar() {
       this.guardando = true;
@@ -594,6 +629,19 @@ export default {
     activarModoLectura() {
       this.modoLectura = true;
       this.modoEdicion = false;
+    },
+    editarDetalle(item) {
+      this.detalle.id = item.id;
+      this.detalle.cantidad = item.cantidad;
+      this.detalle.editable = item.editable;
+      this.detalle.nroEdicion = item.nroEdicion;
+      this.detalle.articulo = this.articulos.find(a => a.id == item.idArticulo);
+      this.detalle.idArt = this.detalle.articulo.id;
+      this.detalle.idPrec = item.idPrecio;
+      this.detalle.fechaEdicion = item.fechaEdicion.substring(0, 10);
+      this.detalle.index = this.ingreso.detalle.indexOf(item);
+      console.log(this.detalle.index);
+      this.abrirFormDetalle();
     }
   },
   computed: {
@@ -702,10 +750,9 @@ export default {
 </script>
 
 <style scoped>
-.icon:hover {
-  color: #ff5252;
+.active-icon:hover {
 }
-.icon {
-  color: grey;
+.active-icon {
+  color: #303030;
 }
 </style>
