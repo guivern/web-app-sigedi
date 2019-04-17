@@ -36,6 +36,7 @@
               >visibility</v-icon>
               <template v-if="props.item.anulable">
                 <v-icon
+                  class="icon"
                   @click="mostrarDialog(props.item)"
                   title="anular"
                 >block</v-icon>

@@ -52,8 +52,6 @@
                     :prepend-icon="modoLectura? 'subtitles' : 'search'"
                   ></v-text-field>
                 </v-flex>
-              </v-layout>
-              <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
                   <v-select
                     :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
@@ -242,7 +240,7 @@ export default {
       },
       headers: [
         { text: "", value: "opciones", sortable: false, width:"7%" },
-        { text: "Nombre del artículo", value: "nombreArticulo" },
+        { text: "Nombre del artículo", value: "nombreArticulo", sortable: false },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false, width:"7%" },
         { text: "Edición Nro.", value: "nroEdicion", sortable: false, width:"7%" },
         { text: "Precio Rendición", value: "precioRendicion", sortable: false, width:"7%" },

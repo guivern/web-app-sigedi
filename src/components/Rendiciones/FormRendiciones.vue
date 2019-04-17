@@ -127,9 +127,9 @@
                         </td>
                         <td>{{props.item.nombreArticulo}}</td>
                         <td>{{columnDateWithoutTime(props.item.fechaEdicion)}}</td>
-                        <td >{{columnMoney(props.item.precioRendicion)}}</td>
-                        <td >{{props.item.cantidad}}</td>
-                        <td >
+                        <td class="text-xs-right" >{{columnMoney(props.item.precioRendicion)}}</td>
+                        <td class="text-xs-right">{{props.item.cantidad}}</td>
+                        <td class="text-xs-right">
                           <template v-if="modoCarga">
                             <v-text-field
                               class="style-input"
@@ -146,8 +146,8 @@
                           </template>
                           <template v-else>{{props.item.devoluciones}}</template>
                         </td>
-                        <td >{{columnMoney(props.item.monto)}}</td>
-                        <td >
+                        <td class="text-xs-right">{{columnMoney(props.item.monto)}}</td>
+                        <td class="text-xs-right">
                           <template v-if="modoCarga">
                             <v-text-field
                               class="style-input"
@@ -163,7 +163,7 @@
                           </template>
                           <template v-else>{{columnMoney(props.item.importe)}}</template>
                         </td>
-                        <td >{{columnMoney(props.item.saldo)}}</td>
+                        <td class="text-xs-right">{{columnMoney(props.item.saldo)}}</td>
                       </template>
                       <template slot="no-data">
                         <div
@@ -293,15 +293,15 @@ export default {
         anulable: true
       },
       headers: [
-        { text: "", value: "opciones", sortable: false, width:"7%" },
-        { text: "Artículo", value: "nombreArticulo", sortable: false },
+        { text: "", value: "opciones", sortable: false, width:"1%" },
+        { text: "Nombre del artículo", value: "nombreArticulo", sortable: false },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false, width:"7%" },
-        { text: "Precio Unit.", value: "precioRendicion", sortable: false, width:"7%" },
+        { text: "Prec. Unit.", value: "precioRendicion", sortable: false, width:"7%" },
         { text: "Cantidad", value: "cantidad", sortable: false, width:"7%" },
         { text: "Devoluciones", value: "", sortable: false, width:"7%" },
-        { text: "Subtotal", value: "", sortable: false, width:"7%" },
-        { text: "Importe", value: "", sortable: false, width:"12%" },
-        { text: "Saldo", value: "", sortable: false, width:"7%" }
+        { text: "Subtotal", value: "", sortable: false, width:"12%", align: "right" },
+        { text: "Importe", value: "", sortable: false, width:"12%", align: "right" },
+        { text: "Saldo", value: "", sortable: false, width:"7%", align: "right" }
       ],
       headerDistribuciones: [
         { text: "Artículo", value: "nombreArticulo" },
@@ -652,7 +652,7 @@ export default {
 }
 .style-input input {
   text-align: right;
-  font-size: 0.9em;
+  font-size: 0.7em;
 }
 .scrollable-list {
   /*max-height: 400px;*/

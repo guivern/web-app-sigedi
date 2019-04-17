@@ -48,9 +48,9 @@
             <td>{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreVendedor }}</td>
-            <td>{{ columnMoney(props.item.montoTotal) }}</td>
-            <td>{{ columnMoney(props.item.importeTotal) }}</td>
-            <td>{{ columnMoney(props.item.saldoTotal) }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.montoTotal) }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.importeTotal) }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.saldoTotal) }}</td>
             <td>{{ props.item.nombreUsuarioCreador }}</td>
             
           </template>
@@ -130,14 +130,14 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Detalle", value: "opciones", sortable: false, },
-        { text: "Nro.", value: "id"  },
-        { text: "Fecha", value: "fechaCreacion"   },
-        { text: "Vendedor", value: "nombreVendedor"  },
-        { text: "Total Monto", value: "montoTotal"  },
-        { text: "Total Importe", value: "importeTotal"  },
-        { text: "Total Saldo", value: "saldoTotal"  },
-        { text: "Usuario", value: "nombreUsuario" },
+        { text: "Detalle", value: "opciones", sortable: false, width:"7%" },
+        { text: "Nro. Rendición", value: "id"  },
+        { text: "Fecha", value: "fechaCreacion", },
+        { text: "Vendedor", value: "nombreVendedor", },
+        { text: "Total Monto", value: "montoTotal", width:"7%", align: "right"},
+        { text: "Total Importe", value: "importeTotal", width:"7%", align: "right"},
+        { text: "Total Saldo", value: "saldoTotal", width:"7%", align: "right"},
+        { text: "Usuario", value: "nombreUsuario", width:"7%"},
         
       ],
       alertDialog: {
