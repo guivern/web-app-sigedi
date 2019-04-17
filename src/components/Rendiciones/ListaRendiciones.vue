@@ -130,7 +130,7 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Detalle", value: "opciones", sortable: false, },
+        { text: "Opciones", value: "opciones", sortable: false, },
         { text: "Nro.", value: "id"  },
         { text: "Fecha", value: "fechaCreacion"   },
         { text: "Vendedor", value: "nombreVendedor"  },
