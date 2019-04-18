@@ -216,22 +216,21 @@
                       <td class="text-xs-left">
                         <template>
                           <v-icon
-                            v-if="modoCarga || (modoEdicion && props.item.editable)"
+                            v-if="modoCarga || modoEdicion"
                             class="active-icon"
                             @click="editarDetalle(props.item)"
                           >edit</v-icon>
-                          <v-icon v-else>edit</v-icon>
+                          <v-icon v-else-if="modoLectura">edit</v-icon>
                         </template>
                         <template>
                           <v-icon
-                            v-if="props.item.editable && !modoLectura"
+                            v-if="props.item.anulable && !modoLectura"
                             class="active-icon"
                             @click="quitarDetalle(props.item)"
                           >delete</v-icon>
                           <v-icon v-else>delete</v-icon>
                         </template>
                       </td>
-
                       <td>{{ props.item.nombreArticulo }}</td>
                       <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
@@ -615,15 +614,18 @@ export default {
       }
     },
     activarModoEdicion() {
-      if (!this.ingreso.anulado && this.ingreso.detalle.some(d => d.editable)) {
+      if (!this.ingreso.anulado && this.ingreso.editable) {
         this.modoLectura = false;
         this.modoEdicion = true;
       } else {
         this.snackbar.color = "error";
-        this.snackbar.message = this.ingreso.anulado ? "Ingreso anulado." : "No se puede editar." ;
+        this.snackbar.message = this.ingreso.anulado
+          ? "No se puede editar un ingreso anulado."
+          : "No se puede editar";
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
+
     },
     activarModoLectura() {
       this.modoLectura = true;
@@ -750,6 +752,7 @@ export default {
 
 <style scoped>
 .active-icon:hover {
+  color: #1976d2;
 }
 .active-icon {
   color: #303030;
