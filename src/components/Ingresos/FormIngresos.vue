@@ -159,10 +159,10 @@
                     <v-flex xs6 sm6 md6>
                       <v-select
                         :items="precios"
-                        item-text="precioVenta"
+                        item-text="descripcion"
                         v-model="detalle.precio"
                         label="Precio Venta"
-                        :loading="getPrecios"
+                        :loading="cargandPrecios"
                         return-object
                         required
                         @input="$v.detalle.precio.$touch()"
@@ -224,20 +224,19 @@
                         </template>
                         <template>
                           <v-icon
-                            v-if="props.item.editable && !modoLectura"
+                            v-if="props.item.anulable && !modoLectura"
                             class="active-icon"
                             @click="quitarDetalle(props.item)"
                           >delete</v-icon>
                           <v-icon v-else>delete</v-icon>
                         </template>
                       </td>
-
                       <td>{{ props.item.nombreArticulo }}</td>
-                      <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
+                      <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
                       <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
+                      <td class="text-xs-right">{{ columnMoney(props.item.precioVenta) }}</td>
+                      <td class="text-xs-right">{{ columnMoney(props.item.precioRendicion) }}</td>
                       <td class="text-xs-right">{{props.item.cantidad}}</td>
-                      <td class="text-xs-right">{{ props.item.precioVenta }}</td>
-                      <td class="text-xs-right">{{ props.item.precioRendicion }}</td>
                     </template>
                     <template slot="no-data">
                       <div
@@ -332,7 +331,7 @@ export default {
       proveedores: [],
       headers: [
         { text: "Opciones", value: "opciones", width: "12%", sortable: false },
-        { text: "Descripción Artículo", value: "nombreArticulo" },
+        { text: "Nombre del artículo", value: "nombreArticulo", sortable: false },
         {
           text: "Edición Nro.",
           value: "nroEdicion",
@@ -345,7 +344,6 @@ export default {
           sortable: false,
           width: "7%"
         },
-        { text: "Cantidad", value: "cantidad", sortable: false, width: "7%" },
         {
           text: "Precio Venta",
           value: "precioVenta",
@@ -357,7 +355,8 @@ export default {
           value: "precioRendicion",
           sortable: false,
           width: "7%"
-        }
+        },
+        { text: "Cantidad", value: "cantidad", sortable: false, width: "7%" },
       ],
       cargando: false,
       guardando: false,
@@ -369,7 +368,7 @@ export default {
       modoEdicion: false,
       modoCarga: false,
       getArticulos: false,
-      getPrecios: false,
+      cargandPrecios: false,
       articulos: [],
       precios: [],
       snackbar: {
@@ -436,8 +435,8 @@ export default {
           //this.getError = true;
         });
     },
-    listarPrecios() {
-      this.getPrecios = true;
+    getPrecios() {
+      this.cargandPrecios = true;
       this.getError = false;
       this.$http
         .get(
@@ -447,14 +446,15 @@ export default {
         )
         .then(response => {
           this.precios = response.data;
-          this.getPrecios = false;
+          this.cargandPrecios = false;
+          this.precios.forEach( p => p.descripcion = (p.descripcion + ' - ' + this.columnMoney(p.precioVenta) + 'Gs.'));
           this.detalle.precio = this.precios.find(
             p => p.id == this.detalle.idPrec
           );
         })
         .catch(error => {
           console.log(error);
-          this.getPrecios = false;
+          this.cargandPrecios = false;
           //this.getError = true;
         });
     },
@@ -625,6 +625,7 @@ export default {
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
+
     },
     activarModoLectura() {
       this.modoLectura = true;
@@ -742,7 +743,7 @@ export default {
     idArticulo() {
       if (this.idArticulo != null) {
         // obtenemos los precios del articulo
-        this.listarPrecios();
+        this.getPrecios();
       }
     }
   }
@@ -751,6 +752,7 @@ export default {
 
 <style scoped>
 .active-icon:hover {
+  color: #1976d2;
 }
 .active-icon {
   color: #303030;

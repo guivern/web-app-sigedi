@@ -3,7 +3,7 @@
     <v-flex>
       <v-card>
         <v-toolbar flat color="info" dark>
-          <v-toolbar-title class="headline font-weight-regular">Ediciones</v-toolbar-title>
+          <v-toolbar-title class="headline font-weight-regular">Stock</v-toolbar-title>
           <v-divider class="mx-2" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-text-field
@@ -49,11 +49,11 @@
             </td>
             <td>{{ props.item.nombreArticulo }}</td>
             <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-            <td>{{ props.item.nroEdicion }}</td>
-            <td>{{ props.item.precioVenta }}</td>
-            <td>{{ props.item.precioRendicion }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.precioVenta) }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.precioRendicion) }}</td>
             <!--<td class="text-xs-right">{{ props.item.cantidadInicial }}</td>-->
-            <td >{{ props.item.cantidadActual }}</td>
+            <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
             <!--<td class="text-xs-center">
               <v-icon>{{props.item.activo?'check':'block'}}</v-icon>
             </td>-->
@@ -128,15 +128,13 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Opciones", value: "opciones", sortable: false },
-        { text: "Artículo", value: "nombreArticulo"},
-        { text: "Fecha Edición", value: "fechaEdicion"},
-        { text: "Nro. Edición", value: "nroEdicion"},
-        { text: "Precio Venta", value: "precioVenta"},
-        { text: "Precio Rendición", value: "precioRendicion"},
-        //{ text: "Cant. Ingreso", value: "cantidadInicial" },
-        { text: "Stock", value: "cantidadActual"},
-        //{ text: "En stock", value: "activo"}
+        { text: "Dar de Baja", value: "opciones", sortable: false, width: "12%" },
+        { text: "Descripción Artículo", value: "nombreArticulo"},
+        { text: "Fecha Edición", value: "fechaEdicion", width: "7%"},
+        { text: "Nro. Edición", value: "nroEdicion", width: "7%"},
+        { text: "Precio Venta", value: "precioVenta", width: "7%"},
+        { text: "Precio Rendición", value: "precioRendicion", width: "7%"},
+        { text: "Cantidad", value: "cantidadActual", width: "7%"},
       ],
       alertDialog: {
         titulo: "",
