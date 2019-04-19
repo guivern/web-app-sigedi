@@ -173,7 +173,7 @@
                         <td
                           class="text-xs-center"
                         >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-                        <td class="text-xs-right">{{ props.item.nroEdicion }}</td>
+                        <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
                         <td class="text-xs-right">{{ props.item.cantidadActual }}</td>
                       </template>
                       <template slot="no-data">
@@ -249,10 +249,10 @@ export default {
         
       ],
       headerArticulos: [
-        { text: "Artículo", value: "nombreArticulo", width:"50%" },
+        { text: "Nombre del artículo", value: "nombreArticulo", width:"50%" },
         { text: "Fecha Edición", value: "fechaEdicion" },
         { text: "Nro. Edición", value: "nroEdicion" },
-        { text: "Stock", value: "cantidadActual" }
+        { text: "Cantidad", value: "cantidadActual" }
       ],
       ediciones: [],
       nombre: null,

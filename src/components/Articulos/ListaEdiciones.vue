@@ -129,7 +129,7 @@ export default {
       getError: false,
       headers: [
         { text: "Dar de Baja", value: "opciones", sortable: false, width: "12%" },
-        { text: "Descripción Artículo", value: "nombreArticulo"},
+        { text: "Nombre del artículo", value: "nombreArticulo"},
         { text: "Fecha Edición", value: "fechaEdicion", width: "7%"},
         { text: "Nro. Edición", value: "nroEdicion", width: "7%"},
         { text: "Precio Venta", value: "precioVenta", width: "7%"},

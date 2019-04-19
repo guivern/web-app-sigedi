@@ -36,6 +36,7 @@
               >visibility</v-icon>
               <template v-if="props.item.anulable">
                 <v-icon
+                  class="icon"
                   @click="mostrarDialog(props.item)"
                   title="anular"
                 >block</v-icon>
@@ -130,7 +131,7 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Detalle", value: "opciones", sortable: false, width:"7%" },
+        { text: "Opciones", value: "opciones", sortable: false, width:"12%" },
         { text: "Nro. Rendición", value: "id"  },
         { text: "Fecha", value: "fechaCreacion", },
         { text: "Vendedor", value: "nombreVendedor", },

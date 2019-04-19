@@ -304,7 +304,7 @@ export default {
         { text: "Saldo", value: "", sortable: false, width:"7%", align: "right" }
       ],
       headerDistribuciones: [
-        { text: "Artículo", value: "nombreArticulo" },
+        { text: "Nombre del artículo", value: "nombreArticulo" },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
         { text: "Cantidad", value: "cantidad", sortable: false },
         { text: "Devoluciones", value: "", sortable: false },
