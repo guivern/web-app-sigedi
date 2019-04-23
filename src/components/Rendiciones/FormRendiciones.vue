@@ -195,7 +195,7 @@
                 <v-flex xs12>
                   <template>
                     <v-text-field
-                      append-icon="search"
+                      prepend-icon="search"
                       class="text-xs-center"
                       v-model="busqueda"
                       autofocus
@@ -214,10 +214,12 @@
                         <td>
                           <v-checkbox
                             v-model="props.item.selected"
+                            primary
+                            hide-details
                             @change="seleccionDeDistribucion(props.item)"
-                            :label="props.item.nombreArticulo"
                           ></v-checkbox>
                         </td>
+                        <td>{{props.item.nombreArticulo}}</td>
                         <td
                           class="text-xs-center"
                         >{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
@@ -299,11 +301,12 @@ export default {
         { text: "Prec. Unit.", value: "precioRendicion", sortable: false, width:"7%" },
         { text: "Cantidad", value: "cantidad", sortable: false, width:"7%" },
         { text: "Devoluciones", value: "", sortable: false, width:"7%" },
-        { text: "Subtotal", value: "", sortable: false, width:"12%", align: "right" },
+        { text: "Subtotal", value: "", sortable: false, width:"10%", align: "right" },
         { text: "Importe", value: "", sortable: false, width:"12%", align: "right" },
         { text: "Saldo", value: "", sortable: false, width:"7%", align: "right" }
       ],
       headerDistribuciones: [
+        { text: "Rendir", value: "opciones" },
         { text: "Nombre del artículo", value: "nombreArticulo" },
         { text: "Fecha Edición", value: "fechaEdicion", sortable: false },
         { text: "Cantidad", value: "cantidad", sortable: false },

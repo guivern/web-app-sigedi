@@ -31,8 +31,8 @@
             <td>{{ columnDateWithoutTime(props.item.fecha) }}</td>
             <td>{{ props.item.nombreArticulo }}</td>
             <td>{{ columnDateWithoutTime(props.item.fechaEdicion) }}</td>
-            <td>{{ props.item.nroEdicion }}</td>
-            <td>{{ props.item.cantidad }}</td>
+            <td class="text-xs-right">{{ columnMoney(props.item.nroEdicion) }}</td>
+            <td class="text-xs-right">{{ props.item.cantidad }}</td>
             <td>{{ props.item.nombreUsuario }}</td>
           </template>
 
@@ -72,12 +72,12 @@ export default {
       guardando: false,
       getError: false,
       headers: [
-        { text: "Fecha Egreso", value: "fecha"},
-        { text: "Artículo", value: "nombreArticulo" },
-        { text: "Fecha Edicion", value: "fechaEdicion"},
-        { text: "Nro. Edición", value: "nroEdicion"},
-        { text: "Devoluciones", value: "cantidad" },
-        { text: "Usuario", value: "NombreUsuario"}
+        { text: "Fecha Egreso", value: "fecha", width:"12%"},
+        { text: "Nombre del artículo", value: "nombreArticulo" },
+        { text: "Fecha Edicion", value: "fechaEdicion", width:"12%"},
+        { text: "Nro. Edición", value: "nroEdicion", width:"12%"},
+        { text: "Devoluciones", value: "cantidad", width:"12%" },
+        { text: "Usuario", value: "NombreUsuario", width:"12%"}
       ],
       /*
       activarDesactivarDialog: {
