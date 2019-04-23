@@ -327,7 +327,7 @@ export default {
         nroEdicion: null
       },
       ruc: null,
-      tiposComprobante: ["Boleta", "Recibo", "Factura"],
+      tiposComprobante: ["Nota de Remisión", "Recibo", "Factura"],
       proveedores: [],
       headers: [
         { text: "Opciones", value: "opciones", width: "12%", sortable: false },
