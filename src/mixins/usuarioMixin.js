@@ -4,6 +4,6 @@ export default {
   methods: {
     getUserId() {
       return store.state.usuario.idusuario;
-    }
+    },
   }
 };

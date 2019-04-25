@@ -169,10 +169,8 @@
       </v-btn>
     </v-toolbar>
     <v-content>
-      <v-container fluid fill-height>
-        <v-slide-y-transition mode="out-in">
+      <v-container fluid>
           <router-view :key="$route.fullPath"></router-view>
-        </v-slide-y-transition>
       </v-container>
     </v-content>
   </v-app>

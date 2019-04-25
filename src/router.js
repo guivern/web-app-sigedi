@@ -287,7 +287,9 @@ var router = new Router({
         },
         {
           path: "nuevo",
+          name: "nueva-rendicion",
           component: FormRendiciones,
+          props: true,
           meta: { administrador: true, cajero: true }
         },
         {

@@ -277,6 +277,11 @@ export default {
       type: Number,
       default: null,
       required: false
+    },
+    idCaja: {
+      type: Number,
+      default: null,
+      required: false
     }
   },
   data() {
@@ -345,6 +350,7 @@ export default {
     }
   },
   created() {
+    console.log(this.idCaja);
     this.getDatos();
     if (this.id) {
       this.modoLectura = true;
@@ -440,6 +446,7 @@ export default {
         if (this.rendicion.id) {
           // Editar
           this.rendicion.idUsuarioModificador = this.getUserId();
+          this.rendicion.idCaja = this.idCaja;
           this.$http
             .put(
               `${process.env.VUE_APP_ROOT_API}rendiciones/${
@@ -472,6 +479,7 @@ export default {
             });
         } else {
           // Guardar
+          this.rendicion.idCaja = this.idCaja;
           this.rendicion.idUsuarioCreador = this.getUserId();
           this.rendicion.detalle.forEach(d => (d.id = null));
           this.rendicion.detalle.forEach(d => (d.devoluciones = d.yaSeDevolvio ? 0 : d.devoluciones));
