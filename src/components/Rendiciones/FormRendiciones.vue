@@ -36,7 +36,7 @@
         <template v-if="!cargando && !getError">
           <!-- FORMULARIO DE RENDICION -->
           <v-card>
-            <v-card-text v-on:keyup.enter="guardar">
+            <v-card-text>
               <v-layout wrap row>
                 <v-flex xs12 sm12 md4>
                   <v-text-field
@@ -47,22 +47,26 @@
                     :prepend-icon="modoLectura? 'subtitles' : 'search'"
                   ></v-text-field>
                 </v-flex>
+                
                 <v-flex xs12 sm12 md5>
-                  <v-select
+                  <v-autocomplete
                     class="mx-3"
                     :readonly="modoLectura"
                     v-model="rendicion.idVendedor"
                     :items="vendedores"
                     item-text="nombreCompleto"
                     item-value="id"
+                    hide-no-data
+                    hide-selected
                     label="Vendedor"
+                    placeholder="Ingrese el vendedor"
                     :loading="cargando"
                     required
                     prepend-icon="person"
                     @input="$v.rendicion.idVendedor.$touch()"
                     @blur="$v.rendicion.idVendedor.$touch()"
                     :error-messages="mensajeValidacion['IdVendedor'] || vendedorError"
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-flex>
               </v-layout>
               <v-container grid-list-xl fluid>
@@ -97,7 +101,7 @@
           </v-card>
           <!-- LISTA/FORM DETALLE -->
           <v-card>
-            <v-card-text>
+            <v-card-text v-on:keyup.enter="guardar">
               <v-form v-model="valid" ref="form">
                 <v-layout row wrap>
                   <v-flex>
