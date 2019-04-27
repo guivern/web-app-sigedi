@@ -1,217 +1,258 @@
 <template>
-  <v-layout align-start>
-    <v-flex>
-      <v-toolbar flat color="info" dark>
-        <v-toolbar-title class="headline font-weight-regular">Rendiciones</v-toolbar-title>
-        <v-divider class="mx-2" inset vertical></v-divider>
-      </v-toolbar>
-
-      <v-card>
-        <v-toolbar flat light>
-          <v-text-field
-            class="text-xs-center"
-            v-model="search"
-            prepend-icon="search"
-            label="Búsqueda"
-            single-line
-            hide-details
-          ></v-text-field>
-          <v-spacer></v-spacer>
-          <v-btn @click="mostrarFormCaja()" :disabled="cargando || error" outline>Caja</v-btn>
-          <v-btn :disabled="cargando || error" outline>Reporte</v-btn>
+  <div>
+    <v-layout align-start>
+      <v-flex>
+        <v-toolbar flat color="info" dark>
+          <v-toolbar-title class="headline font-weight-regular">Rendiciones</v-toolbar-title>
+          <v-divider class="mx-2" inset vertical></v-divider>
         </v-toolbar>
 
-        <!-------------------------- LISTA ---------------------------->
-        <v-data-table
-          :headers="headers"
-          :items="rendiciones"
-          class="elevation-1"
-          :search="search"
-          :loading="cargando"
-          :disable-initial-sort="true"
-        >
-          <template slot="items" slot-scope="props">
-            <td>
-              <v-icon
-                class="icon mx-1"
-                title="ver detalle"
-                @click="$router.push({path: '/rendiciones/' + props.item.id, append: true})"
-              >visibility</v-icon>
-              <template v-if="props.item.anulable">
-                <v-icon class="icon" @click="mostrarDialogAnular(props.item)" title="anular">block</v-icon>
-              </template>
-              <template v-else-if="props.item.anulado">
-                <span>ANULADO</span>
-              </template>
-            </td>
-            <td>{{ props.item.id }}</td>
-            <td>{{ columnDate(props.item.fechaCreacion) }}</td>
-            <td>{{ props.item.nombreVendedor }}</td>
-            <td class="text-xs-right">{{ columnMoney(props.item.montoTotal) }}</td>
-            <td class="text-xs-right">{{ columnMoney(props.item.importeTotal) }}</td>
-            <td class="text-xs-right">{{ columnMoney(props.item.saldoTotal) }}</td>
-            <!--<td>{{ props.item.nombreUsuarioCreador }}</td>-->
-          </template>
+        <v-card>
+          <v-toolbar flat light>
+            <v-text-field
+              class="text-xs-center"
+              v-model="search"
+              prepend-icon="search"
+              label="Búsqueda"
+              single-line
+              hide-details
+            ></v-text-field>
+            <v-spacer></v-spacer>
+            <v-btn @click="mostrarFormCaja()" :disabled="cargando || error" flat>Caja</v-btn>
+            <v-btn
+              :disabled="cargando || error || cargandoReporte || caja.id == null"
+              flat
+              @click="generarReporte(caja.id)"
+            >Reporte</v-btn>
+          </v-toolbar>
 
-          <template slot="no-data">
-            <div v-if="cargando" class="text-xs-center">
-              <p>Cargando...</p>
+          <!-------------------------- LISTA ---------------------------->
+          <v-data-table
+            :headers="headers"
+            :items="rendiciones"
+            class="elevation-1"
+            :search="search"
+            :loading="cargando"
+            :disable-initial-sort="true"
+          >
+            <template slot="items" slot-scope="props">
+              <td>
+                <v-icon
+                  class="icon"
+                  title="ver detalle"
+                  @click="$router.push({path: '/rendiciones/' + props.item.id, append: true})"
+                >visibility</v-icon>
+                <template v-if="props.item.anulable">
+                  <v-icon class="icon" @click="mostrarDialogAnular(props.item)" title="anular">block</v-icon>
+                </template>
+                <template v-else-if="props.item.anulado">
+                  <span>ANULADO</span>
+                </template>
+              </td>
+              <td class="text-xs-right">{{ props.item.idCaja }}</td>
+              <td>{{ columnDate(props.item.fechaCreacion) }}</td>
+              <td class="text-xs-right">{{ props.item.id }}</td>
+              <td>{{ props.item.nombreVendedor }}</td>
+              <td class="text-xs-right">{{ columnMoney(props.item.montoTotal) }}</td>
+              <td class="text-xs-right">{{ columnMoney(props.item.importeTotal) }}</td>
+              <td class="text-xs-right">{{ columnMoney(props.item.saldoTotal) }}</td>
+              <!--<td>{{ props.item.nombreUsuarioCreador }}</td>-->
+            </template>
+
+            <template slot="no-data">
+              <div v-if="cargando" class="text-xs-center">
+                <p>Cargando...</p>
+              </div>
+              <div v-else-if="error" class="text-xs-center">
+                <v-alert
+                  outline
+                  :value="error"
+                  transition="scale-transition"
+                  type="error"
+                >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
+                <v-btn color="info" title="recargar" @click="recargar">
+                  Reintentar
+                  <v-icon small>refresh</v-icon>
+                </v-btn>
+              </div>
+              <div v-else class="text-xs-center">No se encontraron registros</div>
+            </template>
+          </v-data-table>
+        </v-card>
+
+        <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
+        <v-dialog v-model="dialogAnular.mostrar" max-width="420">
+          <v-card>
+            <v-toolbar color="secondary" flat dark dense extense>
+              <v-toolbar-title>
+                {{dialogAnular.titulo}}
+                <v-icon class="mx-2" color="warning">warning</v-icon>
+              </v-toolbar-title>
+            </v-toolbar>
+            <v-card-text>{{dialogAnular.mensaje}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn flat color="error" @click="cerrarDialogAnular()">Cancelar</v-btn>
+              <v-btn flat color="info" @click="anular()">Confirmar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!----------------- DIALOG CERRAR CAJA ----------------->
+        <v-dialog v-model="dialogCerrarCaja" max-width="420">
+          <v-card>
+            <v-toolbar color="secondary" flat dark dense extense>
+              <v-toolbar-title>
+                Cierre de Caja
+                <v-icon class="mx-2" color="warning">warning</v-icon>
+              </v-toolbar-title>
+            </v-toolbar>
+            <v-card-text>Desea realizar un cierre de caja?</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn flat color="error" @click="dialogCerrarCaja = false">Cancelar</v-btn>
+              <v-btn flat color="info" @click="guardarCaja()">Confirmar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <!--------------------- DIALOG/FORM CAJA ----------------------------->
+        <v-dialog v-model="dialogCaja" max-width="500px">
+          <v-card>
+            <v-toolbar color="secondary" flat dark dense extense>
+              <v-toolbar-title>{{this.caja.id == null ?"Apertura de Caja":"Resumen de Caja"}}</v-toolbar-title>
+            </v-toolbar>
+            <div v-if="cargandoCaja" class="text-xs-center" style="padding:50px">
+              <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
             </div>
-            <div v-else-if="error" class="text-xs-center">
+            <div v-else-if="errorCaja" class="text-xs-center" style="padding:50px">
               <v-alert
-                outline
-                :value="error"
+                :value="errorCaja"
                 transition="scale-transition"
                 type="error"
+                outline
               >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-              <v-btn color="info" title="recargar" @click="listar()">
+              <v-btn color="info" title="recargar" @click="getCaja()">
                 Reintentar
                 <v-icon small>refresh</v-icon>
               </v-btn>
             </div>
-            <div v-else class="text-xs-center">No se encontraron registros</div>
-          </template>
-        </v-data-table>
-      </v-card>
-
-      <!----------------- DIALOG ACTIVAR/DESACTIVAR ----------------->
-      <v-dialog v-model="dialogAnular.mostrar" max-width="420">
-        <v-card>
-          <v-toolbar color="secondary" flat dark dense extense>
-            <v-toolbar-title>
-              {{dialogAnular.titulo}}
-              <v-icon class="mx-2" color="warning">warning</v-icon>
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>{{dialogAnular.mensaje}}</v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn flat color="error" @click="cerrarDialogAnular()">Cancelar</v-btn>
-            <v-btn flat color="info" @click="anular()">Confirmar</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <!--------------------- DIALOG/FORM CAJA ----------------------------->
-      <v-dialog v-model="dialogCaja" max-width="500px">
-        <v-card>
-          <v-toolbar color="secondary" flat dark dense extense>
-            <v-toolbar-title>{{this.caja.id == null ?"Apertura de Caja":"Resumen de Caja"}}</v-toolbar-title>
-          </v-toolbar>
-          <div v-if="cargandoCaja" class="text-xs-center" style="padding:50px">
-            <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-          </div>
-          <div v-else-if="errorCaja" class="text-xs-center" style="padding:50px">
-            <v-alert
-              :value="errorCaja"
-              transition="scale-transition"
-              type="error"
-              outline
-            >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-            <v-btn color="info" title="recargar" @click="getCaja()">
-              Reintentar
-              <v-icon small>refresh</v-icon>
-            </v-btn>
-          </div>
-          <div v-else>
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <template v-if="caja.id == null">
-                  <v-flex xs12 md6>
-                    <v-text-field readonly label="Cajero" v-model="caja.cajero"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 md6>
-                    <v-text-field readonly label="Username" v-model="caja.username"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 md6>
-                    <v-text-field
-                      autofocus
-                      type="number"
-                      label="Monto Inicial Gs."
-                      v-model="caja.montoInicial"
-                      :error-messages="mensajeValidacion['MontoInicial']"
-                    ></v-text-field>
-                  </v-flex>
-                </template>
-                <template v-else>
-                  <v-flex xs6>
-                    <v-text-field readonly label="Id. Caja" v-model="caja.id"></v-text-field>
-                  </v-flex>
-                  <v-flex xs6>
-                    <v-text-field readonly label="Cajero" v-model="caja.cajero"></v-text-field>
-                  </v-flex>
-                  <v-flex xs6>
-                    <v-text-field
-                      readonly
-                      label="Fecha Apertura"
-                      :value="new Date(caja.fechaCreacion).toLocaleDateString()"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs6>
-                    <v-text-field
-                      readonly
-                      label="Hora Apertura"
-                      :value="new Date(caja.fechaCreacion).toLocaleTimeString() + ' Hs'"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs6>
-                    <v-text-field
-                      readonly
-                      label="Monto Inicial"
-                      :value="columnMoney(caja.montoInicial) + ' Gs.'"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs6>
-                    <v-text-field
-                      readonly
-                      label="Monto Actual"
-                      :value="columnMoney(caja.monto) + ' Gs.'"
-                    ></v-text-field>
-                  </v-flex>
-                </template>
-              </v-layout>
-            </v-container>
-          </div>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn flat color="error" @click="dialogCaja = false">Cancelar</v-btn>
-            <v-btn
-              flat
-              color="info"
-              :loading="guardandoCaja"
-              :disabled="errorCaja || cargandoCaja"
-              @click="guardarCaja"
-            >{{ this.caja.id == null ? "Abrir Caja" : "Cerrar Caja"}}</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-flex>
-    <v-btn
-      fixed
-      dark
-      fab
-      bottom
-      right
-      type="button"
-      title="Nuevo"
-      color="success"
-      :disabled="cargando || error || !caja.id"
-      @click="$router.push({name: 'nueva-rendicion', append: true, params: {idCaja: caja.id}})"
-    >
-      <v-icon>add</v-icon>
-    </v-btn>
-    <v-snackbar
-      :timeout="1500"
-      bottom
-      left
-      v-model="snackbar.visible"
-      :color="snackbar.color"
-    >{{snackbar.message}}</v-snackbar>
-  </v-layout>
+            <div v-else>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <template v-if="caja.id == null">
+                    <v-flex xs12 md6>
+                      <v-text-field readonly label="Cajero" v-model="caja.cajero"></v-text-field>
+                    </v-flex>
+                    <!--<v-flex xs12 md6>
+                      <v-text-field readonly label="Username" v-model="caja.username"></v-text-field>
+                    </v-flex>-->
+                    <v-flex xs12 md6>
+                      <v-text-field
+                        autofocus
+                        type="number"
+                        label="Monto Inicial Gs."
+                        v-model="caja.montoInicial"
+                        :error-messages="mensajeValidacion['MontoInicial']"
+                      ></v-text-field>
+                    </v-flex>
+                  </template>
+                  <template v-else>
+                    <v-flex xs6>
+                      <v-text-field readonly label="Id. Caja" v-model="caja.id"></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field readonly label="Cajero" v-model="caja.cajero"></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        readonly
+                        label="Fecha Apertura"
+                        :value="new Date(caja.fechaCreacion).toLocaleDateString()"
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        readonly
+                        label="Hora Apertura"
+                        :value="new Date(caja.fechaCreacion).toLocaleTimeString() + ' Hs'"
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        readonly
+                        label="Monto Inicial"
+                        :value="columnMoney(caja.montoInicial) + ' Gs.'"
+                      ></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field
+                        readonly
+                        label="Monto Actual"
+                        :value="columnMoney(caja.monto) + ' Gs.'"
+                      ></v-text-field>
+                    </v-flex>
+                  </template>
+                </v-layout>
+              </v-container>
+            </div>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <template v-if="hayCaja">
+                <v-btn
+                  flat
+                  color="error"
+                  :loading="guardandoCaja"
+                  :disabled="errorCaja || cargandoCaja"
+                  @click="dialogCerrarCaja = true"
+                >Cerrar Caja</v-btn>
+                <v-btn flat color="info" @click="dialogCaja = false">Ok</v-btn>
+              </template>
+              <template v-else>
+                <v-btn flat color="error" @click="dialogCaja = false">Cancelar</v-btn>
+                <v-btn
+                  flat
+                  color="info"
+                  :loading="guardandoCaja"
+                  :disabled="errorCaja || cargandoCaja"
+                  @click="guardarCaja"
+                >Abrir Caja</v-btn>
+              </template>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-flex>
+      <v-btn
+        fixed
+        dark
+        fab
+        bottom
+        right
+        type="button"
+        title="Nuevo"
+        color="success"
+        :disabled="cargando || error || !caja.id"
+        @click="$router.push({name: 'nueva-rendicion', append: true, params: {idCaja: caja.id}})"
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
+      <v-snackbar :timeout="1500" bottom left v-model="snackbar.visible" :color="snackbar.color">
+        {{snackbar.message}}
+      </v-snackbar>
+      <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
+        Descargando reporte
+        <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
+      </v-snackbar>
+    </v-layout>
+    <a hidden ref="fileAnchor"></a>
+  </div>
 </template>
 
 <script>
 import usuarioMixin from "../../mixins/usuarioMixin.js";
 import columnasMixin from "../../mixins/columnasMixin.js";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
+
 export default {
   mixins: [columnasMixin, usuarioMixin],
   data() {
@@ -224,6 +265,9 @@ export default {
       guardandoCaja: false,
       errorCaja: false,
       dialogCaja: false,
+      dialogCerrarCaja: false,
+      cargandoReporte: false,
+      errorReporte: false,
       caja: {
         id: null,
         idUsuarioCreador: null,
@@ -234,28 +278,26 @@ export default {
         fechaCreacion: null
       },
       headers: [
-        { text: "Opciones", value: "opciones", sortable: false, width: "14%" },
-        { text: "Nro. Rendición", value: "id", width: "12%" },
-        { text: "Fecha y Hora", value: "fechaCreacion", width: "18%" },
+        { text: "Opciones", value: "opciones", sortable: false },
+        { text: "Id Caja", value: "idCaja", align: "right" },
+        { text: "Fecha - Hora", value: "fechaCreacion" },
+        { text: "Id Rendición", value: "id", align: "right" },
         { text: "Vendedor", value: "nombreVendedor" },
         {
-          text: "Monto Gs.",
+          text: "Total Monto",
           value: "montoTotal",
-          width: "12%",
           align: "right"
         },
         {
-          text: "Importe Gs.",
+          text: "Total Importe",
           value: "importeTotal",
-          width: "12%",
           align: "right"
         },
         {
-          text: "Saldo Gs.",
+          text: "Total Deuda",
           value: "saldoTotal",
-          width: "12%",
           align: "right"
-        },
+        }
         //{ text: "Usuario", value: "nombreUsuario", width: "7%" }
       ],
       dialogAnular: {
@@ -270,15 +312,17 @@ export default {
       snackbar: {
         visible: false,
         message: null,
-        color: "info"
+        color: "info",
+        timeout: null
       }
     };
   },
   methods: {
     listar() {
+      let idCajero = this.getUserId();
       this.cargando = true;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}rendiciones?Inactivos=true`)
+        .get(`${process.env.VUE_APP_ROOT_API}rendiciones/cajero/${idCajero}`)
         .then(response => {
           this.rendiciones = response.data;
           this.cargando = false;
@@ -308,26 +352,82 @@ export default {
           this.cargandoCaja = false;
         });
     },
-    guardarCaja(){
+    guardarCaja() {
       this.guardandoCaja = true;
-      if(this.caja.id == null){
+      if (this.caja.id == null) {
         // abrir caja
         this.caja.idUsuarioCreador = this.getUserId();
         this.$http
-        .post(`${process.env.VUE_APP_ROOT_API}cajas`, this.caja)
-        .then(response => {
-          this.getCaja();
-          this.guardandoCaja = false;
-        })
-        .catch(error => {
-          this.guardandoCaja = false;
-          this.mensajeValidacion = error.response.data.errors;
-        });
-          
-      }
-      else{
+          .post(`${process.env.VUE_APP_ROOT_API}cajas`, this.caja)
+          .then(response => {
+            this.getCaja();
+            this.guardandoCaja = false;
+          })
+          .catch(error => {
+            this.guardandoCaja = false;
+            this.mensajeValidacion = error.response.data.errors;
+          });
+      } else {
         // cerrar caja
+        let idCaja = this.caja.id
+        this.$http
+          .put(`${process.env.VUE_APP_ROOT_API}cajas/desactivar/${idCaja}`)
+          .then(response => {
+            this.guardandoCaja = false;
+            this.caja.id = null;
+            this.caja.montoInicial = null;
+            this.caja.monto = null;
+            this.caja.fechaCreacion = null;
+            this.caja.fechaCierre = null;
+            this.dialogCaja = false;
+            this.dialogCerrarCaja = false;
+            this.generarReporte(idCaja);
+            this.listar();
+          })
+          .catch(error => {
+            this.guardandoCaja = false;
+          }); 
       }
+    },
+    generarReporte(idCaja) {
+      this.cargandoReporte = true;
+      this.errorReporte = false;
+      this.$http
+        .get(`${process.env.VUE_APP_ROOT_API}cajas/reporte/${idCaja}`, {
+          responseType: "blob"
+        })
+        .then(r => {
+          // obtenemos el nombre del archivo
+          this.$refs.fileAnchor.download = r.headers["content-disposition"]
+            .split(";")
+            .find(cd => cd.includes("filename"))
+            .split("=")[1]
+            .split('"')
+            .join(""); //para quitar el caracter "*/
+
+          // obtenemos el archivo
+          return new Blob([r.data], {
+            type: "application/pdf"
+          });
+        })
+        .then(
+          blob => {
+            const anchor = this.$refs.fileAnchor;
+            anchor.href = URL.createObjectURL(blob);
+            anchor.click();
+            this.cargandoReporte = false;
+            this.errorReporte = false;
+          },
+          err => {
+            console.log(err);
+            this.snackbar.color = "error";
+            this.snackbar.message =
+              "Ocurrió un error, no se pudo descargar el documento";
+            this.snackbar.visible = true;
+            this.cargandoReporte = false;
+            this.errorReporte = true;
+          }
+        );
     },
     getUserFullName() {
       let userId = this.getUserId();
@@ -372,9 +472,18 @@ export default {
           this.snackbar.visible = true;
           this.cerrarDialogAnular();
         });
+    },
+    recargar() {
+      this.listar();
+      this.getUserFullName();
+      this.getCaja();
     }
   },
-  computed: {},
+  computed: {
+    hayCaja() {
+      return this.caja.id;
+    }
+  },
   watch: {},
   created() {
     this.listar();
