@@ -5,5 +5,8 @@ export default {
     getUserId() {
       return store.state.usuario.idusuario;
     },
+    getUserFullName() {
+      return store.state.usuario.NombreCompleto;
+    },
   }
 };

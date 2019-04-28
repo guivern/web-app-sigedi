@@ -20,7 +20,7 @@ import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
 import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
 import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue"
 import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
-import ListaRendiciones from "./components/Rendiciones/ListaRendiciones.vue"
+import ListaRendicionesByCaja from "./components/Rendiciones/ListaRendicionesByCaja"
 import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue"
 
 Vue.use(Router);
@@ -273,7 +273,7 @@ var router = new Router({
       ]
     },
     {
-      path: "/rendiciones",
+      path: "/caja/rendiciones",
       component: {
         render(c) {
           return c("router-view");
@@ -282,7 +282,7 @@ var router = new Router({
       children: [
         {
           path: "",
-          component: ListaRendiciones,
+          component: ListaRendicionesByCaja,
           meta: { administrador: true, cajero: true }
         },
         {

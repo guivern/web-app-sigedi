@@ -3,7 +3,7 @@
     <v-layout align-start>
       <v-flex>
         <v-toolbar flat color="info" dark>
-          <v-toolbar-title class="headline font-weight-regular">Rendiciones</v-toolbar-title>
+          <v-toolbar-title class="headline font-weight-regular">Movimientos</v-toolbar-title>
           <v-divider class="mx-2" inset vertical></v-divider>
         </v-toolbar>
 
@@ -40,7 +40,7 @@
                 <v-icon
                   class="icon"
                   title="ver detalle"
-                  @click="$router.push({path: '/rendiciones/' + props.item.id, append: true})"
+                  @click="$router.push({path: '/caja/rendiciones/' + props.item.id, append: true})"
                 >visibility</v-icon>
                 <template v-if="props.item.anulable">
                   <v-icon class="icon" @click="mostrarDialogAnular(props.item)" title="anular">block</v-icon>
@@ -49,9 +49,8 @@
                   <span>ANULADO</span>
                 </template>
               </td>
-              <td class="text-xs-right">{{ props.item.idCaja }}</td>
-              <td>{{ columnDate(props.item.fechaCreacion) }}</td>
               <td class="text-xs-right">{{ props.item.id }}</td>
+              <td>{{ columnDate(props.item.fechaCreacion) }}</td>
               <td>{{ props.item.nombreVendedor }}</td>
               <td class="text-xs-right">{{ columnMoney(props.item.montoTotal) }}</td>
               <td class="text-xs-right">{{ columnMoney(props.item.importeTotal) }}</td>
@@ -110,7 +109,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn flat color="error" @click="dialogCerrarCaja = false">Cancelar</v-btn>
-              <v-btn flat color="info" @click="guardarCaja()">Confirmar</v-btn>
+              <v-btn flat color="info" :loading="guardandoCaja" @click="guardarCaja()">Confirmar</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -130,7 +129,7 @@
                 type="error"
                 outline
               >Ocurrió un error al intentar obtener los datos, por favor verifique su conexión e intente nuevamente.</v-alert>
-              <v-btn color="info" title="recargar" @click="getCaja()">
+              <v-btn color="info" title="recargar" @click="recargar()">
                 Reintentar
                 <v-icon small>refresh</v-icon>
               </v-btn>
@@ -234,9 +233,13 @@
       >
         <v-icon>add</v-icon>
       </v-btn>
-      <v-snackbar :timeout="1500" bottom left v-model="snackbar.visible" :color="snackbar.color">
-        {{snackbar.message}}
-      </v-snackbar>
+      <v-snackbar
+        :timeout="1500"
+        bottom
+        left
+        v-model="snackbar.visible"
+        :color="snackbar.color"
+      >{{snackbar.message}}</v-snackbar>
       <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
         Descargando reporte
         <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
@@ -279,9 +282,8 @@ export default {
       },
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
-        { text: "Id Caja", value: "idCaja", align: "right" },
-        { text: "Fecha - Hora", value: "fechaCreacion" },
         { text: "Id Rendición", value: "id", align: "right" },
+        { text: "Fecha - Hora", value: "fechaCreacion" },
         { text: "Vendedor", value: "nombreVendedor" },
         {
           text: "Total Monto",
@@ -318,24 +320,51 @@ export default {
     };
   },
   methods: {
-    listar() {
+    getRegistros() {
       let idCajero = this.getUserId();
+      this.caja.cajero = this.getUserFullName();
+      this.cargandoCaja = true;
       this.cargando = true;
+      this.errorCaja = false;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}rendiciones/cajero/${idCajero}`)
+        .get(`${process.env.VUE_APP_ROOT_API}cajas/cajero/${idCajero}`)
         .then(response => {
-          this.rendiciones = response.data;
-          this.cargando = false;
-          this.error = false;
+          this.caja = response.data;
+          this.cargandoCaja = false;
+          this.errorCaja = false;
+          this.listar();
         })
         .catch(error => {
-          console.log(error);
+          if (!error.response) {
+            this.errorCaja = true;
+          }
+          this.rendiciones = [];
+          this.cargandoCaja = false;
           this.cargando = false;
-          this.error = true;
         });
+    },
+    listar() {
+      if (this.caja.id) {
+        this.cargando = true;
+        this.$http
+          .get(
+            `${process.env.VUE_APP_ROOT_API}rendiciones/caja/${this.caja.id}`
+          )
+          .then(response => {
+            this.rendiciones = response.data;
+            this.cargando = false;
+            this.error = false;
+          })
+          .catch(error => {
+            console.log(error);
+            this.cargando = false;
+            this.error = true;
+          });
+      }
     },
     getCaja() {
       let idCajero = this.getUserId();
+      this.caja.cajero = this.getUserFullName();
       this.cargandoCaja = true;
       this.errorCaja = false;
       this.$http
@@ -360,8 +389,8 @@ export default {
         this.$http
           .post(`${process.env.VUE_APP_ROOT_API}cajas`, this.caja)
           .then(response => {
-            this.getCaja();
             this.guardandoCaja = false;
+            this.getCaja();
           })
           .catch(error => {
             this.guardandoCaja = false;
@@ -369,7 +398,7 @@ export default {
           });
       } else {
         // cerrar caja
-        let idCaja = this.caja.id
+        let idCaja = this.caja.id;
         this.$http
           .put(`${process.env.VUE_APP_ROOT_API}cajas/desactivar/${idCaja}`)
           .then(response => {
@@ -382,11 +411,11 @@ export default {
             this.dialogCaja = false;
             this.dialogCerrarCaja = false;
             this.generarReporte(idCaja);
-            this.listar();
+            this.recargar();
           })
           .catch(error => {
             this.guardandoCaja = false;
-          }); 
+          });
       }
     },
     generarReporte(idCaja) {
@@ -474,9 +503,7 @@ export default {
         });
     },
     recargar() {
-      this.listar();
-      this.getUserFullName();
-      this.getCaja();
+      this.getRegistros();
     }
   },
   computed: {
@@ -486,9 +513,7 @@ export default {
   },
   watch: {},
   created() {
-    this.listar();
-    this.getUserFullName();
-    this.getCaja();
+    this.getRegistros();
   }
 };
 </script>

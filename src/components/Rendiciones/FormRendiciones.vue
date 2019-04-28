@@ -496,7 +496,7 @@ export default {
               this.snackbar.visible = true;
               setTimeout(() => {
                 this.$router.push({
-                  path: "/rendiciones/" + response.data.id
+                  path: "/caja/rendiciones/" + response.data.id
                 });
               }, 2000);
             })

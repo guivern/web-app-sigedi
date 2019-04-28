@@ -105,12 +105,12 @@
                 <v-list-tile-title>Ventas</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile :to="'/rendiciones'">
+            <v-list-tile :to="'/caja/rendiciones'">
               <v-list-tile-action>
                 <v-icon></v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title>Rendiciones</v-list-tile-title>
+                <v-list-tile-title>Caja</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-list-tile :to="'/deudas'">
@@ -119,6 +119,14 @@
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>Deudas</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile :to="'/rendiciones'">
+              <v-list-tile-action>
+                <v-icon></v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Rendiciones</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-list-tile :to="'/reportes'">
