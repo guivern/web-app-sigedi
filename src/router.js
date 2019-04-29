@@ -22,6 +22,7 @@ import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones
 import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
 import ListaRendicionesByCaja from "./components/Rendiciones/ListaRendicionesByCaja"
 import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue"
+import ListaDeudas from "./components/Distribuciones/ListaDeudas.vue"
 
 Vue.use(Router);
 
@@ -300,6 +301,21 @@ var router = new Router({
           }),
           meta: { administrador: true, cajero: true }
         }
+      ]
+    },
+    {
+      path: "/deudas",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ListaDeudas,
+          meta: { administrador: true }
+        },
       ]
     },
   ]
