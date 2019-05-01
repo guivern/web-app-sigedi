@@ -1,4 +1,5 @@
 <template>
+<div>
   <v-layout>
     <v-flex>
       <v-card>
@@ -10,11 +11,14 @@
             {{formTitle}}
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <!--<v-btn-toggle v-if="!modoCarga" v-model="toggle_exclusive" light>
-            <v-btn flat @click="activarModoLectura">
-              <v-icon>visibility</v-icon>
+          
+          <v-btn-toggle v-if="!modoCarga" v-model="toggle_exclusive" light>
+          <v-btn 
+                :disabled="cargando || error || cargandoReporte || rendicion.id == null"
+                flat @click="generarReporte(rendicion.id)">
+              <v-icon>print</v-icon>
             </v-btn>
-          </v-btn-toggle>-->
+          </v-btn-toggle>
         </v-toolbar>
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
@@ -261,17 +265,40 @@
         </template>
       </v-card>
     </v-flex>
-    <v-snackbar :timeout="1500" bottom v-model="snackbar.visible" :color="snackbar.color">
+    <!--
+    <v-snackbar 
+      :timeout="1500" bottom v-model="snackbar.visible" :color="snackbar.color">
       {{snackbar.message}}
       <v-icon class="ml-2">{{snackbar.icon}}</v-icon>
     </v-snackbar>
+    <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
+        Descargando reporte
+        <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
+      </v-snackbar>
+      -->
+      <v-snackbar
+        :timeout="1500"
+        bottom
+        left
+        v-model="snackbar.visible"
+        :color="snackbar.color"
+      >{{snackbar.message}}</v-snackbar>
+      <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
+        Descargando reporte
+        <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
+      </v-snackbar>
   </v-layout>
+  <a hidden ref="fileAnchor"></a>
+</div>
 </template>
 <script>
 import { validationMixin } from "vuelidate";
 import { required, between } from "vuelidate/lib/validators";
 import usuarioMixin from "../../mixins/usuarioMixin.js";
 import columnasMixin from "../../mixins/columnasMixin.js";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
 
 export default {
   name: "FormRendiciones",
@@ -290,6 +317,9 @@ export default {
   },
   data() {
     return {
+      cargandoReporte: false,
+      errorReporte: false,
+      error: false,
       rendicion: {
         id: null,
         idVendedor: null,
@@ -344,7 +374,8 @@ export default {
         visible: false,
         message: null,
         color: "info",
-        icon: "info"
+        icon: "info",
+        timeout: null
       }
     };
   },
@@ -524,6 +555,46 @@ export default {
         this.snackbar.icon = "error";
         this.snackbar.visible = true;
       }
+    },
+    generarReporte(idRendicion) {
+      this.cargandoReporte = true;
+      this.errorReporte = false;
+      this.$http
+        .get(`${process.env.VUE_APP_ROOT_API}rendiciones/reporte/${idRendicion}`, {
+          responseType: "blob"
+        })
+        .then(r => {
+          // obtenemos el nombre del archivo
+          this.$refs.fileAnchor.download = r.headers["content-disposition"]
+            .split(";")
+            .find(cd => cd.includes("filename"))
+            .split("=")[1]
+            .split('"')
+            .join(""); //para quitar el caracter "*/
+
+          // obtenemos el archivo
+          return new Blob([r.data], {
+            type: "application/pdf"
+          });
+        })
+        .then(
+          blob => {
+            const anchor = this.$refs.fileAnchor;
+            anchor.href = URL.createObjectURL(blob);
+            anchor.click();
+            this.cargandoReporte = false;
+            this.errorReporte = false;
+          },
+          err => {
+            console.log(err);
+            this.snackbar.color = "error";
+            this.snackbar.message =
+              "Ocurrió un error, no se pudo descargar el documento";
+            this.snackbar.visible = true;
+            this.cargandoReporte = false;
+            this.errorReporte = true;
+          }
+        );
     },
     seleccionDeDistribucion(item) {
       item.idDistribucionDetalle = item.id
