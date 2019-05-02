@@ -38,6 +38,8 @@
                 <span>ANULADO</span>
               </template>
             </td>
+            <td class="text-xs-right">{{ props.item.idCaja }}</td>
+            <td>{{ props.item.cajero }}</td>
             <td class="text-xs-right">{{ props.item.id }}</td>
             <td>{{ columnDate(props.item.fechaCreacion) }}</td>
             <td>{{ props.item.nombreVendedor }}</td>
@@ -90,6 +92,8 @@ export default {
       getError: false,
       headers: [
         { text: "Opciones", value: "opciones", sortable: false },
+        { text: "Id Caja", value: "idCaja", align: "right" },
+        { text: "Cajero", value: "cajero" },
         { text: "Id Rendición", value: "id", align: "right" },
         { text: "Fecha - Hora", value: "fechaCreacion" },
         { text: "Vendedor", value: "nombreVendedor" },
