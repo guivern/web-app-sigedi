@@ -11,14 +11,6 @@
             {{formTitle}}
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          
-          <v-btn-toggle v-if="!modoCarga" v-model="toggle_exclusive" light>
-          <v-btn 
-                :disabled="cargando || error || cargandoReporte || rendicion.id == null"
-                flat @click="generarReporte(rendicion.id)">
-              <v-icon>print</v-icon>
-            </v-btn>
-          </v-btn-toggle>
         </v-toolbar>
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
@@ -259,8 +251,26 @@
             color="success"
             @click="guardar"
             :loading="guardando"
+            :disabled="cargando || error"
           >
             <v-icon>send</v-icon>
+          </v-btn>
+
+          <v-btn
+            v-if="!modoCarga"
+            fixed
+            dark
+            fab
+            bottom
+            right
+            type="button"
+            title="Comprobante"
+            color="secondary"
+            @click="generarComprobante(rendicion.id)"
+            :loading="cargandoReporte"
+            :disabled="cargando || error || cargandoReporte || rendicion.id == null"
+          >
+            <v-icon>print</v-icon>
           </v-btn>
         </template>
       </v-card>
@@ -284,7 +294,7 @@
         :color="snackbar.color"
       >{{snackbar.message}}</v-snackbar>
       <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
-        Descargando reporte
+        Descargando Comprobante
         <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
       </v-snackbar>
   </v-layout>
@@ -556,11 +566,11 @@ export default {
         this.snackbar.visible = true;
       }
     },
-    generarReporte(idRendicion) {
+    generarComprobante(idRendicion) {
       this.cargandoReporte = true;
       this.errorReporte = false;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}rendiciones/reporte/${idRendicion}`, {
+        .get(`${process.env.VUE_APP_ROOT_API}rendiciones/comprobante/${idRendicion}`, {
           responseType: "blob"
         })
         .then(r => {
