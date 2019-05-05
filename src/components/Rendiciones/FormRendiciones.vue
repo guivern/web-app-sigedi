@@ -171,6 +171,7 @@
                             <v-text-field
                               class="style-input"
                               type="number"
+                              :hint="props.item.yaSeDevolvio ? 'Pago anterior: ' + props.item.pagoAnterior : ''"
                               v-model="props.item.importe"
                               required
                               :rules="[
@@ -310,8 +311,11 @@
         bottom
         left
         v-model="snackbar.visible"
-        :color="snackbar.color"
-      >{{snackbar.message}}</v-snackbar>
+        :color="snackbar.color">
+      {{snackbar.message}}
+      <v-icon class="ml-2">{{snackbar.icon}}</v-icon>
+      </v-snackbar>
+      
       <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
         Descargando Comprobante
         <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
@@ -570,6 +574,10 @@ export default {
                 this.mensajeValidacion = error.response.data.errors
                   ? error.response.data.errors
                   : error.response.data;
+                this.snackbar.color = "error";
+                this.snackbar.message = "Error al intentar guardar el registro.";
+                this.snackbar.icon = "error";
+                this.snackbar.visible = true;
               } else {
                 this.snackbar.color = "error";
                 this.snackbar.message = "Ocurrió un error, revise su conexión.";
@@ -651,6 +659,7 @@ export default {
           precioRendicion: item.precioRendicion,
           monto: item.saldo,
           importe: null,
+          pagoAnterior: item.importe,
           yaSeDevolvio: item.yaSeDevolvio,
           saldo: item.saldo,
           //devoluciones: ,
