@@ -34,16 +34,6 @@
           <v-card>
             <v-card-text>
               <v-layout wrap row>
-                <v-flex xs12 sm12 md4>
-                  <v-text-field
-                    class="mx-3"
-                    label="Nro. Documento"
-                    :readonly="modoLectura"
-                    v-model="nroDocumento"
-                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
-                  ></v-text-field>
-                </v-flex>
-                
                 <v-flex xs12 sm12 md5>
                   <v-autocomplete
                     class="mx-3"
@@ -63,6 +53,35 @@
                     @blur="$v.rendicion.idVendedor.$touch()"
                     :error-messages="mensajeValidacion['IdVendedor'] || vendedorError"
                   ></v-autocomplete>
+                </v-flex>
+                <v-flex xs12 sm12 md4>
+                  <v-text-field
+                    class="mx-3"
+                    label="Nro. Documento"
+                    :readonly="modoLectura"
+                    v-model="nroDocumento"
+                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm12 md5>
+                  <v-text-field
+                    v-if="modoLectura"
+                    class="mx-3"
+                    readonly
+                    prepend-icon="person"
+                    label="Cajero"
+                    :value="rendicion.cajero"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm12 md4>
+                  <v-text-field
+                    v-if="modoLectura"
+                    class="mx-3"
+                    readonly
+                    prepend-icon="info"
+                    label="Id Caja"
+                    :value="rendicion.idCaja"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
               <v-container grid-list-xl fluid>
