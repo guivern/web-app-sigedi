@@ -24,6 +24,7 @@ import ListaRendicionesByCaja from "./components/Rendiciones/ListaRendicionesByC
 import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue"
 import ListaDeudas from "./components/Distribuciones/ListaDeudas.vue"
 import ListaRendicionesGeneral from "./components/Rendiciones/ListaRendicionesGeneral"
+import ReporteForm from "./components/Reportes/ReporteForm"
 
 Vue.use(Router);
 
@@ -341,6 +342,21 @@ var router = new Router({
           meta: { administrador: true, cajero: true }
         }
         
+      ]
+    },
+    {
+      path: "/reportes",
+      component: {
+        render(c) {
+          return c("router-view");
+        }
+      },
+      children: [
+        {
+          path: "",
+          component: ReporteForm,
+          meta: { administrador: true }
+        },
       ]
     },
   ]
