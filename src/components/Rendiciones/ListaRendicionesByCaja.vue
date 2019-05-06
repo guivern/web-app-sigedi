@@ -320,19 +320,19 @@ export default {
     };
   },
   methods: {
-    getRegistros() {
-      let idCajero = this.getUserId();
-      this.caja.cajero = this.getUserFullName();
+    async getCaja() {
       this.cargandoCaja = true;
       this.cargando = true;
       this.errorCaja = false;
-      this.$http
+      let idCajero = this.getUserId();
+      this.caja.cajero = await this.getUserFullName();
+      await this.$http
         .get(`${process.env.VUE_APP_ROOT_API}cajas/cajero/${idCajero}`)
         .then(response => {
           this.caja = response.data;
           this.cargandoCaja = false;
           this.errorCaja = false;
-          this.listar();
+          //this.listar();
         })
         .catch(error => {
           if (!error.response) {
@@ -343,10 +343,10 @@ export default {
           this.cargando = false;
         });
     },
-    listar() {
+    async listar() {
       if (this.caja.id) {
         this.cargando = true;
-        this.$http
+        await this.$http
           .get(
             `${process.env.VUE_APP_ROOT_API}rendiciones/caja/${this.caja.id}`
           )
@@ -362,7 +362,7 @@ export default {
           });
       }
     },
-    getCaja() {
+    /*getCaja() {
       let idCajero = this.getUserId();
       this.caja.cajero = this.getUserFullName();
       this.cargandoCaja = true;
@@ -380,7 +380,7 @@ export default {
           }
           this.cargandoCaja = false;
         });
-    },
+    },*/
     guardarCaja() {
       this.guardandoCaja = true;
       if (this.caja.id == null) {
@@ -458,9 +458,9 @@ export default {
           }
         );
     },
-    getUserFullName() {
+    async getUserFullName() {
       let userId = this.getUserId();
-      this.$http
+      await this.$http
         .get(`${process.env.VUE_APP_ROOT_API}usuarios/${userId}?Inactivo=true`)
         .then(response => {
           this.caja.cajero = response.data.nombreCompleto;
@@ -502,8 +502,9 @@ export default {
           this.cerrarDialogAnular();
         });
     },
-    recargar() {
-      this.getRegistros();
+    async recargar() {
+      await this.getCaja();
+      await this.listar();
     }
   },
   computed: {
@@ -512,8 +513,10 @@ export default {
     }
   },
   watch: {},
-  created() {
-    this.getRegistros();
+  async created() {
+    await this.getCaja();
+    await this.listar();
+    //this.getRegistros();
   }
 };
 </script>
