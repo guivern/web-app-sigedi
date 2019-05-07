@@ -38,7 +38,7 @@
                 <v-icon
                   @click="mostrarDialogActivarDesactivar(props.item)"
                   title="anular"
-                  class="icon mx-1"
+                  class="icon"
                 >block</v-icon>
               </template>
               <template v-else-if="props.item.anulado">
