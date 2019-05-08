@@ -2,7 +2,7 @@
 <div>
   <v-layout>
     <v-flex>
-      <v-card>
+            
         <v-toolbar color="info" dark>
           <v-toolbar-title class="headline font-weight-regular">
             <v-btn icon @click="$router.push('.')" type="button">
@@ -12,10 +12,21 @@
           </v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
+        <v-card>
+          <v-flex xs12>
+          <v-progress-linear
+            :active="cargando"
+            class="ma-0"
+            color="primary"
+            height="4"
+            indeterminate
+          ></v-progress-linear>
+        </v-flex>
 
         <div v-if="cargando" class="text-xs-center" style="padding:50px">
-          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
-          <p class="mt-2">Cargando...</p>
+          Cargando...
+          <!--<v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+          <p class="mt-2">Cargando...</p>-->
         </div>
         <div v-if="getError" class="text-xs-center" style="padding:50px">
           <v-alert
