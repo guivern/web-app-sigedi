@@ -55,7 +55,8 @@
                     ></v-text-field>
                   </v-flex>
 
-                  <v-flex xs12 sm12 md6>
+              </v-layout>
+              <v-flex xs12 sm12 md4>
                     <v-select
                       class="mx-3"
                       :disabled="modoEdicion"
@@ -64,13 +65,12 @@
                       v-model="fechas.reporte"
                       required
                     ></v-select>
-                </v-flex>
-              </v-layout>
+                  </v-flex>
             </v-card-text>
           </v-card>
 
           <v-btn
-            v-if="modoCarga"
+            v-if="!modoCarga"
             fixed
             dark
             fab
@@ -139,7 +139,6 @@ export default {
         reporte: null
       },
       tipoReportes: ["Diarias", "Vendedores", "Articulos"],
-      vendedores: [],
       cargando: false,
       guardando: false,
       getError: false,
@@ -161,37 +160,12 @@ export default {
 
   created() {
 
-    this.getDatos();
-    if (this.id) {
-      this.modoLectura = true;
-      this.modoCarga = false;
-      this.toggle_exclusive = 0;
-    } else {
-      this.modoCarga = true;
-      this.modoLectura = false;
-    }
+    this.modoLectura = true;
+    this.modoCarga = false;
+    this.toggle_exclusive = 0;   
   },
   methods: {
-    getDatos() {
-      this.cargando = true;
-      this.getError = false;
-      this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}vendedores/`)
-        .then(response => {
-          this.vendedores = response.data;
-          if (this.id) {
-            this.getRendicion();
-          } else {
-            this.cargando = false;
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.cargando = false;
-          this.getError = true;
-        });
-    },
-  
+    
     generarReporte(fechas) {
       this.cargandoReporte = true;
       this.errorReporte = false;
@@ -235,16 +209,10 @@ export default {
     },
   
     recargar() {
-      this.getDatos();
-      if (this.id) {
         this.modoLectura = true;
         this.modoCarga = false;
         this.toggle_exclusive = 0;
-      } else {
-        this.modoCarga = true;
-        this.modoLectura = false;
-      }
-    },
+    }, 
 
   },
   computed: {
