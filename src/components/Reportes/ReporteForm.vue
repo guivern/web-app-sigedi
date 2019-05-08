@@ -54,6 +54,17 @@
                       
                     ></v-text-field>
                   </v-flex>
+
+                  <v-flex xs12 sm12 md6>
+                    <v-select
+                      class="mx-3"
+                      :disabled="modoEdicion"
+                      :items="tipoReportes"
+                      label="Tipo Reporte"
+                      v-model="fechas.reporte"
+                      required
+                    ></v-select>
+                </v-flex>
               </v-layout>
             </v-card-text>
           </v-card>
@@ -70,7 +81,8 @@
             color="secondary"
             @click="generarReporte(fechas)"
             :loading="cargandoReporte"
-            :disabled="cargando || error || cargandoReporte || fechas.fechaFin == null "
+            :disabled="cargando || error || cargandoReporte || fechas.fechaFin == null 
+              || fechas.fechaInicio == null || fechas.reporte == null"
           >
             <v-icon>print</v-icon>
           </v-btn>
@@ -114,11 +126,6 @@ export default {
       default: null,
       required: false
     },
-    idCaja: {
-      type: Number,
-      default: null,
-      required: false
-    }
   },
   data() {
     return {
@@ -129,12 +136,13 @@ export default {
       fechas: {
         fechaInicio: null,
         fechaFin: null,
+        reporte: null
       },
+      tipoReportes: ["Diarias", "Vendedores", "Articulos"],
       vendedores: [],
       cargando: false,
       guardando: false,
       getError: false,
-      mensajeValidacion: [],
       modoLectura: false,
       modoEdicion: false,
       modoCarga: false,
@@ -152,7 +160,7 @@ export default {
   },
 
   created() {
-    console.log(this.idCaja);
+
     this.getDatos();
     if (this.id) {
       this.modoLectura = true;
@@ -188,7 +196,7 @@ export default {
       this.cargandoReporte = true;
       this.errorReporte = false;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}distribuciones/reporte/ventas?fechaInicio=${fechas.fechaInicio}&fechaFin=${fechas.fechaFin}`,
+        .get(`${process.env.VUE_APP_ROOT_API}distribuciones/reporte/ventas?fechaInicio=${fechas.fechaInicio}&fechaFin=${fechas.fechaFin}&tipo=${fechas.reporte}`,
            {
           responseType: "blob"
         })
