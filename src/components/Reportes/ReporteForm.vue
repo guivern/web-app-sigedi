@@ -60,7 +60,9 @@
                     <v-select
                       class="mx-3"
                       :disabled="modoEdicion"
-                      :items="tipoReportes"
+                      :items="TipoReportes"
+                      item-text="desc"
+                      item-value="valor"
                       label="Tipo Reporte"
                       v-model="fechas.reporte"
                       required
@@ -138,7 +140,11 @@ export default {
         fechaFin: null,
         reporte: null
       },
-      tipoReportes: ["Diarias", "Vendedores", "Articulos"],
+      TipoReportes: [
+          { desc: 'Reporte de Ventas Diarias', valor: 'Diarias' },
+          { desc: 'Reporte de Ventas por Vendedor', valor: 'Vendedores' },
+          { desc: 'Reporte de Ventas por Artículos', valor: 'Articulos' },
+      ],
       cargando: false,
       guardando: false,
       getError: false,
