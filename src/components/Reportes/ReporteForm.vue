@@ -54,12 +54,25 @@
                       
                     ></v-text-field>
                   </v-flex>
+
               </v-layout>
+              <v-flex xs12 sm12 md4>
+                    <v-select
+                      class="mx-3"
+                      :disabled="modoEdicion"
+                      :items="TipoReportes"
+                      item-text="desc"
+                      item-value="valor"
+                      label="Tipo Reporte"
+                      v-model="fechas.reporte"
+                      required
+                    ></v-select>
+                  </v-flex>
             </v-card-text>
           </v-card>
 
           <v-btn
-            v-if="modoCarga"
+            v-if="!modoCarga"
             fixed
             dark
             fab
@@ -70,7 +83,8 @@
             color="secondary"
             @click="generarReporte(fechas)"
             :loading="cargandoReporte"
-            :disabled="cargando || error || cargandoReporte || fechas.fechaFin == null "
+            :disabled="cargando || error || cargandoReporte || fechas.fechaFin == null 
+              || fechas.fechaInicio == null || fechas.reporte == null"
           >
             <v-icon>print</v-icon>
           </v-btn>
@@ -89,7 +103,7 @@
       </v-snackbar>
       
       <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
-        Descargando Comprobante
+        Descargando Reporte
         <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
       </v-snackbar>
   </v-layout>
@@ -114,11 +128,6 @@ export default {
       default: null,
       required: false
     },
-    idCaja: {
-      type: Number,
-      default: null,
-      required: false
-    }
   },
   data() {
     return {
@@ -129,12 +138,16 @@ export default {
       fechas: {
         fechaInicio: null,
         fechaFin: null,
+        reporte: null
       },
-      vendedores: [],
+      TipoReportes: [
+          { desc: 'Reporte de Ventas Diarias', valor: 'Diarias' },
+          { desc: 'Reporte de Ventas por Vendedor', valor: 'Vendedores' },
+          { desc: 'Reporte de Ventas por Artículos', valor: 'Articulos' },
+      ],
       cargando: false,
       guardando: false,
       getError: false,
-      mensajeValidacion: [],
       modoLectura: false,
       modoEdicion: false,
       modoCarga: false,
@@ -152,43 +165,18 @@ export default {
   },
 
   created() {
-    console.log(this.idCaja);
-    this.getDatos();
-    if (this.id) {
-      this.modoLectura = true;
-      this.modoCarga = false;
-      this.toggle_exclusive = 0;
-    } else {
-      this.modoCarga = true;
-      this.modoLectura = false;
-    }
+
+    this.modoLectura = true;
+    this.modoCarga = false;
+    this.toggle_exclusive = 0;   
   },
   methods: {
-    getDatos() {
-      this.cargando = true;
-      this.getError = false;
-      this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}vendedores/`)
-        .then(response => {
-          this.vendedores = response.data;
-          if (this.id) {
-            this.getRendicion();
-          } else {
-            this.cargando = false;
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.cargando = false;
-          this.getError = true;
-        });
-    },
-  
+    
     generarReporte(fechas) {
       this.cargandoReporte = true;
       this.errorReporte = false;
       this.$http
-        .get(`${process.env.VUE_APP_ROOT_API}distribuciones/reporte/ventas?fechaInicio=${fechas.fechaInicio}&fechaFin=${fechas.fechaFin}`,
+        .get(`${process.env.VUE_APP_ROOT_API}distribuciones/reporte/ventas?fechaInicio=${fechas.fechaInicio}&fechaFin=${fechas.fechaFin}&tipo=${fechas.reporte}`,
            {
           responseType: "blob"
         })
@@ -227,16 +215,10 @@ export default {
     },
   
     recargar() {
-      this.getDatos();
-      if (this.id) {
         this.modoLectura = true;
         this.modoCarga = false;
         this.toggle_exclusive = 0;
-      } else {
-        this.modoCarga = true;
-        this.modoLectura = false;
-      }
-    },
+    }, 
 
   },
   computed: {
