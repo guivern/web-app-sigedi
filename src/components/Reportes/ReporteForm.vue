@@ -103,7 +103,7 @@
       </v-snackbar>
       
       <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
-        Descargando Comprobante
+        Descargando Reporte
         <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
       </v-snackbar>
   </v-layout>
