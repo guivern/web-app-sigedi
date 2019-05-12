@@ -205,7 +205,7 @@ var router = new Router({
         {
           path: "nuevo",
           component: FormIngresos,
-          meta: { administrador: true }
+          meta: { administrador: true, repartidor: true }
         },
         {
           path: ":id",
@@ -213,7 +213,7 @@ var router = new Router({
           props: route => ({
             id: parseInt(route.params.id)
           }),
-          meta: { administrador: true }
+          meta: { administrador: true, repartidor: true }
         }
       ]
     },
@@ -271,7 +271,7 @@ var router = new Router({
         {
           path: "",
           component: ListaEgresos,
-          meta: { administrador: true }
+          meta: { administrador: true, repartidor: true }
         },
       ]
     },
@@ -316,7 +316,7 @@ var router = new Router({
         {
           path: "",
           component: ListaDeudas,
-          meta: { administrador: true }
+          meta: { administrador: true, cajero: true }
         },
       ]
     },
@@ -355,7 +355,7 @@ var router = new Router({
         {
           path: "",
           component: ReporteForm,
-          meta: { administrador: true }
+          meta: { administrador: true, cajero: true }
         },
       ]
     },
