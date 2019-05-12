@@ -1,4 +1,5 @@
 <template>
+<div>
   <v-layout align-start>
     <v-flex>
       <v-card>
@@ -59,16 +60,41 @@
             <div v-else class="text-xs-center">No se encontraron registros</div>
           </template>
         </v-data-table>
+        <v-btn
+            v-if="!modoCarga"
+            fixed
+            dark
+            fab
+            bottom
+            right
+            type="button"
+            title="Reporte"
+            color="secondary"
+            @click="generarReporte()"
+            :loading="cargandoReporte"
+            :disabled="cargando || error || cargandoReporte"
+          >
+            <v-icon>print</v-icon>
+          </v-btn>
       </v-card>
     </v-flex>
     <v-snackbar
-      :timeout="1500"
-      bottom
-      left
-      v-model="snackbar.visible"
-      :color="snackbar.color"
-    >{{snackbar.message}}</v-snackbar>
+        :timeout="1500"
+        bottom
+        left
+        v-model="snackbar.visible"
+        :color="snackbar.color">
+      {{snackbar.message}}
+      <v-icon class="ml-2">{{snackbar.icon}}</v-icon>
+      </v-snackbar>
+      
+      <v-snackbar bottom left v-model="cargandoReporte" :color="snackbar.color">
+        Descargando Reporte
+        <v-progress-circular v-show="cargandoReporte" indeterminate></v-progress-circular>
+      </v-snackbar>
   </v-layout>
+  <a hidden ref="fileAnchor"></a>
+</div>
 </template>
 
 <script>
@@ -78,11 +104,15 @@ export default {
   mixins: [columnasMixin],
   data() {
     return {
+      cargandoReporte: false,
+      errorReporte: false,
+      error: false,
       distribuciones: [],
       vendedores: [],
       dialog: false,
       cargando: false,
       guardando: false,
+      modoCarga: false,
       getError: false,
       headers: [
         { text: "Vendedor", value: "nombreVendedor", sortable: false, },
@@ -118,11 +148,53 @@ export default {
           this.getError = true;
         });
     },
+    generarReporte(fechas) {
+      this.cargandoReporte = true;
+      this.errorReporte = false;
+      this.$http
+        .get(`${process.env.VUE_APP_ROOT_API}distribuciones/reporte/deudas`,
+           {
+          responseType: "blob"
+        })
+        .then(r => {
+          // obtenemos el nombre del archivo
+          this.$refs.fileAnchor.download = r.headers["content-disposition"]
+            .split(";")
+            .find(cd => cd.includes("filename"))
+            .split("=")[1]
+            .split('"')
+            .join(""); //para quitar el caracter "*/
+
+          // obtenemos el archivo
+          return new Blob([r.data], {
+            type: "application/pdf"
+          });
+        })
+        .then(
+          blob => {
+            const anchor = this.$refs.fileAnchor;
+            anchor.href = URL.createObjectURL(blob);
+            anchor.click();
+            this.cargandoReporte = false;
+            this.errorReporte = false;
+          },
+          err => {
+            console.log(err);
+            this.snackbar.color = "error";
+            this.snackbar.message =
+              "Ocurrió un error, no se pudo descargar el documento";
+            this.snackbar.visible = true;
+            this.cargandoReporte = false;
+            this.errorReporte = true;
+          }
+        );
+    },
   },
   computed: {},
   watch: {},
   created() {
     this.getDeudas();
+    this.modoCarga = false;
   }
 };
 </script>
