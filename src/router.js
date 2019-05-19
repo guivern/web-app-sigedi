@@ -14,17 +14,18 @@ import ListaProveedores from "./components/Proveedores/ListaProveedores.vue";
 import FormProveedores from "./components/Proveedores/FormProveedores.vue";
 import ListaArticulos from "./components/Articulos/ListaArticulos.vue";
 import FormArticulos from "./components/Articulos/FormArticulos.vue";
-import ListaIngresos from "./components/Ingresos/ListaIngresos.vue"
-import FormIngresos from "./components/Ingresos/FormIngresos.vue"
-import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue"
-import ListaEgresos from "./components/Articulos/ListaEgresos.vue"
-import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue"
-import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue"
-import ListaRendicionesByCaja from "./components/Rendiciones/ListaRendicionesByCaja"
-import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue"
-import ListaDeudas from "./components/Distribuciones/ListaDeudas.vue"
-import ListaRendicionesGeneral from "./components/Rendiciones/ListaRendicionesGeneral"
-import ReporteForm from "./components/Reportes/ReporteForm"
+import ListaIngresos from "./components/Ingresos/ListaIngresos.vue";
+import FormIngresos from "./components/Ingresos/FormIngresos.vue";
+import ListaEdiciones from "./components/Articulos/ListaEdiciones.vue";
+import ListaEgresos from "./components/Articulos/ListaEgresos.vue";
+import ListaDistribuciones from "./components/Distribuciones/ListaDistribuciones.vue";
+import FormDistribuciones from "./components/Distribuciones/FormDistribuciones.vue";
+import ListaRendicionesByCaja from "./components/Rendiciones/ListaRendicionesByCaja";
+import FormRendiciones from "./components/Rendiciones/FormRendiciones.vue";
+import ListaDeudas from "./components/Deudas/ListaDeudas.vue";
+import FormDeudas from "./components/Deudas/FormDeudas.vue";
+import ListaRendicionesGeneral from "./components/Rendiciones/ListaRendicionesGeneral";
+import ReporteForm from "./components/Reportes/ReporteForm";
 
 Vue.use(Router);
 
@@ -316,6 +317,14 @@ var router = new Router({
         {
           path: "",
           component: ListaDeudas,
+          meta: { administrador: true, cajero: true }
+        },
+        {
+          path: "detalle/:id",
+          component: FormDeudas,
+          props: route => ({
+            id: parseInt(route.params.id)
+          }),
           meta: { administrador: true, cajero: true }
         },
       ]
