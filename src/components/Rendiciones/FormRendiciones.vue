@@ -48,7 +48,7 @@
                     placeholder="Ingrese el nombre del vendedor"
                     :loading="cargando"
                     required
-                    autofocus
+                    :autofocus="modoCarga"
                     prepend-icon="person"
                     @input="$v.rendicion.idVendedor.$touch()"
                     @blur="$v.rendicion.idVendedor.$touch()"
