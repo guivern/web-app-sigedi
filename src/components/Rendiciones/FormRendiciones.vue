@@ -45,9 +45,10 @@
                     hide-no-data
                     hide-selected
                     label="Vendedor"
-                    placeholder="Ingrese el vendedor"
+                    placeholder="Ingrese el nombre del vendedor"
                     :loading="cargando"
                     required
+                    autofocus
                     prepend-icon="person"
                     @input="$v.rendicion.idVendedor.$touch()"
                     @blur="$v.rendicion.idVendedor.$touch()"
@@ -60,7 +61,7 @@
                     label="Nro. Documento"
                     :readonly="modoLectura"
                     v-model="nroDocumento"
-                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
+                    prepend-icon="subtitles"
                   ></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm12 md5>
