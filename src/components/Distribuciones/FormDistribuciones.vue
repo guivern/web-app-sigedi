@@ -41,22 +41,14 @@
           
           <!-- FORMULARIO DE DISTRIBUCION -->
           <v-card>
-            <v-card-text v-on:keyup.enter="guardar">
+            <v-card-text>
               <v-layout wrap row>
                 <v-flex xs12 sm12 md6>
-                  <v-text-field
-                    :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
-                    class="mx-3"
-                    label="Nro. Documento"
-                    v-model="nroDocumento"
-                    :prepend-icon="modoLectura? 'subtitles' : 'search'"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm12 md6>
-                  <v-select
+                  <v-autocomplete
                     :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
                     class="mx-3"
                     label="Vendedor"
+                    placeholder="Ingrese el nombre del vendedor"
                     v-model="distribucion.idVendedor"
                     :items="vendedores"
                     item-value="id"
@@ -64,7 +56,17 @@
                     required
                     :error-messages="mensajeValidacion['IdVendedor']"
                     prepend-icon="person"
-                  ></v-select>
+                    :autofocus="modoCarga"
+                  ></v-autocomplete>
+                </v-flex>
+                <v-flex xs12 sm12 md6>
+                  <v-text-field
+                    :readonly="modoLectura || (!modoLectura && !distribucion.editable)"
+                    class="mx-3"
+                    label="Nro. Documento"
+                    v-model="nroDocumento"
+                    prepend-icon="subtitles"
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
             </v-card-text>

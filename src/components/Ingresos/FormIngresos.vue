@@ -40,8 +40,34 @@
         <template v-if="!cargando && !getError">
           <!-- FORMULARIO DE INGRESO -->
           <v-card>
-            <v-card-text v-on:keyup.enter="guardar">
+            <v-card-text>
               <v-layout wrap row>
+                <v-flex xs12 sm12 md6>
+                  <v-autocomplete
+                    class="mx-3"
+                    :readonly="modoLectura || modoEdicion"
+                    v-model="ingreso.idProveedor"
+                    :items="proveedores"
+                    item-text="razonSocial"
+                    item-value="id"
+                    label="Proveedor"
+                    placeholder="Ingrese el nombre del proveedor"
+                    :autofocus="modoCarga"
+                    :loading="cargando"
+                    required
+                    @input="$v.ingreso.idProveedor.$touch()"
+                    @blur="$v.ingreso.idProveedor.$touch()"
+                    :error-messages="mensajeValidacion['IdProveedor'] || proveedorError"
+                  ></v-autocomplete>
+                </v-flex>
+                <v-flex xs12 sm12 md6>
+                  <v-text-field
+                    class="mx-3"
+                    label="RUC"
+                    :readonly="modoLectura || modoEdicion"
+                    v-model="ruc"
+                  ></v-text-field>
+                </v-flex>
                 <v-flex xs12 sm12 md6>
                   <v-text-field
                     :readonly="modoLectura || modoEdicion"
@@ -59,31 +85,6 @@
                     :items="tiposComprobante"
                     label="Tipo Comprobante"
                     :error-messages="mensajeValidacion['TipoComprobante']"
-                  ></v-select>
-                </v-flex>
-                <v-flex xs12 sm12 md6>
-                  <v-text-field
-                    class="mx-3"
-                    label="RUC"
-                    :readonly="modoLectura || modoEdicion"
-                    v-model="ruc"
-                    :prepend-icon="modoCarga? 'search' : ''"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm12 md6>
-                  <v-select
-                    class="mx-3"
-                    :readonly="modoLectura || modoEdicion"
-                    v-model="ingreso.idProveedor"
-                    :items="proveedores"
-                    item-text="razonSocial"
-                    item-value="id"
-                    label="Proveedor"
-                    :loading="cargando"
-                    required
-                    @input="$v.ingreso.idProveedor.$touch()"
-                    @blur="$v.ingreso.idProveedor.$touch()"
-                    :error-messages="mensajeValidacion['IdProveedor'] || proveedorError"
                   ></v-select>
                 </v-flex>
               </v-layout>
