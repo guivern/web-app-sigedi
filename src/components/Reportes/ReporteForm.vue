@@ -214,18 +214,12 @@ export default {
             },
             err => {
               console.log(err.response);
-              if (err.response) {
-                this.mensajesValidacion = error.response.data.errors
-                  ? error.response.data.errors
-                  : error.response.data;
-              } else {
-                this.snackbar.color = "error";
-                this.snackbar.message =
-                  "Ocurrió un error, no se pudo descargar el documento";
-                this.snackbar.visible = true;
-                this.cargandoReporte = false;
-                this.errorReporte = true;
-              }
+              this.snackbar.color = "error";
+              this.snackbar.message =
+                "Ocurrió un error, no se pudo descargar el documento";
+              this.snackbar.visible = true;
+              this.cargandoReporte = false;
+              this.errorReporte = true;
             }
           );
       }
