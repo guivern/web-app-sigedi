@@ -42,7 +42,19 @@ var router = new Router({
       path: "/",
       name: "home",
       component: Home,
-      meta: { administrador: true, cajero: true, repartidor: true }
+      meta: { administrador: true, cajero: true, repartidor: true },
+      redirect: to => {
+        if(store.state.usuario){ // páginas home segun rol
+          switch (store.state.usuario.rol) {
+            case 'Administrador':
+              return 'caja/rendiciones';
+            case 'Repartidor':
+              return 'distribuciones';
+            case 'Cajero':
+              return 'caja/rendiciones';
+          }
+        }
+      }
     },
     {
       path: "/usuarios",
